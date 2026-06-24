@@ -1,0 +1,13 @@
+{
+  "name": "ktech-cyber-tests",
+  "version": "1.0.0",
+  "description": "Tests for KTech AI Cyberpunk Website",
+  "scripts": {
+    "test": "vitest",
+    "test:ui": "vitest --ui"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.0",
+    "jsdom": "^23.0.0"
+  }
+}
