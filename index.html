@@ -1,52 +1,301 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KTech AI - Cyber Web</title>
+  <title>开泰科技 - KBight Fintech</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Satoshi:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg-deep: #0a0f1c;
+      --neon-cyan: #00ffcc;
+      --neon-magenta: #ff00aa;
+      --neon-blue: #00ccff;
+      --text-primary: #e0e8ff;
+      --text-secondary: #8a9acc;
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-      font-family: 'Rajdhani', sans-serif; 
-      background: #0a0a0f; 
-      color: #e0e0e0; 
+
+    body {
+      font-family: 'Satoshi', sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
       overflow-x: hidden;
+      min-height: 100vh;
     }
+
+    /* Loading screen */
     #loading {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: #0a0a0f; display: flex; align-items: center; justify-content: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-deep);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       z-index: 9999;
+      animation: fadeOut 1s ease-out 2s forwards;
     }
-    .loader-text {
-      font-family: 'Orbitron', monospace; font-size: 1.5rem;
-      color: #00f0ff; text-transform: uppercase; letter-spacing: 0.5em;
+
+    @keyframes fadeOut {
+      to { opacity: 0; pointer-events: none; }
+    }
+
+    .loader-logo {
+      font-family: 'Clash Display', sans-serif;
+      font-size: 2rem;
+      color: var(--neon-cyan);
+      text-shadow: 0 0 20px var(--neon-cyan);
       animation: pulse 2s ease-in-out infinite;
     }
+
     @keyframes pulse {
-      0%, 100% { opacity: 0.3; }
-      50% { opacity: 1; text-shadow: 0 0 20px #00f0ff; }
+      0%, 100% { opacity: 0.5; text-shadow: 0 0 20px var(--neon-cyan); }
+      50% { opacity: 1; text-shadow: 0 0 40px var(--neon-cyan), 0 0 60px var(--neon-cyan); }
     }
-    .grid-bg {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background-image:
-        linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
-      background-size: 50px 50px; pointer-events: none; z-index: -1;
+
+    /* Navigation */
+    .cyber-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 4rem;
+      background: rgba(10, 15, 28, 0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 255, 204, 0.2);
     }
-    .scanlines {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1) 1px, transparent 1px, transparent 2px);
-      pointer-events: none; z-index: 9998;
+
+    .nav-logo {
+      font-family: 'Clash Display', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: 0.1em;
+    }
+
+    .nav-logo .accent {
+      color: var(--neon-cyan);
+      text-shadow: 0 0 20px var(--neon-cyan);
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 0 8%;
+      position: relative;
+    }
+
+    .hero-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(ellipse at 20% 50%, rgba(0, 255, 204, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 50%, rgba(255, 0, 170, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      flex: 1;
+      z-index: 10;
+    }
+
+    .hero-title {
+      font-family: 'Clash Display', sans-serif;
+      font-size: 4rem;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 2rem;
+    }
+
+    .hero-title .main {
+      display: block;
+      color: var(--text-primary);
+      letter-spacing: 0.1em;
+    }
+
+    .hero-title .accent {
+      display: block;
+      color: var(--neon-cyan);
+      text-shadow: 0 0 30px var(--neon-cyan);
+    }
+
+    .hero-subtitle {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      margin-bottom: 3rem;
+      max-width: 600px;
+      line-height: 1.8;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 4rem;
+      margin-top: 4rem;
+    }
+
+    .stat-item {
+      text-align: left;
+    }
+
+    .stat-number {
+      font-family: 'Clash Display', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--neon-cyan);
+      text-shadow: 0 0 20px var(--neon-cyan);
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-top: 0.5rem;
+    }
+
+    /* Mission Section */
+    .mission {
+      padding: 8rem 8%;
+      position: relative;
+    }
+
+    .mission-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3rem;
+    }
+
+    .mission-card {
+      background: rgba(13, 26, 45, 0.6);
+      border: 1px solid rgba(0, 255, 204, 0.2);
+      padding: 3rem;
+      transition: all 0.3s ease;
+    }
+
+    .mission-card:hover {
+      border-color: rgba(0, 255, 204, 0.5);
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(0, 255, 204, 0.1);
+    }
+
+    .mission-icon {
+      font-size: 2.5rem;
+      color: var(--neon-cyan);
+      margin-bottom: 1.5rem;
+    }
+
+    .mission-card h3 {
+      font-family: 'Clash Display', sans-serif;
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+    }
+
+    .mission-card p {
+      color: var(--text-secondary);
+      line-height: 1.8;
+    }
+
+    /* Footer */
+    .footer {
+      padding: 3rem 8%;
+      background: rgba(10, 15, 28, 0.9);
+      border-top: 1px solid rgba(0, 255, 204, 0.2);
+      text-align: center;
+    }
+
+    .footer-text {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .footer-copyright {
+      margin-top: 1rem;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 1024px) {
+      .hero-title { font-size: 2.5rem; }
+      .mission-grid { grid-template-columns: 1fr; }
+      .hero-stats { flex-wrap: wrap; gap: 2rem; }
     }
   </style>
 </head>
 <body>
-  <div id="loading"><div class="loader-text">Initializing...</div></div>
-  <div class="grid-bg"></div>
-  <div class="scanlines"></div>
-  <div id="app"></div>
-  <script type="module" src="/src/main.js"></script>
+  <div id="loading">
+    <div class="loader-logo">KBIGHT</div>
+  </div>
+
+  <nav class="cyber-nav">
+    <div class="nav-logo">KAI<span class="accent">TECH</span></div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <h1 class="hero-title">
+        <span class="main">开泰科技</span>
+        <span class="accent">KBIGHT FINTECH</span>
+      </h1>
+      <p class="hero-subtitle">
+        开泰远景信息科技有限公司于2020年6月由泰国开泰银行集团在深圳市罗湖区设立，
+        注册资本3亿元人民币，是深圳市第一批跨国公司总部企业。
+      </p>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-number">2020</div>
+          <div class="stat-label">成立年份</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">3亿</div>
+          <div class="stat-label">注册资本（元）</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">20+</div>
+          <div class="stat-label">建设项目</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mission">
+    <h2 style="font-family: 'Clash Display', sans-serif; font-size: 2.5rem; text-align: center; color: var(--neon-cyan); margin-bottom: 3rem;">愿景·使命·文化</h2>
+    <div class="mission-grid">
+      <div class="mission-card">
+        <div class="mission-icon">🎯</div>
+        <h3>愿景</h3>
+        <p>成为区域领先的金融科技平台</p>
+      </div>
+      <div class="mission-card">
+        <div class="mission-icon">🚀</div>
+        <h3>使命</h3>
+        <p>以尖端科技赋能客户</p>
+      </div>
+      <div class="mission-card">
+        <div class="mission-icon">💡</div>
+        <h3>文化</h3>
+        <p>客户至上 · 开放协作<br>敏捷创新 · 专业高效</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-text">开泰远景信息科技有限公司</div>
+    <div class="footer-copyright">© 2025 KTech Fintech. All rights reserved.</div>
+  </footer>
 </body>
 </html>
