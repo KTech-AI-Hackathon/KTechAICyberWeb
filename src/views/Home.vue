@@ -8,29 +8,29 @@
     <div class="content">
       <!-- Header with neon glow -->
       <header class="cyber-header">
-        <h1 class="neon-text glitch-text" data-text="KTech AI">
-          KTech AI
+        <h1 class="neon-text glitch-text" :data-text="t('home.title')">
+          {{ t('home.title') }}
         </h1>
-        <p class="subtitle">Cyberpunk Intelligence Systems</p>
+        <p class="subtitle">{{ t('home.subtitle') }}</p>
       </header>
 
       <!-- Hero section -->
       <section class="hero">
         <div class="cyber-card">
-          <h2>Next Generation AI</h2>
-          <p>Building the future of artificial intelligence with cutting-edge technology and cyberpunk aesthetics.</p>
+          <h2>{{ t('home.hero.title') }}</h2>
+          <p>{{ t('home.hero.description') }}</p>
           <div class="stats">
             <div class="stat">
               <span class="stat-value neon-text">99.9%</span>
-              <span class="stat-label">Uptime</span>
+              <span class="stat-label">{{ t('home.stats.uptime') }}</span>
             </div>
             <div class="stat">
               <span class="stat-value neon-text">1M+</span>
-              <span class="stat-label">Requests</span>
+              <span class="stat-label">{{ t('home.stats.requests') }}</span>
             </div>
             <div class="stat">
               <span class="stat-value neon-text">50ms</span>
-              <span class="stat-label">Latency</span>
+              <span class="stat-label">{{ t('home.stats.latency') }}</span>
             </div>
           </div>
         </div>
@@ -40,25 +40,25 @@
       <section class="features">
         <div class="feature-card">
           <div class="feature-icon neon-border">🤖</div>
-          <h3>AI Models</h3>
-          <p>Advanced neural networks powered by state-of-the-art transformers</p>
+          <h3>{{ t('home.features.ai.title') }}</h3>
+          <p>{{ t('home.features.ai.description') }}</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon neon-border">⚡</div>
-          <h3>Real-time</h3>
-          <p>Lightning-fast responses with our optimized infrastructure</p>
+          <h3>{{ t('home.features.realtime.title') }}</h3>
+          <p>{{ t('home.features.realtime.description') }}</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon neon-border">🔒</div>
-          <h3>Secure</h3>
-          <p>Enterprise-grade security with quantum-resistant encryption</p>
+          <h3>{{ t('home.features.secure.title') }}</h3>
+          <p>{{ t('home.features.secure.description') }}</p>
         </div>
       </section>
 
       <!-- CTA Button -->
       <div class="cta">
         <button class="cyber-button neon-border">
-          <span>Get Started</span>
+          <span>{{ t('home.cta') }}</span>
         </button>
       </div>
     </div>
@@ -66,7 +66,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
+import { useLanguage } from '../composables/useLanguage'
+
+const { t } = useLanguage()
 
 onMounted(() => {
   // Add entrance animations

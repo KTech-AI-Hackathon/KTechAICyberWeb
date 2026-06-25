@@ -1,37 +1,36 @@
 <template>
   <div class="about">
     <section class="about-hero">
-      <h1 class="page-title">ABOUT <span class="accent">KTECH</span></h1>
-      <p class="page-subtitle">Innovating at the intersection of AI and humanity</p>
+      <h1 class="page-title">{{ t('about.title') }} <span class="accent">{{ t('about.titleAccent') }}</span></h1>
+      <p class="page-subtitle">{{ t('about.subtitle') }}</p>
     </section>
     <section class="about-content">
       <div class="content-block">
-        <h2>Our Mission</h2>
-        <p>KTech is dedicated to building transformative AI solutions that push the boundaries of what's possible.</p>
+        <h2>{{ t('about.mission.title') }}</h2>
+        <p>{{ t('about.mission.description') }}</p>
       </div>
       <div class="stats-grid">
-        <div class="stat-item" v-for="stat in stats" :key="stat.label">
-          <div class="stat-value">{{ stat.value }}</div>
-          <div class="stat-label">{{ stat.label }}</div>
+        <div class="stat-item">
+          <div class="stat-value">50+</div>
+          <div class="stat-label">{{ t('about.stats.projects') }}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">100%</div>
+          <div class="stat-label">{{ t('about.stats.commitment') }}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">24/7</div>
+          <div class="stat-label">{{ t('about.stats.innovation') }}</div>
         </div>
       </div>
     </section>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'About',
-  data() {
-    return {
-      stats: [
-        { value: '50+', label: 'Projects' },
-        { value: '100%', label: 'Commitment' },
-        { value: '24/7', label: 'Innovation' }
-      ]
-    }
-  }
-}
+<script setup>
+import { useLanguage } from '../composables/useLanguage'
+
+const { t } = useLanguage()
 </script>
 
 <style scoped>
