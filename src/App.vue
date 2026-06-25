@@ -1,5 +1,14 @@
 <template>
   <div class="app">
+    <!-- JSON-LD Structured Data -->
+    <component
+      v-for="(schema, index) in structuredData"
+      :key="index"
+      :is="'script'"
+      type="application/ld+json"
+      v-text="JSON.stringify(schema)"
+    />
+
     <nav class="cyber-nav">
       <div class="nav-logo">KTECH<span class="accent">.AI</span></div>
       <div class="nav-links">
@@ -23,7 +32,66 @@
 </template>
 
 <script>
-export default { name: 'App' }
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { useHead } from '@vueuse/head'
+import { getRouteMeta, getStructuredData } from './utils/seo'
+
+export default {
+  name: 'App',
+  setup() {
+    const route = useRoute()
+
+    const currentMeta = computed(() => getRouteMeta(route))
+    const structuredData = computed(() => getStructuredData(route))
+
+    // Update head meta tags reactively
+    useHead(() => ({
+      title: currentMeta.value.title,
+      meta: [
+        { name: 'description', content: currentMeta.value.description },
+        { name: 'keywords', content: currentMeta.value.keywords },
+        { name: 'author', content: '开泰远景信息科技有限公司' },
+        { name: 'theme-color', content: '#00ffcc' },
+
+        // Open Graph
+        { property: 'og:type', content: currentMeta.value.ogType },
+        { property: 'og:locale', content: currentMeta.value.ogLocale },
+        { property: 'og:site_name', content: currentMeta.value.ogSiteName },
+        { property: 'og:title', content: currentMeta.value.title },
+        { property: 'og:description', content: currentMeta.value.description },
+        { property: 'og:url', content: currentMeta.value.ogUrl },
+        { property: 'og:image', content: currentMeta.value.ogImage },
+        { property: 'og:image:alt', content: currentMeta.value.title },
+        { property: 'og:image:width', content: '1200' },
+        { property: 'og:image:height', content: '630' },
+
+        // Twitter Cards
+        { name: 'twitter:card', content: currentMeta.value.twitterCard },
+        { name: 'twitter:site', content: currentMeta.value.twitterSite },
+        { name: 'twitter:title', content: currentMeta.value.title },
+        { name: 'twitter:description', content: currentMeta.value.description },
+        { name: 'twitter:image', content: currentMeta.value.twitterImage },
+
+        // Canonical URL
+        { name: 'canonical', href: currentMeta.value.canonical }
+      ],
+      link: [
+        { rel: 'canonical', href: currentMeta.value.canonical },
+        { rel: 'icon', href: '/favicon.ico' },
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: true }
+      ],
+      script: [
+        // Structured data is handled separately in template
+      ]
+    }))
+
+    return {
+      structuredData
+    }
+  }
+}
 </script>
 
 <style scoped>

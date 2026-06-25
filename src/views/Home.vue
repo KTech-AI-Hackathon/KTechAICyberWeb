@@ -1,11 +1,11 @@
 <template>
   <div class="home">
     <!-- Animated background grid -->
-    <div class="grid-bg"></div>
-    <div class="grid-bg grid-bg-2"></div>
+    <div class="grid-bg" aria-hidden="true"></div>
+    <div class="grid-bg grid-bg-2" aria-hidden="true"></div>
 
     <!-- Main content -->
-    <div class="content">
+    <main class="content">
       <!-- Header with neon glow -->
       <header class="cyber-header">
         <h1 class="neon-text glitch-text" data-text="KTech AI">
@@ -15,53 +15,63 @@
       </header>
 
       <!-- Hero section -->
-      <section class="hero">
+      <section class="hero" aria-labelledby="hero-heading">
         <div class="cyber-card">
-          <h2>Next Generation AI</h2>
+          <h2 id="hero-heading">Next Generation AI</h2>
           <p>Building the future of artificial intelligence with cutting-edge technology and cyberpunk aesthetics.</p>
-          <div class="stats">
+          <dl class="stats">
             <div class="stat">
-              <span class="stat-value neon-text">99.9%</span>
-              <span class="stat-label">Uptime</span>
+              <dt class="sr-only">System Uptime</dt>
+              <dd>
+                <span class="stat-value neon-text">99.9%</span>
+                <span class="stat-label">Uptime</span>
+              </dd>
             </div>
             <div class="stat">
-              <span class="stat-value neon-text">1M+</span>
-              <span class="stat-label">Requests</span>
+              <dt class="sr-only">Total Requests</dt>
+              <dd>
+                <span class="stat-value neon-text">1M+</span>
+                <span class="stat-label">Requests</span>
+              </dd>
             </div>
             <div class="stat">
-              <span class="stat-value neon-text">50ms</span>
-              <span class="stat-label">Latency</span>
+              <dt class="sr-only">Response Latency</dt>
+              <dd>
+                <span class="stat-value neon-text">50ms</span>
+                <span class="stat-label">Latency</span>
+              </dd>
             </div>
-          </div>
+          </dl>
         </div>
       </section>
 
       <!-- Features grid -->
-      <section class="features">
-        <div class="feature-card">
-          <div class="feature-icon neon-border">🤖</div>
+      <section class="features" aria-labelledby="features-heading">
+        <h2 id="features-heading" class="sr-only">Key Features</h2>
+        <article class="feature-card">
+          <div class="feature-icon neon-border" role="img" aria-label="AI Robot Icon">🤖</div>
           <h3>AI Models</h3>
           <p>Advanced neural networks powered by state-of-the-art transformers</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon neon-border">⚡</div>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon neon-border" role="img" aria-label="Lightning Bolt Icon">⚡</div>
           <h3>Real-time</h3>
           <p>Lightning-fast responses with our optimized infrastructure</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon neon-border">🔒</div>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon neon-border" role="img" aria-label="Lock Icon">🔒</div>
           <h3>Secure</h3>
           <p>Enterprise-grade security with quantum-resistant encryption</p>
-        </div>
+        </article>
       </section>
 
       <!-- CTA Button -->
-      <div class="cta">
-        <button class="cyber-button neon-border">
+      <nav class="cta" aria-label="Call to action">
+        <button class="cyber-button neon-border" aria-label="Get started with KTech AI">
           <span>Get Started</span>
         </button>
-      </div>
-    </div>
+      </nav>
+    </main>
   </div>
 </template>
 
@@ -88,6 +98,19 @@ onMounted(() => {
   font-family: 'Courier New', monospace;
   position: relative;
   overflow: hidden;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Animated grid background */

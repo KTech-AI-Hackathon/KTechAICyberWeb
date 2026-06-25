@@ -1,21 +1,24 @@
 <template>
   <div class="about">
-    <section class="about-hero">
-      <h1 class="page-title">ABOUT <span class="accent">KTECH</span></h1>
+    <section class="about-hero" aria-labelledby="about-heading">
+      <h1 id="about-heading" class="page-title">ABOUT <span class="accent">KTECH</span></h1>
       <p class="page-subtitle">Innovating at the intersection of AI and humanity</p>
     </section>
-    <section class="about-content">
-      <div class="content-block">
-        <h2>Our Mission</h2>
+    <main class="about-content" aria-labelledby="mission-heading">
+      <article class="content-block">
+        <h2 id="mission-heading">Our Mission</h2>
         <p>KTech is dedicated to building transformative AI solutions that push the boundaries of what's possible.</p>
-      </div>
-      <div class="stats-grid">
+      </article>
+      <dl class="stats-grid">
         <div class="stat-item" v-for="stat in stats" :key="stat.label">
-          <div class="stat-value">{{ stat.value }}</div>
-          <div class="stat-label">{{ stat.label }}</div>
+          <dt class="sr-only">{{ stat.label }}</dt>
+          <dd>
+            <div class="stat-value">{{ stat.value }}</div>
+            <div class="stat-label">{{ stat.label }}</div>
+          </dd>
         </div>
-      </div>
-    </section>
+      </dl>
+    </main>
   </div>
 </template>
 
@@ -39,6 +42,19 @@ export default {
   padding: 5rem 5%; text-align: center;
   background: rgba(0, 240, 255, 0.05);
   border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 .page-title {
   font-family: 'Orbitron', monospace; font-size: 3rem; font-weight: 700;
