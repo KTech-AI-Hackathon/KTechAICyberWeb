@@ -193,5 +193,11 @@
       "success": "Message sent successfully! We'll get back to you soon.",
       "error": "Failed to send message. Please try again."
     }
+  },
+  "news": {
+    "title": "News",
+    "ktechNews": "KTech News",
+    "kbtgNews": "KBTG News",
+    "learnMore": "Learn more"
   }
 }

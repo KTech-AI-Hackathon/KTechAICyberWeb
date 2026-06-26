@@ -193,5 +193,11 @@
       "success": "留言发送成功！我们会尽快回复您。",
       "error": "发送留言失败，请重试。"
     }
+  },
+  "news": {
+    "title": "新闻",
+    "ktechNews": "KTech 新闻",
+    "kbtgNews": "KBTG 新闻",
+    "learnMore": "了解更多"
   }
 }
