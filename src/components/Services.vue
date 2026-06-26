@@ -19,15 +19,18 @@
         </div>
 
         <div class="grid">
-          <article
+          <router-link
             v-for="(service, index) in services"
             :key="service.title"
+            :to="service.route"
             class="card fade-in stagger"
+            :aria-label="`${t('services.ariaLabel')} ${service.title}`"
           >
             <div class="card-icon" :aria-hidden="true">{{ service.icon }}</div>
             <h3>{{ service.title }}</h3>
             <p>{{ service.description }}</p>
-          </article>
+            <span class="card-link">{{ t('services.learnMore') }}</span>
+          </router-link>
         </div>
       </div>
     </Transition>
@@ -54,32 +57,38 @@ const services = [
   {
     icon: '🏗️',
     title: t('services.projectManagement'),
-    description: t('services.projectManagementDesc')
+    description: t('services.projectManagementDesc'),
+    route: '/services/project-management'
   },
   {
     icon: '💳',
     title: t('services.retailCredit'),
-    description: t('services.retailCreditDesc')
+    description: t('services.retailCreditDesc'),
+    route: '/services/retail-credit'
   },
   {
     icon: '🔗',
     title: t('services.supplyChain'),
-    description: t('services.supplyChainDesc')
+    description: t('services.supplyChainDesc'),
+    route: '/services/supply-chain'
   },
   {
     icon: '⛓️',
     title: t('services.blockchain'),
-    description: t('services.blockchainDesc')
+    description: t('services.blockchainDesc'),
+    route: '/services/blockchain'
   },
   {
     icon: '📱',
     title: t('services.fintechApp'),
-    description: t('services.fintechAppDesc')
+    description: t('services.fintechAppDesc'),
+    route: '/services/mobile-app'
   },
   {
     icon: '☁️',
     title: t('services.bigData'),
-    description: t('services.bigDataDesc')
+    description: t('services.bigDataDesc'),
+    route: '/services/big-data-ai'
   }
 ]
 
@@ -99,7 +108,9 @@ const t = (key) => {
     'services.fintechApp': '金融科技应用',
     'services.fintechAppDesc': '移动端金融应用开发',
     'services.bigData': '大数据与AI',
-    'services.bigDataDesc': '人工智能与大数据分析'
+    'services.bigDataDesc': '人工智能与大数据分析',
+    'services.ariaLabel': 'Learn more about',
+    'services.learnMore': 'Learn More →'
   }
   return translations[key] || key
 }
@@ -140,6 +151,9 @@ const t = (key) => {
   transition: all 0.4s ease;
   position: relative;
   overflow: hidden;
+  text-decoration: none;
+  display: block;
+  cursor: pointer;
 }
 
 .card::before {
@@ -189,6 +203,21 @@ const t = (key) => {
 .card p {
   color: var(--text-secondary);
   line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+.card-link {
+  display: inline-block;
+  color: var(--cyan);
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.card:hover .card-link {
+  color: var(--magenta);
+  transform: translateX(5px);
+  display: inline-block;
 }
 
 @media (max-width: 768px) {
