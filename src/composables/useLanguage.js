@@ -75,13 +75,23 @@ export function useLanguage() {
     return currentLanguage.value === 'en'
   })
 
+  // Alias for currentLanguage
+  const currentLocale = currentLanguage
+
+  // Load current translations
+  async function loadCurrentTranslations() {
+    return await loadTranslations(currentLanguage.value)
+  }
+
   return {
     currentLanguage,
+    currentLocale,
     languageDisplay,
     isEnglish,
     initLanguage,
     setLanguage,
     toggleLanguage,
+    loadCurrentTranslations,
     t
   }
 }

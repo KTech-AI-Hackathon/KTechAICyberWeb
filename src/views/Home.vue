@@ -1,110 +1,76 @@
 <template>
-  <div class="home">
+  <main class="home-page" role="main">
     <!-- Animated background grid -->
-    <div class="grid-bg"></div>
-    <div class="grid-bg grid-bg-2"></div>
+    <div class="grid-bg" aria-hidden="true"></div>
+    <div class="grid-bg grid-bg-2" aria-hidden="true"></div>
 
-    <!-- Main content -->
-    <div class="content">
-      <!-- Header with neon glow -->
-      <header class="cyber-header">
-        <h1 class="neon-text glitch-text" :data-text="t('home.title')">
-          {{ t('home.title') }}
+    <!-- Hero Section -->
+    <section class="hero-section" aria-label="Hero">
+      <div class="hero-content">
+        <h1 class="hero-title glitch-text" :data-text="t('home.hero.heading')">
+          {{ t('home.hero.heading') }}
         </h1>
-        <p class="subtitle">{{ t('home.subtitle') }}</p>
-      </header>
-
-      <!-- Hero section -->
-      <section class="hero">
-        <div class="cyber-card">
-          <h2>{{ t('home.hero.title') }}</h2>
-          <p>{{ t('home.hero.description') }}</p>
-          <div class="stats">
-            <div class="stat">
-              <span class="stat-value neon-text">99.9%</span>
-              <span class="stat-label">{{ t('home.stats.uptime') }}</span>
-            </div>
-            <div class="stat">
-              <span class="stat-value neon-text">1M+</span>
-              <span class="stat-label">{{ t('home.stats.requests') }}</span>
-            </div>
-            <div class="stat">
-              <span class="stat-value neon-text">50ms</span>
-              <span class="stat-label">{{ t('home.stats.latency') }}</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Features grid -->
-      <section class="features">
-        <div class="feature-card">
-          <div class="feature-icon neon-border">🤖</div>
-          <h3>{{ t('home.features.ai.title') }}</h3>
-          <p>{{ t('home.features.ai.description') }}</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon neon-border">⚡</div>
-          <h3>{{ t('home.features.realtime.title') }}</h3>
-          <p>{{ t('home.features.realtime.description') }}</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon neon-border">🔒</div>
-          <h3>{{ t('home.features.secure.title') }}</h3>
-          <p>{{ t('home.features.secure.description') }}</p>
-        </div>
-      </section>
-
-      <!-- CTA Button -->
-      <div class="cta">
-        <button class="cyber-button neon-border">
-          <span>{{ t('home.cta') }}</span>
-        </button>
+        <p class="hero-subtitle">{{ t('home.hero.description') }}</p>
+        <router-link
+          to="/about"
+          class="hero-cta"
+          :aria-label="t('home.cta.primary.ariaLabel')"
+        >
+          {{ t('home.cta.primary.button') }}
+        </router-link>
       </div>
-    </div>
-  </div>
+    </section>
+
+    <!-- Features Grid -->
+    <FeaturesGrid />
+
+    <!-- Statistics Section -->
+    <StatsSection />
+
+    <!-- CTA Section -->
+    <CTASection />
+  </main>
 </template>
 
 <script setup>
+/**
+ * @component Home
+ * @description Home page with hero, features, stats, and CTA sections
+ */
+
 import { onMounted } from 'vue'
 import { useLanguage } from '../composables/useLanguage'
+import FeaturesGrid from '../components/FeaturesGrid.vue'
+import StatsSection from '../components/StatsSection.vue'
+import CTASection from '../components/CTASection.vue'
 
 const { t } = useLanguage()
 
 onMounted(() => {
-  // Add entrance animations
-  document.querySelectorAll('.feature-card').forEach((card, index) => {
-    card.style.animationDelay = `${index * 0.1}s`
-  })
+  // Initialize entrance animations
+  document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px')
 })
 </script>
 
 <style scoped>
-.home {
+.home-page {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
-  color: #00ff88;
-  font-family: 'Courier New', monospace;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
 }
 
 /* Animated grid background */
 .grid-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: fixed;
+  inset: 0;
   background-image:
-    linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(0, 255, 204, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 204, 0.03) 1px, transparent 1px);
   background-size: 50px 50px;
   animation: gridMove 20s linear infinite;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .grid-bg-2 {
@@ -116,42 +82,73 @@ onMounted(() => {
 }
 
 @keyframes gridMove {
-  0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
-  100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
+  0% {
+    transform: perspective(500px) rotateX(60deg) translateY(0);
+  }
+  100% {
+    transform: perspective(500px) rotateX(60deg) translateY(50px);
+  }
 }
 
-.content {
+/* Hero Section */
+.hero-section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
   z-index: 1;
-  max-width: 1200px;
   padding: 2rem;
   text-align: center;
 }
 
-/* Header styles */
-.cyber-header {
-  margin-bottom: 4rem;
+.hero-content {
+  max-width: 900px;
+  animation: fadeIn 1s ease-out;
 }
 
-h1 {
-  font-size: 5rem;
-  font-weight: bold;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-title {
+  font-family: var(--font-display, 'Orbitron', monospace);
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 700;
+  color: var(--text-primary, #ffffff);
   text-transform: uppercase;
-  letter-spacing: 0.5rem;
-  margin: 0;
+  letter-spacing: 0.1em;
+  margin-bottom: 1.5rem;
   text-shadow:
-    0 0 10px #00ff88,
-    0 0 20px #00ff88,
-    0 0 30px #00ff88,
-    0 0 40px #00ff88;
-  animation: neonPulse 2s ease-in-out infinite alternate;
+    0 0 10px var(--cyan, #00ffcc),
+    0 0 20px var(--cyan, #00ffcc),
+    0 0 30px var(--cyan, #00ffcc),
+    0 0 40px var(--cyan, #00ffcc);
+  animation: neonPulse 3s ease-in-out infinite alternate;
 }
 
-.subtitle {
-  font-size: 1.5rem;
-  color: #00ffff;
-  margin-top: 1rem;
-  text-shadow: 0 0 10px #00ffff;
+@keyframes neonPulse {
+  from {
+    text-shadow:
+      0 0 10px var(--cyan, #00ffcc),
+      0 0 20px var(--cyan, #00ffcc),
+      0 0 30px var(--cyan, #00ffcc);
+  }
+  to {
+    text-shadow:
+      0 0 20px var(--cyan, #00ffcc),
+      0 0 30px var(--cyan, #00ffcc),
+      0 0 40px var(--cyan, #00ffcc),
+      0 0 50px var(--cyan, #00ffcc),
+      0 0 60px var(--cyan, #00ffcc);
+  }
 }
 
 /* Glitch effect */
@@ -171,13 +168,13 @@ h1 {
 }
 
 .glitch-text::before {
-  color: #ff00ff;
+  color: var(--magenta, #ff00aa);
   animation: glitch 0.3s infinite;
   clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
 }
 
 .glitch-text::after {
-  color: #00ffff;
+  color: var(--cyan, #00ffcc);
   animation: glitch 0.3s infinite reverse;
   clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
 }
@@ -191,164 +188,87 @@ h1 {
   100% { transform: translate(0); }
 }
 
-/* Neon pulse animation */
-@keyframes neonPulse {
-  from {
-    text-shadow:
-      0 0 10px #00ff88,
-      0 0 20px #00ff88,
-      0 0 30px #00ff88;
-  }
-  to {
-    text-shadow:
-      0 0 20px #00ff88,
-      0 0 30px #00ff88,
-      0 0 40px #00ff88,
-      0 0 50px #00ff88,
-      0 0 60px #00ff88;
-  }
-}
-
-/* Card styles */
-.cyber-card {
-  background: rgba(26, 26, 46, 0.8);
-  border: 2px solid #00ff88;
-  border-radius: 10px;
-  padding: 3rem;
-  box-shadow:
-    0 0 20px rgba(0, 255, 136, 0.3),
-    inset 0 0 20px rgba(0, 255, 136, 0.1);
-  margin-bottom: 3rem;
-}
-
-.cyber-card h2 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  color: #00ff88;
-  text-shadow: 0 0 10px #00ff88;
-}
-
-.cyber-card p {
-  font-size: 1.2rem;
-  color: #00ffff;
+.hero-subtitle {
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  color: var(--text-secondary, #e0e0e0);
   line-height: 1.8;
-}
-
-/* Stats */
-.stats {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 2rem;
-  gap: 2rem;
-}
-
-.stat {
-  text-align: center;
-}
-
-.stat-value {
-  display: block;
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-}
-
-.stat-label {
-  font-size: 1rem;
-  color: #00ffff;
-}
-
-/* Features */
-.features {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
   margin-bottom: 3rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
 }
 
-.feature-card {
-  background: rgba(26, 26, 46, 0.6);
-  border: 1px solid #00ff88;
-  border-radius: 10px;
-  padding: 2rem;
-  transition: all 0.3s ease;
-  animation: fadeInUp 0.6s ease forwards;
-  opacity: 0;
-}
-
-.feature-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.feature-icon {
-  font-size: 3rem;
-  width: 80px;
-  height: 80px;
-  line-height: 80px;
-  margin: 0 auto 1rem;
-  border-radius: 50%;
-}
-
-.feature-card h3 {
-  color: #00ff88;
-  margin-bottom: 0.5rem;
-}
-
-.feature-card p {
-  color: #00ffff;
-  font-size: 0.9rem;
-}
-
-/* Button */
-.cyber-button {
-  background: rgba(0, 255, 136, 0.1);
-  color: #00ff88;
-  border: 2px solid #00ff88;
+.hero-cta {
+  display: inline-block;
   padding: 1rem 3rem;
-  font-size: 1.2rem;
-  font-family: inherit;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
+  background: linear-gradient(135deg, rgba(0, 255, 204, 0.2) 0%, rgba(0, 255, 204, 0.1) 100%);
+  color: var(--cyan, #00ffcc);
+  border: 2px solid var(--cyan, #00ffcc);
+  border-radius: 4px;
+  font-family: var(--font-display, 'Orbitron', monospace);
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-decoration: none;
   transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
 }
 
-.cyber-button:hover {
-  background: rgba(0, 255, 136, 0.2);
-  box-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
-  transform: scale(1.05);
+.hero-cta:hover {
+  background: rgba(0, 255, 204, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 255, 204, 0.5);
 }
 
-/* Neon border effect */
-.neon-border {
-  box-shadow:
-    0 0 5px #00ff88,
-    0 0 10px #00ff88,
-    inset 0 0 5px rgba(0, 255, 136, 0.2);
+.hero-cta:focus {
+  outline: 2px solid var(--cyan, #00ffcc);
+  outline-offset: 4px;
 }
 
-.neon-text {
-  text-shadow:
-    0 0 5px currentColor,
-    0 0 10px currentColor;
-}
-
-/* Responsive */
+/* Responsive Design */
 @media (max-width: 768px) {
-  h1 { font-size: 3rem; }
-  .stats { flex-direction: column; }
-  .features { grid-template-columns: 1fr; }
+  .hero-section {
+    padding: 1rem;
+  }
+
+  .hero-content {
+    padding-top: 4rem;
+  }
+
+  .hero-subtitle {
+    margin-bottom: 2rem;
+  }
+
+  .hero-cta {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .grid-bg,
+  .grid-bg-2 {
+    animation: none;
+  }
+
+  .hero-content {
+    animation: none;
+  }
+
+  .hero-title {
+    animation: none;
+  }
+
+  .glitch-text::before,
+  .glitch-text::after {
+    animation: none;
+  }
+
+  .hero-cta:hover {
+    transform: translateY(-1px);
+  }
 }
 </style>

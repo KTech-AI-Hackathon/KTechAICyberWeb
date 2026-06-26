@@ -14,10 +14,11 @@
     "title": "KTech AI",
     "subtitle": "Cyberpunk Intelligence Systems",
     "hero": {
-      "heading": "Next Generation AI",
+      "heading": "Empowering Financial Innovation with AI",
       "description": "Building the future of artificial intelligence with cutting-edge technology and cyberpunk aesthetics."
     },
     "stats": {
+      "heading": "Our Impact",
       "uptime": {
         "label": "Uptime",
         "value": "99.9%"
@@ -26,29 +27,51 @@
         "label": "Requests",
         "value": "1M+"
       },
-      "latency": {
-        "label": "Latency",
-        "value": "50ms"
+      "clients": {
+        "label": "Enterprise Clients",
+        "value": "50+"
+      },
+      "support": {
+        "label": "Support",
+        "value": "24/7"
       }
     },
     "features": {
       "heading": "Key Features",
       "ai": {
-        "title": "AI Models",
+        "title": "AI-Powered Solutions",
         "description": "Advanced neural networks powered by state-of-the-art transformers"
       },
       "realtime": {
-        "title": "Real-time",
+        "title": "Real-time Processing",
         "description": "Lightning-fast responses with our optimized infrastructure"
       },
       "secure": {
-        "title": "Secure",
+        "title": "Cybersecurity",
         "description": "Enterprise-grade security with quantum-resistant encryption"
+      },
+      "blockchain": {
+        "title": "Blockchain Integration",
+        "description": "Distributed ledger technology for secure transactions"
+      },
+      "cloud": {
+        "title": "Cloud Services",
+        "description": "Scalable infrastructure with global deployment"
+      },
+      "analytics": {
+        "title": "Data Analytics",
+        "description": "Actionable insights from your business data"
       }
     },
     "cta": {
-      "button": "Get Started",
-      "ariaLabel": "Get started with KTech AI"
+      "primary": {
+        "button": "Get Started",
+        "ariaLabel": "Get started with KTech AI"
+      },
+      "secondary": {
+        "button": "Learn More",
+        "ariaLabel": "Learn more about KTech"
+      }
     }
   },
   "about": {

@@ -14,10 +14,11 @@
     "title": "KTech AI",
     "subtitle": "赛博朋克智能系统",
     "hero": {
-      "heading": "下一代人工智能",
+      "heading": "以AI赋能金融创新",
       "description": "运用尖端技术和赛博朋克美学，构建人工智能的未来。"
     },
     "stats": {
+      "heading": "我们的影响力",
       "uptime": {
         "label": "正常运行时间",
         "value": "99.9%"
@@ -26,15 +27,19 @@
         "label": "请求数",
         "value": "100万+"
       },
-      "latency": {
-        "label": "响应延迟",
-        "value": "50毫秒"
+      "clients": {
+        "label": "企业客户",
+        "value": "50+"
+      },
+      "support": {
+        "label": "技术支持",
+        "value": "24/7"
       }
     },
     "features": {
       "heading": "核心功能",
       "ai": {
-        "title": "AI 模型",
+        "title": "AI驱动解决方案",
         "description": "由最先进的transformer技术驱动的先进神经网络"
       },
       "realtime": {
@@ -42,13 +47,31 @@
         "description": "通过优化的基础设施实现闪电般快速的响应"
       },
       "secure": {
-        "title": "安全可靠",
+        "title": "网络安全",
         "description": "企业级安全，采用抗量子加密技术"
+      },
+      "blockchain": {
+        "title": "区块链集成",
+        "description": "分布式账本技术保障交易安全"
+      },
+      "cloud": {
+        "title": "云服务",
+        "description": "可扩展的基础设施支持全球部署"
+      },
+      "analytics": {
+        "title": "数据分析",
+        "description": "从业务数据中获取可行的洞察"
       }
     },
     "cta": {
-      "button": "立即开始",
-      "ariaLabel": "开始使用 KTech AI"
+      "primary": {
+        "button": "开始使用",
+        "ariaLabel": "开始使用 KTech AI"
+      },
+      "secondary": {
+        "button": "了解更多",
+        "ariaLabel": "了解更多关于 KTech"
+      }
     }
   },
   "about": {
