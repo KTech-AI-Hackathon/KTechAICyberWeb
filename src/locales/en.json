@@ -96,5 +96,73 @@
     "by": "By",
     "share": "Share this article",
     "breadcrumb": "Home > News"
+  },
+  "bigData": {
+    "hero": {
+      "title": "Big Data & AI Solutions",
+      "subtitle": "Transform Your Business with Intelligent Data Analytics",
+      "description": "Harness the power of artificial intelligence and big data analytics to drive innovation, optimize operations, and unlock new opportunities for growth."
+    },
+    "features": {
+      "title": "Core Capabilities",
+      "aiLearning": "Deep Learning & AI",
+      "aiLearningDesc": "Advanced neural networks for pattern recognition and predictive modeling",
+      "dataAnalytics": "Big Data Analytics",
+      "dataAnalyticsDesc": "Process and analyze massive datasets in real-time",
+      "machineLearning": "Machine Learning",
+      "machineLearningDesc": "Custom ML models for business intelligence and automation",
+      "cloudComputing": "Cloud Computing",
+      "cloudComputingDesc": "Scalable cloud infrastructure for data processing",
+      "predictiveAnalytics": "Predictive Analytics",
+      "predictiveAnalyticsDesc": "Forecast trends and make data-driven decisions",
+      "dataSecurity": "Data Security",
+      "dataSecurityDesc": "Enterprise-grade security for sensitive information"
+    },
+    "capabilities": {
+      "title": "Technical Expertise",
+      "dataProcessing": "Data Processing & Engineering",
+      "dataProcessingDesc": "End-to-end data pipeline solutions for processing petabytes of information",
+      "aiModels": "AI Model Development",
+      "aiModelsDesc": "Custom artificial intelligence models tailored to your business needs",
+      "naturalLanguage": "Natural Language Processing",
+      "naturalLanguageDesc": "Advanced NLP for sentiment analysis, chatbots, and document processing",
+      "computerVision": "Computer Vision",
+      "computerVisionDesc": "Image recognition and visual analytics for automated inspection"
+    },
+    "useCases": {
+      "title": "Industry Solutions",
+      "fintech": "Financial Services",
+      "fintechDesc": "Risk assessment, fraud detection, and automated trading systems",
+      "fintechBenefit1": "Real-time fraud detection",
+      "fintechBenefit2": "Credit risk assessment",
+      "fintechBenefit3": "Algorithmic trading",
+      "manufacturing": "Manufacturing",
+      "manufacturingDesc": "Predictive maintenance, quality control, and supply chain optimization",
+      "manufacturingBenefit1": "Equipment monitoring",
+      "manufacturingBenefit2": "Quality assurance",
+      "manufacturingBenefit3": "Process optimization",
+      "healthcare": "Healthcare",
+      "healthcareDesc": "Patient diagnostics, drug discovery, and personalized treatment plans",
+      "healthcareBenefit1": "Medical imaging analysis",
+      "healthcareBenefit2": "Patient outcome prediction",
+      "healthcareBenefit3": "Drug development acceleration"
+    },
+    "stats": {
+      "title": "Performance Metrics",
+      "uptime": "System Uptime",
+      "records": "Records Processed",
+      "latency": "Processing Latency",
+      "models": "AI Models Deployed"
+    },
+    "cta": {
+      "title": "Ready to Transform Your Data?",
+      "description": "Let's discuss how our Big Data & AI solutions can drive your business forward.",
+      "primary": "Contact Us",
+      "secondary": "Learn More"
+    },
+    "seo": {
+      "title": "Big Data & AI Solutions - KTech Fintech",
+      "description": "Enterprise-grade big data analytics and artificial intelligence solutions. Transform your business with AI-powered insights, machine learning, and predictive analytics."
+    }
   }
 }

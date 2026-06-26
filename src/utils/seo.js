@@ -50,6 +50,12 @@ export function getRouteMeta(route) {
       description: 'Stay updated with the latest news, insights, and updates from KTech. Company announcements, industry insights, technology updates, and events.',
       ogImage: `${SITE_URL}/og-image-news.jpg`,
       twitterImage: `${SITE_URL}/twitter-image-news.jpg`
+    },
+    '/services/big-data-ai': {
+      title: '大数据与AI解决方案 - 开泰科技 | KBight Fintech',
+      description: '企业级大数据分析和人工智能解决方案。通过AI驱动的洞察、机器学习和预测分析转型您的业务。深度学习、自然语言处理、计算机视觉等技术应用。',
+      ogImage: `${SITE_URL}/og-image-big-data.jpg`,
+      twitterImage: `${SITE_URL}/twitter-image-big-data.jpg`
     }
   }
 
@@ -210,6 +216,11 @@ export function getSitemapRoutes() {
       path: '/news',
       changefreq: 'daily',
       priority: 0.9
+    },
+    {
+      path: '/services/big-data-ai',
+      changefreq: 'monthly',
+      priority: 0.8
     }
   ]
 }

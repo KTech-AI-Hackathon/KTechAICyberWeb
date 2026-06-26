@@ -96,5 +96,73 @@
     "by": "作者",
     "share": "分享这篇文章",
     "breadcrumb": "首页 > 新闻"
+  },
+  "bigData": {
+    "hero": {
+      "title": "大数据与人工智能解决方案",
+      "subtitle": "用智能数据分析转型您的业务",
+      "description": "利用人工智能和大数据分析的力量，推动创新、优化运营，并为增长开拓新机遇。"
+    },
+    "features": {
+      "title": "核心能力",
+      "aiLearning": "深度学习与AI",
+      "aiLearningDesc": "用于模式识别和预测建模的先进神经网络",
+      "dataAnalytics": "大数据分析",
+      "dataAnalyticsDesc": "实时处理和分析海量数据集",
+      "machineLearning": "机器学习",
+      "machineLearningDesc": "用于商业智能和自动化的定制ML模型",
+      "cloudComputing": "云计算",
+      "cloudComputingDesc": "用于数据处理的可扩展云基础设施",
+      "predictiveAnalytics": "预测分析",
+      "predictiveAnalyticsDesc": "预测趋势并做出数据驱动的决策",
+      "dataSecurity": "数据安全",
+      "dataSecurityDesc": "保护敏感信息的企业级安全"
+    },
+    "capabilities": {
+      "title": "专业技术",
+      "dataProcessing": "数据处理与工程",
+      "dataProcessingDesc": "用于处理海量信息的端到端数据管道解决方案",
+      "aiModels": "AI模型开发",
+      "aiModelsDesc": "根据您的业务需求定制的人工智能模型",
+      "naturalLanguage": "自然语言处理",
+      "naturalLanguageDesc": "用于情感分析、聊天机器人和文档处理的高级NLP",
+      "computerVision": "计算机视觉",
+      "computerVisionDesc": "用于自动检测的图像识别和视觉分析"
+    },
+    "useCases": {
+      "title": "行业解决方案",
+      "fintech": "金融服务",
+      "fintechDesc": "风险评估、欺诈检测和自动化交易系统",
+      "fintechBenefit1": "实时欺诈检测",
+      "fintechBenefit2": "信贷风险评估",
+      "fintechBenefit3": "算法交易",
+      "manufacturing": "制造业",
+      "manufacturingDesc": "预测性维护、质量控制和供应链优化",
+      "manufacturingBenefit1": "设备监控",
+      "manufacturingBenefit2": "质量保证",
+      "manufacturingBenefit3": "流程优化",
+      "healthcare": "医疗健康",
+      "healthcareDesc": "患者诊断、药物发现和个性化治疗方案",
+      "healthcareBenefit1": "医学影像分析",
+      "healthcareBenefit2": "患者结果预测",
+      "healthcareBenefit3": "药物开发加速"
+    },
+    "stats": {
+      "title": "性能指标",
+      "uptime": "系统正常运行时间",
+      "records": "处理记录数",
+      "latency": "处理延迟",
+      "models": "已部署AI模型"
+    },
+    "cta": {
+      "title": "准备好转型您的数据了吗？",
+      "description": "让我们一起讨论我们的大数据与AI解决方案如何推动您的业务发展。",
+      "primary": "联系我们",
+      "secondary": "了解更多"
+    },
+    "seo": {
+      "title": "大数据与AI解决方案 - 开泰科技",
+      "description": "企业级大数据分析和人工智能解决方案。通过AI驱动的洞察、机器学习和预测分析转型您的业务。"
+    }
   }
 }
