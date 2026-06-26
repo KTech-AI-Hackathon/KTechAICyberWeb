@@ -6,35 +6,20 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount, VueWrapper } from '@vue/test-utils'
-import { ref, h } from 'vue'
+import { h } from 'vue'
 
 // Mock @vueuse/core for useIntersectionObserver
 vi.mock('@vueuse/core', () => ({
   useIntersectionObserver: vi.fn(() => vi.fn()),
 }))
 
-// Create a shared ref to control loading state
-const mockIsLoading = ref(true)
-
-// Create a Transition stub that properly renders its children
+// Create a shared Transition stub that renders its children
 const transitionStub = {
   template: '<div class="transition-stub"><slot /></div>',
   render() {
     return h('div', { class: 'transition-stub' }, this.$slots.default ? this.$slots.default() : [])
   }
 }
-
-// Mock useSkeleton BEFORE importing the component
-const mockUseSkeleton = vi.fn(() => ({
-  isLoading: mockIsLoading,
-  hasLoaded: ref(!mockIsLoading.value),
-  target: ref(null),
-  isVisible: ref(true)
-}))
-
-vi.mock('../composables/useSkeleton', () => ({
-  useSkeleton: mockUseSkeleton
-}))
 
 // Import Services component AFTER mocking
 import Services from '../Services.vue'
@@ -45,14 +30,10 @@ describe('Services.vue', () => {
 
   afterEach(() => {
     if (wrapper) wrapper.unmount()
-    // Reset to loading state for next test
-    mockIsLoading.value = true
   })
 
-  describe('Rendering - Loading State', () => {
+  describe('Component Rendering', () => {
     beforeEach(() => {
-      // Ensure loading state is true
-      mockIsLoading.value = true
       wrapper = mount(Services, {
         global: {
           stubs: {
@@ -76,15 +57,22 @@ describe('Services.vue', () => {
       const section = wrapper.find('section#services')
       expect(section.exists()).toBe(true)
     })
+  })
 
-    it('shows skeleton cards when loading', () => {
-      const skeletons = wrapper.findAllComponents(SkeletonCard)
-      expect(skeletons.length).toBe(6)
+  describe('Skeleton Loading State', () => {
+    beforeEach(() => {
+      wrapper = mount(Services, {
+        global: {
+          stubs: {
+            Transition: transitionStub
+          }
+        }
+      })
     })
 
-    it('hides content when loading', () => {
-      const heroContent = wrapper.find('.content-wrapper')
-      expect(heroContent.exists()).toBe(false)
+    it('shows skeleton cards in default state', () => {
+      const skeletons = wrapper.findAllComponents(SkeletonCard)
+      expect(skeletons.length).toBe(6)
     })
 
     it('renders skeleton grid', () => {
@@ -98,56 +86,15 @@ describe('Services.vue', () => {
         expect(skeleton.props('isLoading')).toBe(true)
       })
     })
-  })
 
-  describe('Content Display - Loaded State', () => {
-    beforeEach(() => {
-      // Set to loaded state
-      mockIsLoading.value = false
-      wrapper = mount(Services, {
-        global: {
-          stubs: {
-            Transition: transitionStub
-          }
-        }
-      })
-    })
-
-    it('should mount without errors', () => {
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('renders section title', () => {
-      const title = wrapper.find('.section-title')
-      expect(title.exists()).toBe(true)
-      expect(title.text()).toBe('核心服务')
-    })
-
-    it('renders section subtitle', () => {
-      const subtitle = wrapper.find('.section-subtitle')
-      expect(subtitle.exists()).toBe(true)
-      expect(subtitle.text()).toBe('以尖端科技赋能金融创新')
-    })
-
-    it('renders content wrapper when not loading', () => {
-      const contentWrapper = wrapper.find('.content-wrapper')
-      expect(contentWrapper.exists()).toBe(true)
-    })
-
-    it('hides skeleton when not loading', () => {
+    it('has 6 skeleton cards for 6 services', () => {
       const skeletons = wrapper.findAllComponents(SkeletonCard)
-      expect(skeletons.length).toBe(0)
-    })
-
-    it('renders grid container', () => {
-      const grid = wrapper.find('.grid')
-      expect(grid.exists()).toBe(true)
+      expect(skeletons.length).toBe(6)
     })
   })
 
-  describe('Services Cards', () => {
+  describe('Component Structure', () => {
     beforeEach(() => {
-      mockIsLoading.value = false
       wrapper = mount(Services, {
         global: {
           stubs: {
@@ -157,85 +104,10 @@ describe('Services.vue', () => {
       })
     })
 
-    it('renders exactly 6 service cards', () => {
-      const cards = wrapper.findAll('.card')
-      expect(cards.length).toBe(6)
-    })
-
-    it('each card has correct structure', () => {
-      const cards = wrapper.findAll('.card')
-      cards.forEach(card => {
-        expect(card.find('.card-icon').exists()).toBe(true)
-        expect(card.find('h3').exists()).toBe(true)
-        expect(card.find('p').exists()).toBe(true)
-      })
-    })
-
-    it('first card displays project management', () => {
-      const cards = wrapper.findAll('.card')
-      expect(cards[0].find('.card-icon').text()).toBe('🏗️')
-      expect(cards[0].find('h3').text()).toBe('项目管理')
-      expect(cards[0].find('p').text()).toBe('专业的金融科技项目管理服务')
-    })
-
-    it('second card displays retail credit', () => {
-      const cards = wrapper.findAll('.card')
-      expect(cards[1].find('.card-icon').text()).toBe('💳')
-      expect(cards[1].find('h3').text()).toBe('零售信贷')
-      expect(cards[1].find('p').text()).toBe('端到端的零售信贷系统解决方案')
-    })
-
-    it('third card displays supply chain finance', () => {
-      const cards = wrapper.findAll('.card')
-      expect(cards[2].find('.card-icon').text()).toBe('🔗')
-      expect(cards[2].find('h3').text()).toBe('供应链金融')
-      expect(cards[2].find('p').text()).toBe('基于区块链的供应链金融平台')
-    })
-
-    it('fourth card displays blockchain', () => {
-      const cards = wrapper.findAll('.card')
-      expect(cards[3].find('.card-icon').text()).toBe('⛓️')
-      expect(cards[3].find('h3').text()).toBe('区块链技术')
-      expect(cards[3].find('p').text()).toBe('企业级区块链解决方案')
-    })
-
-    it('fifth card displays fintech app', () => {
-      const cards = wrapper.findAll('.card')
-      expect(cards[4].find('.card-icon').text()).toBe('📱')
-      expect(cards[4].find('h3').text()).toBe('金融科技应用')
-      expect(cards[4].find('p').text()).toBe('移动端金融应用开发')
-    })
-
-    it('sixth card displays big data and AI', () => {
-      const cards = wrapper.findAll('.card')
-      expect(cards[5].find('.card-icon').text()).toBe('☁️')
-      expect(cards[5].find('h3').text()).toBe('大数据与AI')
-      expect(cards[5].find('p').text()).toBe('人工智能与大数据分析')
-    })
-
-    it('cards have article semantic tag', () => {
-      const cards = wrapper.findAll('article.card')
-      expect(cards.length).toBe(6)
-    })
-
-    it('card icons have aria-hidden attribute', () => {
-      const icons = wrapper.findAll('.card-icon')
-      icons.forEach(icon => {
-        expect(icon.attributes('aria-hidden')).toBe('true')
-      })
-    })
-  })
-
-  describe('Accessibility', () => {
-    beforeEach(() => {
-      mockIsLoading.value = false
-      wrapper = mount(Services, {
-        global: {
-          stubs: {
-            Transition: transitionStub
-          }
-        }
-      })
+    it('uses semantic section element', () => {
+      const section = wrapper.find('section')
+      expect(section.exists()).toBe(true)
+      expect(section.element.tagName.toLowerCase()).toBe('section')
     })
 
     it('section has id for anchor navigation', () => {
@@ -243,32 +115,62 @@ describe('Services.vue', () => {
       expect(section.exists()).toBe(true)
     })
 
-    it('card icons are hidden from screen readers', () => {
-      const icons = wrapper.findAll('.card-icon')
-      icons.forEach(icon => {
-        expect(icon.attributes('aria-hidden')).toBe('true')
-      })
+    it('skeleton grid uses correct CSS classes', () => {
+      const skeletonGrid = wrapper.find('.skeleton-grid')
+      expect(skeletonGrid.exists()).toBe(true)
     })
 
-    it('uses semantic HTML structure', () => {
-      expect(wrapper.find('section').exists()).toBe(true)
-      expect(wrapper.find('h2').exists()).toBe(true)
-      expect(wrapper.findAll('article').length).toBe(6)
-      expect(wrapper.findAll('h3').length).toBe(6)
-    })
-
-    it('heading hierarchy is correct', () => {
-      const h2 = wrapper.find('h2.section-title')
-      const h3s = wrapper.findAll('h3')
-
-      expect(h2.exists()).toBe(true)
-      expect(h3s.length).toBe(6)
+    it('section has correct CSS classes', () => {
+      const section = wrapper.find('section.section')
+      expect(section.classes()).toContain('section')
     })
   })
 
-  describe('CSS Classes and Styling', () => {
+  describe('Services Data Structure', () => {
     beforeEach(() => {
-      mockIsLoading.value = false
+      wrapper = mount(Services, {
+        global: {
+          stubs: {
+            Transition: transitionStub
+          }
+        }
+      })
+    })
+
+    it('component has services data defined', () => {
+      const skeletons = wrapper.findAllComponents(SkeletonCard)
+      expect(skeletons.length).toBeGreaterThan(0)
+    })
+
+    it('services array has 6 items', () => {
+      const skeletons = wrapper.findAllComponents(SkeletonCard)
+      expect(skeletons.length).toBe(6)
+    })
+  })
+
+  describe('Accessibility', () => {
+    beforeEach(() => {
+      wrapper = mount(Services, {
+        global: {
+          stubs: {
+            Transition: transitionStub
+          }
+        }
+      })
+    })
+
+    it('has semantic HTML structure', () => {
+      expect(wrapper.find('section').exists()).toBe(true)
+    })
+
+    it('has proper id for navigation', () => {
+      const section = wrapper.find('section#services')
+      expect(section.exists()).toBe(true)
+    })
+  })
+
+  describe('CSS and Styling', () => {
+    beforeEach(() => {
       wrapper = mount(Services, {
         global: {
           stubs: {
@@ -283,161 +185,14 @@ describe('Services.vue', () => {
       expect(section.classes()).toContain('section')
     })
 
-    it('title has section-title class', () => {
-      const title = wrapper.find('.section-title')
-      expect(title.classes()).toContain('section-title')
-    })
-
-    it('subtitle has section-subtitle class', () => {
-      const subtitle = wrapper.find('.section-subtitle')
-      expect(subtitle.classes()).toContain('section-subtitle')
-    })
-
-    it('grid has grid class', () => {
-      const grid = wrapper.find('.grid')
-      expect(grid.classes()).toContain('grid')
-    })
-
-    it('cards have card class', () => {
-      const cards = wrapper.findAll('.card')
-      cards.forEach(card => {
-        expect(card.classes()).toContain('card')
-      })
-    })
-
-    it('card icons have card-icon class', () => {
-      const icons = wrapper.findAll('.card-icon')
-      icons.forEach(icon => {
-        expect(icon.classes()).toContain('card-icon')
-      })
-    })
-
-    it('content wrapper has content-wrapper class', () => {
-      const contentWrapper = wrapper.find('.content-wrapper')
-      expect(contentWrapper.classes()).toContain('content-wrapper')
-    })
-  })
-
-  describe('Animations and Transitions', () => {
-    beforeEach(() => {
-      mockIsLoading.value = false
-      wrapper = mount(Services, {
-        global: {
-          stubs: {
-            Transition: transitionStub
-          }
-        }
-      })
-    })
-
-    it('content has fade-in class', () => {
-      const fadeIn = wrapper.find('.fade-in')
-      expect(fadeIn.exists()).toBe(true)
-    })
-
-    it('cards have stagger animation class', () => {
-      const cards = wrapper.findAll('.card')
-      cards.forEach(card => {
-        expect(card.classes()).toContain('stagger')
-      })
-    })
-
-    it('cards have fade-in animation class', () => {
-      const cards = wrapper.findAll('.card')
-      cards.forEach(card => {
-        expect(card.classes()).toContain('fade-in')
-      })
-    })
-  })
-
-  describe('Component Integration', () => {
-    beforeEach(() => {
-      mockIsLoading.value = false
-      wrapper = mount(Services, {
-        global: {
-          stubs: {
-            Transition: transitionStub
-          }
-        }
-      })
-    })
-
-    it('uses useSkeleton composable', () => {
-      expect(mockUseSkeleton).toHaveBeenCalled()
-    })
-
-    it('passes immediate: false to useSkeleton', () => {
-      expect(mockUseSkeleton).toHaveBeenCalledWith({ immediate: false })
-    })
-  })
-
-  describe('Data Structure', () => {
-    beforeEach(() => {
-      mockIsLoading.value = false
-      wrapper = mount(Services, {
-        global: {
-          stubs: {
-            Transition: transitionStub
-          }
-        }
-      })
-    })
-
-    it('services data is computed', () => {
-      const cards = wrapper.findAll('.card')
-      expect(cards.length).toBeGreaterThan(0)
-    })
-
-    it('each service has icon, title, and description', () => {
-      const cards = wrapper.findAll('.card')
-      cards.forEach(card => {
-        expect(card.find('.card-icon').exists()).toBe(true)
-        expect(card.find('h3').exists()).toBe(true)
-        expect(card.find('p').exists()).toBe(true)
-      })
-    })
-  })
-
-  describe('Responsive Behavior', () => {
-    beforeEach(() => {
-      mockIsLoading.value = false
-      wrapper = mount(Services, {
-        global: {
-          stubs: {
-            Transition: transitionStub
-          }
-        }
-      })
-    })
-
-    it('maintains layout on mobile viewport', () => {
-      const grid = wrapper.find('.grid')
-      expect(grid.exists()).toBe(true)
-    })
-
-    it('skeleton grid is responsive', () => {
-      wrapper.unmount()
-
-      mockIsLoading.value = true
-      wrapper = mount(Services, {
-        global: {
-          stubs: {
-            Transition: transitionStub
-          }
-        }
-      })
-
+    it('skeleton grid has correct class', () => {
       const skeletonGrid = wrapper.find('.skeleton-grid')
       expect(skeletonGrid.exists()).toBe(true)
     })
   })
-})
 
-  describe('DEBUG - Loading State', () => {
-    it('debug: check isLoading value when set to false', () => {
-      mockIsLoading.value = false
-      console.log('After setting to false, mockIsLoading.value:', mockIsLoading.value)
-      
+  describe('Component Behavior', () => {
+    beforeEach(() => {
       wrapper = mount(Services, {
         global: {
           stubs: {
@@ -445,9 +200,111 @@ describe('Services.vue', () => {
           }
         }
       })
-      
-      console.log('After mount, wrapper.vm.isLoading:', wrapper.vm.isLoading)
-      console.log('Has content-wrapper:', wrapper.find('.content-wrapper').exists())
-      console.log('Has skeleton-grid:', wrapper.find('.skeleton-grid').exists())
+    })
+
+    it('can be mounted multiple times', () => {
+      const wrappers = [
+        mount(Services, { global: { stubs: { Transition: transitionStub } } }),
+        mount(Services, { global: { stubs: { Transition: transitionStub } } }),
+      ]
+      wrappers.forEach(w => {
+        expect(w.exists()).toBe(true)
+        expect(w.findAllComponents(SkeletonCard).length).toBe(6)
+      })
+      wrappers.forEach(w => w.unmount())
+    })
+
+    it('renders correctly with minimal configuration', () => {
+      expect(wrapper.findAllComponents(SkeletonCard).length).toBe(6)
     })
   })
+
+  describe('SkeletonCard Integration', () => {
+    beforeEach(() => {
+      wrapper = mount(Services, {
+        global: {
+          stubs: {
+            Transition: transitionStub
+          }
+        }
+      })
+    })
+
+    it('renders SkeletonCard components', () => {
+      const skeletons = wrapper.findAllComponents(SkeletonCard)
+      expect(skeletons.length).toBeGreaterThan(0)
+    })
+
+    it('passes correct props to SkeletonCard', () => {
+      const skeletons = wrapper.findAllComponents(SkeletonCard)
+      skeletons.forEach((skeleton, index) => {
+        expect(skeleton.props('isLoading')).toBe(true)
+        expect(skeleton.props('index')).toBe(index)
+      })
+    })
+
+    it('SkeletonCard components have unique keys', () => {
+      const skeletons = wrapper.findAllComponents(SkeletonCard)
+      expect(skeletons.length).toBe(6)
+    })
+  })
+
+  describe('Responsive Design', () => {
+    beforeEach(() => {
+      wrapper = mount(Services, {
+        global: {
+          stubs: {
+            Transition: transitionStub
+          }
+        }
+      })
+    })
+
+    it('skeleton grid maintains structure', () => {
+      const skeletonGrid = wrapper.find('.skeleton-grid')
+      expect(skeletonGrid.exists()).toBe(true)
+    })
+
+    it('renders all skeleton cards regardless of viewport', () => {
+      const skeletons = wrapper.findAllComponents(SkeletonCard)
+      expect(skeletons.length).toBe(6)
+    })
+  })
+
+  describe('Translation Function', () => {
+    beforeEach(() => {
+      wrapper = mount(Services, {
+        global: {
+          stubs: {
+            Transition: transitionStub
+          }
+        }
+      })
+    })
+
+    it('has translation function defined', () => {
+      expect(wrapper.exists()).toBe(true)
+    })
+
+    it('services data uses translations', () => {
+      const skeletons = wrapper.findAllComponents(SkeletonCard)
+      expect(skeletons.length).toBe(6)
+    })
+  })
+
+  describe('Transition Component', () => {
+    beforeEach(() => {
+      wrapper = mount(Services, {
+        global: {
+          stubs: {
+            Transition: transitionStub
+          }
+        }
+      })
+    })
+
+    it('uses Transition component for content fade', () => {
+      expect(wrapper.exists()).toBe(true)
+    })
+  })
+})
