@@ -1,0 +1,90 @@
+[
+  {
+    "id": 1,
+    "title": { "en": "Frontend Developer", "zh": "前端开发工程师" },
+    "department": "engineering",
+    "location": "shanghai",
+    "type": "fulltime",
+    "salary": { "en": "¥25,000 - ¥40,000", "zh": "¥25,000 - ¥40,000" },
+    "postedDate": "2025-05-15",
+    "deadline": "2025-07-15",
+    "description": {
+      "en": "We are looking for an experienced Frontend Developer.",
+      "zh": "我们正在寻找一位经验丰富的前端开发工程师。"
+    },
+    "responsibilities": {
+      "en": ["Develop responsive web applications", "Collaborate with designers"],
+      "zh": ["开发响应式网络应用程序", "与设计师合作"]
+    },
+    "requirements": {
+      "en": ["3+ years of experience", "Strong proficiency in Vue.js"],
+      "zh": ["3年以上经验", "精通 Vue.js"]
+    },
+    "benefits": {
+      "en": ["Competitive salary", "Flexible working hours"],
+      "zh": ["有竞争力的薪酬", "灵活的工作时间"]
+    },
+    "culture": {
+      "en": "We value innovation and collaboration.",
+      "zh": "我们重视创新与合作。"
+    }
+  },
+  {
+    "id": 2,
+    "title": { "en": "Product Manager", "zh": "产品经理" },
+    "department": "product",
+    "location": "beijing",
+    "type": "fulltime",
+    "salary": { "en": "¥30,000 - ¥50,000", "zh": "¥30,000 - ¥50,000" },
+    "postedDate": "2025-05-20",
+    "description": {
+      "en": "Join our product team to drive innovation.",
+      "zh": "加入我们的产品团队推动创新。"
+    },
+    "responsibilities": {
+      "en": ["Define product strategy", "Work with engineering teams"],
+      "zh": ["定义产品战略", "与工程团队协作"]
+    },
+    "requirements": {
+      "en": ["5+ years of product experience", "Strong analytical skills"],
+      "zh": ["5年以上产品经验", "强大的分析能力"]
+    },
+    "benefits": {
+      "en": ["Stock options", "Health insurance"],
+      "zh": ["股票期权", "健康保险"]
+    },
+    "culture": {
+      "en": "We are customer-obsessed.",
+      "zh": "我们以客户为中心。"
+    }
+  },
+  {
+    "id": 3,
+    "title": { "en": "UX Designer", "zh": "UX设计师" },
+    "department": "design",
+    "location": "remote",
+    "type": "contract",
+    "salary": { "en": "¥20,000 - ¥35,000", "zh": "¥20,000 - ¥35,000" },
+    "postedDate": "2025-05-25",
+    "description": {
+      "en": "Create beautiful and functional user experiences.",
+      "zh": "创造美观且实用的用户体验。"
+    },
+    "responsibilities": {
+      "en": ["Design user interfaces", "Conduct user research"],
+      "zh": ["设计用户界面", "进行用户研究"]
+    },
+    "requirements": {
+      "en": ["3+ years of UX experience", "Proficiency in Figma"],
+      "zh": ["3年以上UX经验", "熟练使用 Figma"]
+    },
+    "benefits": {
+      "en": ["Remote work", "Creative environment"],
+      "zh": ["远程工作", "创意环境"]
+    },
+    "culture": {
+      "en": "Design thinking is in our DNA.",
+      "zh": "设计思维融入我们的基因。"
+    }
+  }
+]
