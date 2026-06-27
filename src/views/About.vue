@@ -87,7 +87,7 @@
           </div>
           <div class="vmc-card neon-glow">
             <div class="vmc-icon">🎯</div>
-            <h3>{{ t('about.mission.title') }}</h3>
+            <h3>{{ t('about.mission.heading') }}</h3>
             <p>{{ t('about.mission.description') }}</p>
           </div>
         </div>
@@ -144,15 +144,15 @@
         <div class="stats-grid">
           <div class="stat-item">
             <div class="stat-value neon-text">50+</div>
-            <div class="stat-label">{{ t('about.stats.projects') }}</div>
+            <div class="stat-label">{{ t('about.stats.projects.label') }}</div>
           </div>
           <div class="stat-item">
             <div class="stat-value neon-text">100%</div>
-            <div class="stat-label">{{ t('about.stats.commitment') }}</div>
+            <div class="stat-label">{{ t('about.stats.commitment.label') }}</div>
           </div>
           <div class="stat-item">
             <div class="stat-value neon-text">24/7</div>
-            <div class="stat-label">{{ t('about.stats.innovation') }}</div>
+            <div class="stat-label">{{ t('about.stats.innovation.label') }}</div>
           </div>
         </div>
       </div>
