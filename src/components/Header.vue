@@ -7,6 +7,7 @@
     <!-- Mobile hamburger toggle (off-canvas nav). Hidden on desktop via CSS. -->
     <button
       class="nav-toggle"
+      ref="toggleRef"
       :aria-label="mobileOpen ? t('nav.menu.close') : t('nav.menu.open')"
       :aria-expanded="mobileOpen"
       aria-controls="navbar"
@@ -17,9 +18,15 @@
       <span class="nav-toggle-bar" aria-hidden="true"></span>
     </button>
 
-    <ul class="nav-links" :class="{ 'mobile-open': mobileOpen }">
+    <ul class="nav-links"
+        :class="{ 'mobile-open': mobileOpen }"
+        ref="panelRef"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="t('nav.menu.label')"
+        @keydown="onPanelKeydown">
       <li>
-        <router-link to="/">{{ t('nav.home') }}</router-link>
+        <router-link to="/" @click="closeMobile">{{ t('nav.home') }}</router-link>
       </li>
       <li>
         <NavigationDropdown :label="t('nav.aboutUs')" :items="aboutItems" />
@@ -37,7 +44,7 @@
         <NavigationDropdown :label="t('nav.joinUs')" :items="joinItems" />
       </li>
       <li>
-        <router-link to="/contact">{{ t('nav.contact') }}</router-link>
+        <router-link to="/contact" @click="closeMobile">{{ t('nav.contact') }}</router-link>
       </li>
     </ul>
   </nav>
@@ -56,16 +63,23 @@
  * composable.
  */
 
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import { useLanguage } from '../composables/useLanguage'
 import NavigationDropdown from './NavigationDropdown.vue'
 
 // Shared i18n — text follows the site-wide language toggle (en/zh).
 const { t } = useLanguage()
 
+const router = useRouter()
+
 // State
 const isScrolled = ref(false)
 const mobileOpen = ref(false)
+const panelRef = ref(null)
+const toggleRef = ref(null)
+// Last element focused before the drawer opened — restored on close.
+let lastFocusedBeforeOpen = null
 
 // Submenu definitions. Routes point at real routed pages so the nav never
 // produces a 404. Each submenu item renders via t(item.label).
@@ -106,8 +120,68 @@ const solutionsGroups = [
   },
 ]
 
-const toggleMobile = () => {
+const toggleMobile = async () => {
   mobileOpen.value = !mobileOpen.value
+  if (mobileOpen.value) {
+    // Open: record current focus + move it into the panel.
+    lastFocusedBeforeOpen =
+      document.activeElement && document.activeElement !== document.body
+        ? document.activeElement
+        : toggleRef.value
+    await nextTick()
+    const panel = panelRef.value
+    const firstFocusable = panel?.querySelector(
+      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    )
+    firstFocusable?.focus?.()
+  } else {
+    // Close: restore focus to the hamburger toggle.
+    await nextTick()
+    toggleRef.value?.focus?.()
+  }
+}
+
+// Close the drawer (used by nav-link clicks + Escape + router afterEach).
+const closeMobile = async () => {
+  if (!mobileOpen.value) return
+  mobileOpen.value = false
+  await nextTick()
+  toggleRef.value?.focus?.()
+}
+
+// Focus-trap inside the drawer panel: Tab on the last focusable wraps to the
+// first; Shift+Tab on the first wraps to the last; Escape closes.
+const onPanelKeydown = (e) => {
+  if (e.key === 'Escape') {
+    e.preventDefault()
+    closeMobile()
+    return
+  }
+  if (e.key !== 'Tab') return
+  const panel = panelRef.value
+  if (!panel) return
+  const focusables = Array.from(
+    panel.querySelectorAll(
+      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    ),
+  ).filter((el) => el.offsetParent !== null || el === document.activeElement)
+  if (focusables.length === 0) return
+  const first = focusables[0]
+  const last = focusables[focusables.length - 1]
+  const active = document.activeElement
+  if (e.shiftKey && active === first) {
+    e.preventDefault()
+    last.focus()
+  } else if (!e.shiftKey && active === last) {
+    e.preventDefault()
+    first.focus()
+  }
+}
+
+const handleEscapeGlobal = (e) => {
+  if (e.key === 'Escape' && mobileOpen.value) {
+    closeMobile()
+  }
 }
 
 // Handle scroll event
@@ -115,13 +189,24 @@ const handleScroll = () => {
   isScrolled.value = window.scrollY > 50
 }
 
+// Close the drawer whenever the route changes (covers submenu navigations
+// triggered from inside the dropdowns, which don't fire a top-level click
+// on the panel's direct children).
+let removeAfterEach = null
+
 // Lifecycle
 onMounted(() => {
   window.addEventListener('scroll', handleScroll, { passive: true })
+  document.addEventListener('keydown', handleEscapeGlobal)
+  removeAfterEach = router.afterEach(() => {
+    if (mobileOpen.value) closeMobile()
+  })
 })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
+  document.removeEventListener('keydown', handleEscapeGlobal)
+  removeAfterEach?.()
 })
 </script>
 
