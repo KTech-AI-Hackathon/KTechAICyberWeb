@@ -43,6 +43,21 @@ import { ref } from 'vue'
 // Detect test environment
 const isTest = import.meta.env.MODE === 'test' || typeof window !== 'undefined' && window.__testLoadingState !== undefined
 
+// Translations - must be defined before use
+const t = (key) => {
+  const translations = {
+    'contact.title': '联系我们',
+    'contact.subtitle': '期待与您合作',
+    'contact.address': '公司地址',
+    'contact.addressValue': '深圳市罗湖区',
+    'contact.email': '电子邮箱',
+    'contact.emailValue': 'contact@ktech.fintech',
+    'contact.website': '官方网站',
+    'contact.websiteValue': 'www.kaitai.tech'
+  }
+  return translations[key] || key
+}
+
 // Skeleton loading state for below-fold content
 // In test environment, use a simple ref that we can control
 let isLoading

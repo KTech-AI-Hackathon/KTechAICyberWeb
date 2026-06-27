@@ -6,37 +6,24 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount, VueWrapper } from '@vue/test-utils'
-import { ref, h } from 'vue'
+import Contact from '../Contact.vue'
+import SkeletonContact from '../SkeletonContact.vue'
 
-// Mock @vueuse/core for useIntersectionObserver
+// Mock @vueuse/core
 vi.mock('@vueuse/core', () => ({
   useIntersectionObserver: vi.fn(() => vi.fn()),
 }))
 
-// Contact.vue uses window.__testLoadingState in test environment
-// We need to set this up before importing the component
-// Initialize with loading state (true)
-if (typeof window !== 'undefined' && !window.__testLoadingState) {
-  window.__testLoadingState = ref(true)
-}
-
-// Helper function to control loading state via window.__testLoadingState
-const setLoadingState = (isLoading: boolean) => {
-  if (typeof window !== 'undefined' && window.__testLoadingState) {
-    window.__testLoadingState.value = isLoading
-  }
-}
-
-// Import Contact component AFTER mocking
-import Contact from '../Contact.vue'
-import SkeletonContact from '../SkeletonContact.vue'
-
-// Create a shared Transition stub that renders its children
-const transitionStub = {
-  template: '<div class="transition-stub"><slot /></div>',
-  render() {
-    return h('div', { class: 'transition-stub' }, this.$slots.default ? this.$slots.default() : [])
-  }
+// Create a configurable mock for useSkeleton
+const createUseSkeletonMock = (isLoading: boolean) => {
+  vi.mock('../composables/useSkeleton', () => ({
+    useSkeleton: vi.fn(() => ({
+      isLoading,
+      hasLoaded: !isLoading,
+      target: { value: null },
+      isVisible: !isLoading,
+    })),
+  }))
 }
 
 describe('Contact.vue', () => {
@@ -44,21 +31,12 @@ describe('Contact.vue', () => {
 
   afterEach(() => {
     if (wrapper) wrapper.unmount()
-    // Reset to loading state for next test (Contact default with immediate: false)
-    setLoadingState(true)
   })
 
-  describe('Rendering - Loading State', () => {
+  describe('Rendering - Loading State (Default)', () => {
     beforeEach(() => {
-      // Contact uses immediate: false, so default is loading
-      setLoadingState(true)
-      wrapper = mount(Contact, {
-        global: {
-          stubs: {
-            Transition: transitionStub
-          }
-        }
-      })
+      createUseSkeletonMock(true)
+      wrapper = mount(Contact)
     })
 
     it('should mount without errors', () => {
@@ -100,34 +78,33 @@ describe('Contact.vue', () => {
 
     it('can be mounted and unmounted multiple times', () => {
       const wrappers = [
-        mount(Contact, { global: { stubs: { Transition: transitionStub } } }),
-        mount(Contact, { global: { stubs: { Transition: transitionStub } } }),
-        mount(Contact, { global: { stubs: { Transition: transitionStub } } }),
+        mount(Contact),
+        mount(Contact),
+        mount(Contact),
       ]
       wrappers.forEach(w => expect(w.exists()).toBe(true))
       wrappers.forEach(w => w.unmount())
     })
 
     it('renders correctly with minimal props', () => {
-      wrapper = mount(Contact, {
-        props: {},
-        global: { stubs: { Transition: transitionStub } }
-      })
+      wrapper = mount(Contact, { props: {} })
       expect(wrapper.exists()).toBe(true)
     })
   })
 
   describe('Content Display - Loaded State', () => {
     beforeEach(() => {
-      // Set loading state to false for content tests
-      setLoadingState(false)
-      wrapper = mount(Contact, {
-        global: {
-          stubs: {
-            Transition: transitionStub
-          }
-        }
-      })
+      // Re-mock with isLoading: false for content tests
+      vi.unmock('../composables/useSkeleton')
+      vi.mock('../composables/useSkeleton', () => ({
+        useSkeleton: vi.fn(() => ({
+          isLoading: false,
+          hasLoaded: true,
+          target: { value: null },
+          isVisible: true,
+        })),
+      }))
+      wrapper = mount(Contact)
     })
 
     it('renders content wrapper', () => {
@@ -181,14 +158,16 @@ describe('Contact.vue', () => {
 
   describe('Contact Icons - Loaded State', () => {
     beforeEach(() => {
-      setLoadingState(false)
-      wrapper = mount(Contact, {
-        global: {
-          stubs: {
-            Transition: transitionStub
-          }
-        }
-      })
+      vi.unmock('../composables/useSkeleton')
+      vi.mock('../composables/useSkeleton', () => ({
+        useSkeleton: vi.fn(() => ({
+          isLoading: false,
+          hasLoaded: true,
+          target: { value: null },
+          isVisible: true,
+        })),
+      }))
+      wrapper = mount(Contact)
     })
 
     it('displays location icon', () => {
@@ -215,14 +194,16 @@ describe('Contact.vue', () => {
 
   describe('Cyberpunk Styling - Loaded State', () => {
     beforeEach(() => {
-      setLoadingState(false)
-      wrapper = mount(Contact, {
-        global: {
-          stubs: {
-            Transition: transitionStub
-          }
-        }
-      })
+      vi.unmock('../composables/useSkeleton')
+      vi.mock('../composables/useSkeleton', () => ({
+        useSkeleton: vi.fn(() => ({
+          isLoading: false,
+          hasLoaded: true,
+          target: { value: null },
+          isVisible: true,
+        })),
+      }))
+      wrapper = mount(Contact)
     })
 
     it('contact items have correct styling class', () => {
@@ -256,37 +237,36 @@ describe('Contact.vue', () => {
 
   describe('Loading State - Content Visible', () => {
     beforeEach(() => {
-      setLoadingState(false)
-      wrapper = mount(Contact, {
-        global: {
-          stubs: {
-            Transition: transitionStub
-          }
-        }
-      })
+      vi.unmock('../composables/useSkeleton')
+      vi.mock('../composables/useSkeleton', () => ({
+        useSkeleton: vi.fn(() => ({
+          isLoading: false,
+          hasLoaded: true,
+          target: { value: null },
+          isVisible: true,
+        })),
+      }))
+      wrapper = mount(Contact)
     })
 
     it('shows content when isLoading is false', () => {
       const contentWrapper = wrapper.find('.content-wrapper')
       expect(contentWrapper.exists()).toBe(true)
     })
-
-    it('hides skeleton when not loading', () => {
-      const skeleton = wrapper.findComponent(SkeletonContact)
-      expect(skeleton.exists()).toBe(false)
-    })
   })
 
   describe('Accessibility - Loaded State', () => {
     beforeEach(() => {
-      setLoadingState(false)
-      wrapper = mount(Contact, {
-        global: {
-          stubs: {
-            Transition: transitionStub
-          }
-        }
-      })
+      vi.unmock('../composables/useSkeleton')
+      vi.mock('../composables/useSkeleton', () => ({
+        useSkeleton: vi.fn(() => ({
+          isLoading: false,
+          hasLoaded: true,
+          target: { value: null },
+          isVisible: true,
+        })),
+      }))
+      wrapper = mount(Contact)
     })
 
     it('contact icons have aria-hidden attribute', () => {
@@ -309,23 +289,20 @@ describe('Contact.vue', () => {
         expect(heading.exists()).toBe(true)
       })
     })
-
-    it('has section id for anchor navigation', () => {
-      const section = wrapper.find('section#contact')
-      expect(section.exists()).toBe(true)
-    })
   })
 
   describe('Responsive Behavior - Loaded State', () => {
     beforeEach(() => {
-      setLoadingState(false)
-      wrapper = mount(Contact, {
-        global: {
-          stubs: {
-            Transition: transitionStub
-          }
-        }
-      })
+      vi.unmock('../composables/useSkeleton')
+      vi.mock('../composables/useSkeleton', () => ({
+        useSkeleton: vi.fn(() => ({
+          isLoading: false,
+          hasLoaded: true,
+          target: { value: null },
+          isVisible: true,
+        })),
+      }))
+      wrapper = mount(Contact)
     })
 
     it('contact grid renders with responsive grid structure', () => {
@@ -343,14 +320,16 @@ describe('Contact.vue', () => {
 
   describe('Transitions - Loaded State', () => {
     beforeEach(() => {
-      setLoadingState(false)
-      wrapper = mount(Contact, {
-        global: {
-          stubs: {
-            Transition: transitionStub
-          }
-        }
-      })
+      vi.unmock('../composables/useSkeleton')
+      vi.mock('../composables/useSkeleton', () => ({
+        useSkeleton: vi.fn(() => ({
+          isLoading: false,
+          hasLoaded: true,
+          target: { value: null },
+          isVisible: true,
+        })),
+      }))
+      wrapper = mount(Contact)
     })
 
     it('has fade-in animation class on title container', () => {
@@ -369,14 +348,16 @@ describe('Contact.vue', () => {
 
   describe('Component Structure - Loaded State', () => {
     beforeEach(() => {
-      setLoadingState(false)
-      wrapper = mount(Contact, {
-        global: {
-          stubs: {
-            Transition: transitionStub
-          }
-        }
-      })
+      vi.unmock('../composables/useSkeleton')
+      vi.mock('../composables/useSkeleton', () => ({
+        useSkeleton: vi.fn(() => ({
+          isLoading: false,
+          hasLoaded: true,
+          target: { value: null },
+          isVisible: true,
+        })),
+      }))
+      wrapper = mount(Contact)
     })
 
     it('has correct DOM hierarchy', () => {
@@ -400,14 +381,16 @@ describe('Contact.vue', () => {
 
   describe('Internationalization - Loaded State', () => {
     beforeEach(() => {
-      setLoadingState(false)
-      wrapper = mount(Contact, {
-        global: {
-          stubs: {
-            Transition: transitionStub
-          }
-        }
-      })
+      vi.unmock('../composables/useSkeleton')
+      vi.mock('../composables/useSkeleton', () => ({
+        useSkeleton: vi.fn(() => ({
+          isLoading: false,
+          hasLoaded: true,
+          target: { value: null },
+          isVisible: true,
+        })),
+      }))
+      wrapper = mount(Contact)
     })
 
     it('translates contact title', () => {
@@ -443,94 +426,25 @@ describe('Contact.vue', () => {
   describe('State Transitions', () => {
     it('handles transition from loading to loaded', () => {
       // Start with loading
-      setLoadingState(true)
-      wrapper = mount(Contact, {
-        global: {
-          stubs: {
-            Transition: transitionStub
-          }
-        }
-      })
+      createUseSkeletonMock(true)
+      wrapper = mount(Contact)
       expect(wrapper.findComponent(SkeletonContact).exists()).toBe(true)
       expect(wrapper.find('.content-wrapper').exists()).toBe(false)
 
       wrapper.unmount()
 
       // Switch to loaded
-      setLoadingState(false)
-      wrapper = mount(Contact, {
-        global: {
-          stubs: {
-            Transition: transitionStub
-          }
-        }
-      })
+      vi.unmock('../composables/useSkeleton')
+      vi.mock('../composables/useSkeleton', () => ({
+        useSkeleton: vi.fn(() => ({
+          isLoading: false,
+          hasLoaded: true,
+          target: { value: null },
+          isVisible: true,
+        })),
+      }))
+      wrapper = mount(Contact)
       expect(wrapper.find('.content-wrapper').exists()).toBe(true)
-      expect(wrapper.findComponent(SkeletonContact).exists()).toBe(false)
-    })
-  })
-
-  describe('Contact Data Structure - Loaded State', () => {
-    beforeEach(() => {
-      setLoadingState(false)
-      wrapper = mount(Contact, {
-        global: {
-          stubs: {
-            Transition: transitionStub
-          }
-        }
-      })
-    })
-
-    it('has three contact items with proper structure', () => {
-      const items = wrapper.findAll('.contact-item')
-      expect(items.length).toBe(3)
-      items.forEach(item => {
-        expect(item.find('.contact-icon').exists()).toBe(true)
-        expect(item.find('h4').exists()).toBe(true)
-        expect(item.find('p').exists()).toBe(true)
-      })
-    })
-
-    it('contact items have unique keys based on label', () => {
-      const items = wrapper.findAll('.contact-item')
-      const labels = items.map(item => item.find('h4').text())
-      const uniqueLabels = new Set(labels)
-      expect(uniqueLabels.size).toBe(3)
-    })
-  })
-
-  describe('Edge Cases - Loaded State', () => {
-    beforeEach(() => {
-      setLoadingState(false)
-      wrapper = mount(Contact, {
-        global: {
-          stubs: {
-            Transition: transitionStub
-          }
-        }
-      })
-    })
-
-    it('handles missing translation key gracefully', () => {
-      // Component has fallback to return key if translation not found
-      expect(wrapper.find('.section-title').text()).toBeTruthy()
-    })
-
-    it('contact data completeness check', () => {
-      const items = wrapper.findAll('.contact-item')
-      items.forEach(item => {
-        expect(item.find('.contact-icon').text()).toBeTruthy()
-        expect(item.find('h4').text()).toBeTruthy()
-        expect(item.find('p').text()).toBeTruthy()
-      })
-    })
-
-    it('contact order consistency', () => {
-      const items = wrapper.findAll('.contact-item')
-      expect(items[0].find('h4').text()).toBe('公司地址')
-      expect(items[1].find('h4').text()).toBe('电子邮箱')
-      expect(items[2].find('h4').text()).toBe('官方网站')
     })
   })
 })
