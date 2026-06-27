@@ -85,6 +85,17 @@ export const usePreferencesStore = defineStore('preferences', {
       }
     },
     /**
+     * Toggle between the dark and light themes. The default 'cyber' theme is
+     * dark-styled, so it is treated as the dark side of the toggle. Any
+     * non-'light' value maps to dark and toggles to 'light', and vice-versa.
+     * The chosen theme is persisted and applied to the document so the
+     * cyber.css `[data-theme]` rules take effect immediately.
+     */
+    toggleTheme() {
+      const next = this.theme === 'light' ? 'dark' : 'light'
+      this.setTheme(next)
+    },
+    /**
      * Set the active language. Ignored if the language is not in the allow-list.
      * @param {string} language
      */
