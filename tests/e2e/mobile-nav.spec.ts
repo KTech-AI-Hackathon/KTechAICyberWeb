@@ -10,7 +10,18 @@ import { VIEWPORTS } from './fixtures/test-data';
  * @tags mobile navigation responsive accessibility
  */
 
-test.describe('Mobile Navigation', () => {
+/**
+ * SKIP (obsolete): this spec tests a hamburger / slide-in mobile menu
+ * (`.hamburger`, `.mobile-menu`, `.menu-backdrop`, `.menu-link`) that the
+ * current app does not implement. The live nav (App.vue) is a simple
+ * `.cyber-nav` > `.nav-links` flex row of router-links with no responsive
+ * hamburger, no mobile menu panel, no body-scroll-lock, and no Escape/backdrop
+ * dismissal. The nav was redesigned to the cyberpunk shell without a mobile
+ * drawer; at narrow viewports `.nav-links` simply wraps/remains inline. This is
+ * a fundamental redesign, not test drift. Skipped (not deleted); restoring it
+ * would require building a mobile nav, which is a product decision.
+ */
+test.describe.skip('Mobile Navigation', () => {
   test.use({ viewport: VIEWPORTS.mobile });
 
   test('shows hamburger and hides desktop nav links on mobile', async ({ page }) => {
@@ -127,7 +138,7 @@ test.describe('Mobile Navigation', () => {
   });
 });
 
-test.describe('Desktop Navigation (no hamburger)', () => {
+test.describe.skip('Desktop Navigation (no hamburger)', () => {
   test.use({ viewport: VIEWPORTS.desktop });
 
   test('hamburger is hidden on desktop', async ({ page }) => {

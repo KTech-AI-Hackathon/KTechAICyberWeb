@@ -8,7 +8,11 @@ import { test, expect } from './fixtures/test-fixtures';
  * @tags regression theme
  */
 
-test.describe('Theme Toggle', { tag: ['@regression', '@theme'] }, () => {
+// Serial: these tests mutate localStorage (the persisted theme) and reload the
+// page. Under fullyParallel mode, parallel workers on the same origin raced on
+// localStorage and intermittently failed (persist/transition tests). Running
+// the suite serially removes that shared-state flakiness.
+test.describe.serial('Theme Toggle', { tag: ['@regression', '@theme'] }, () => {
   test.beforeEach(async ({ homePage }) => {
     // Clear localStorage before each test to ensure clean state
     await homePage.page.goto('/');
@@ -151,11 +155,17 @@ test.describe('Theme Toggle', { tag: ['@regression', '@theme'] }, () => {
   });
 
   test('should work on all pages', async ({ page }) => {
-    const pages = ['/', '/services', '/about'];
+    // Routes that actually exist in src/main.js (the old /services index route
+    // was removed — services are now individual /services/<slug> pages, none of
+    // which are in the main nav). The theme toggle is rendered in the App shell
+    // so it is present on every routed page. Paths include the Vite base
+    // subpath because page.goto resolves absolute paths against the origin.
+    const BASE = '/KTechAICyberWeb';
+    const pages = [`${BASE}/`, `${BASE}/about`, `${BASE}/news`];
 
     for (const pagePath of pages) {
       // Clear localStorage and navigate to page
-      await page.goto('/');
+      await page.goto(`${BASE}/`);
       await page.evaluate(() => localStorage.clear());
       await page.goto(pagePath);
       await page.waitForLoadState('networkidle');
@@ -184,13 +194,19 @@ test.describe('Theme Toggle', { tag: ['@regression', '@theme'] }, () => {
     const themeToggle = homePage.page.locator('.theme-toggle');
     const htmlElement = homePage.page.locator('html');
 
+    // ThemeToggle shows the affordance for the theme you will switch TO: in
+    // dark mode it shows the sun (☀) to switch to light, and in light mode it
+    // shows the moon (☾). The icon lives in `.theme-icon` (the old
+    // `.icon-moon` / `.icon-sun` classes no longer exist).
+    const themeIcon = homePage.page.locator('.theme-toggle .theme-icon');
+
     // Get initial theme and check corresponding icon
     const initialTheme = await htmlElement.getAttribute('data-theme');
 
     if (initialTheme === 'dark') {
-      await expect(homePage.page.locator('.icon-moon')).toBeVisible();
+      await expect(themeIcon).toHaveText('☀');
     } else {
-      await expect(homePage.page.locator('.icon-sun')).toBeVisible();
+      await expect(themeIcon).toHaveText('☾');
     }
 
     // Toggle theme and verify icon changes
@@ -200,9 +216,9 @@ test.describe('Theme Toggle', { tag: ['@regression', '@theme'] }, () => {
     const newTheme = await htmlElement.getAttribute('data-theme');
 
     if (newTheme === 'dark') {
-      await expect(homePage.page.locator('.icon-moon')).toBeVisible();
+      await expect(themeIcon).toHaveText('☀');
     } else {
-      await expect(homePage.page.locator('.icon-sun')).toBeVisible();
+      await expect(themeIcon).toHaveText('☾');
     }
   });
 
@@ -269,18 +285,17 @@ test.describe('Theme Toggle', { tag: ['@regression', '@theme'] }, () => {
     const changedTheme = await htmlElement.getAttribute('data-theme');
     expect(changedTheme).not.toBe(initialTheme);
 
-    // Navigate to services page
-    await page.click('a[href="/services"]');
+    // Navigate to the News page (the old /services link no longer exists in the
+    // nav — services are now /services/<slug> detail pages). The theme is
+    // persisted in localStorage by usePreferencesStore, so it survives the
+    // client-side route change.
+    await page.locator('.nav-links a').filter({ hasText: /^News$/ }).click();
     await page.waitForLoadState('networkidle');
-
-    // Verify theme persists on services page
     expect(await htmlElement.getAttribute('data-theme')).toBe(changedTheme);
 
-    // Navigate to about page
-    await page.click('a[href="/about"]');
+    // Navigate to the About page
+    await page.locator('.nav-links a').filter({ hasText: /^About$/ }).click();
     await page.waitForLoadState('networkidle');
-
-    // Verify theme persists on about page
     expect(await htmlElement.getAttribute('data-theme')).toBe(changedTheme);
   });
 });

@@ -9,7 +9,20 @@ import { NAVIGATION_LINKS } from './fixtures/test-data';
  * @tags smoke regression
  */
 
-test.describe('Navigation Menu', { tag: '@smoke' }, () => {
+/**
+ * SKIP (obsolete): this spec drives a hash-based single-page navigation that no
+ * longer exists. It expects `.nav-links a[href="#services"|#honors"|#contact"]`
+ * anchors that smooth-scroll to `#services`/`#honors`/`#contact` sections on
+ * the Home page, plus a `.scrolled` class on a `.nav` element and a clickable
+ * nav logo. The current app is a multi-route SPA: the nav (App.vue `.cyber-nav`)
+ * uses router-links to `/`, `/about`, `/news`, `/contact` (no hash links), the
+ * Home page has no `#services`/`#honors`/`#contact` sections, and there is no
+ * `.scrolled`-class behavior. The NAVIGATION_LINKS fixture (服务/荣誉/联系 hash
+ * links) is similarly stale. This is a fundamental redesign, not test drift.
+ * Skipped (not deleted). Live nav/routing is covered by 140-router-base.spec.ts
+ * and theme.spec.ts (theme consistency across nav).
+ */
+test.describe.skip('Navigation Menu', { tag: '@smoke' }, () => {
   test.beforeEach(async ({ homePage }) => {
     await homePage.goto();
   });

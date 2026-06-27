@@ -82,7 +82,27 @@ class CulturePage {
   }
 }
 
-test.describe('Culture Component - E2E Content Rendering', () => {
+/**
+ * SKIP (obsolete): this spec targets a Culture section that was mounted on the
+ * Home page (`section#culture`) in a previous design, with hardcoded Chinese
+ * copy and a fixed icon/title set. None of that matches the current app:
+ *
+ *  - The current Home page (src/views/Home.vue) is a cyberpunk landing page
+ *    with `.cyber-header`/`.hero`/`.features` — it does NOT render a Culture
+ *    section at all, so `section#culture` never exists.
+ *  - The Culture *component* (src/components/Culture.vue) still exists but is
+ *    mounted on the About page (not Home), renders `.section` (not
+ *    `section#culture`), uses i18n keys (culture.title / culture.vision /
+ *    culture.mission / culture.values) instead of hardcoded "企业文化"/"创新驱动",
+ *    and its icon order is 🎯/🚀/💡 with titles vision/mission/values — NOT the
+ *    🚀/🎯/💡 + 创新驱动/客户至上/追求卓越 this spec asserts.
+ *
+ * So the spec checks a UI/data shape that was fundamentally redesigned. It is
+ * skipped (not deleted) pending a rewrite against the current Culture
+ * component on the About page. The Culture component's own unit tests
+ * (src/components/__tests__/Culture.test.ts) cover the live behavior.
+ */
+test.describe.skip('Culture Component - E2E Content Rendering', () => {
   let culturePage: CulturePage
   let page: Page
 
@@ -248,7 +268,7 @@ test.describe('Culture Component - E2E Content Rendering', () => {
   })
 })
 
-test.describe('Culture Component - Integration Tests', () => {
+test.describe.skip('Culture Component - Integration Tests', () => {
   let culturePage: CulturePage
   let page: Page
 

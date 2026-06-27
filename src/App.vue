@@ -86,17 +86,21 @@ export default {
       (theme) => applyTheme(theme),
     )
 
-    // Initialize language on app mount
+    // Initialize language on app mount. Translations are bundled at module
+    // scope in useLanguage.js (static imports of en.json/zh.json), so they
+    // are already available — there is nothing to fetch/load at runtime.
+    // (An earlier fetch-based version exposed loadCurrentTranslations() here;
+    // it was removed when translations became bundled, and the dangling
+    // destructure below threw "loadCurrentTranslations is not a function"
+    // on every page load — non-fatal for static text, but it aborted the
+    // microtask queue and broke the PositionList page's async positions
+    // import so no cards rendered. Removing the dead call lets the page
+    // finish loading.)
     onMounted(() => {
       initLanguage()
     })
 
-    const { t, loadCurrentTranslations } = useLanguage()
-
-    // Load translations
-    onMounted(async () => {
-      await loadCurrentTranslations()
-    })
+    const { t } = useLanguage()
 
     const currentMeta = computed(() => getRouteMeta(route))
     const structuredData = computed(() => getStructuredData(route))

@@ -34,7 +34,13 @@ export default defineConfig({
 
   // Shared settings for all tests
   use: {
-    // Base URL for tests (will use webServer URL automatically)
+    // Base URL for tests. Kept at the dev-server origin: the app is served at
+    // the Vite `base` subpath /KTechAICyberWeb/, but Playwright resolves an
+    // absolute-path page.goto('/careers') against the ORIGIN (not the baseURL
+    // path), and the page-object models (BasePage/HomePage) drive navigation
+    // via page.goto('/') + in-app link clicks which work from the origin. Specs
+    // that need a direct deep-link to a route (e.g. /careers) include the
+    // subpath explicitly via a BASE constant in the spec itself.
     baseURL: 'http://localhost:3000',
 
     // Collect trace when retrying the failed test
