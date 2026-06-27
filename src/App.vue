@@ -20,6 +20,7 @@
         <router-link to="/news">{{ t('nav.news') }}</router-link>
         <router-link to="/contact">{{ t('nav.contact') }}</router-link>
         <LanguageSwitcher />
+        <ThemeToggle />
       </div>
     </nav>
     <main id="main-content" class="main-content" :aria-label="t('a11y.mainLabel')" role="main">
@@ -50,22 +51,40 @@
 </template>
 
 <script>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useHead } from '@vueuse/head'
 import { getRouteMeta, getStructuredData } from './utils/seo'
 import { useLanguage, initLanguage } from './i18n'
+import { usePreferencesStore } from './stores/preferences'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
+import ThemeToggle from './components/ThemeToggle.vue'
 import SkipLink from './components/SkipLink.vue'
 
 export default {
   name: 'App',
   components: {
     LanguageSwitcher,
+    ThemeToggle,
     SkipLink
   },
   setup() {
     const route = useRoute()
+    const preferences = usePreferencesStore()
+
+    // Apply the persisted theme to <html data-theme="...">. cyber.css only
+    // defines dark/light variants, so 'cyber' (the default) is treated as the
+    // dark theme. The watcher keeps the DOM in sync whenever the preference
+    // changes (e.g. via the ThemeToggle button).
+    const applyTheme = (theme) => {
+      const resolved = theme === 'light' ? 'light' : 'dark'
+      document.documentElement.setAttribute('data-theme', resolved)
+    }
+    applyTheme(preferences.theme)
+    watch(
+      () => preferences.theme,
+      (theme) => applyTheme(theme),
+    )
 
     // Initialize language on app mount
     onMounted(() => {
@@ -135,6 +154,8 @@ export default {
 <style>
 /* Import global accessibility styles */
 @import './styles/accessibility.css';
+/* Cyberpunk theme variables (driven by <html data-theme="dark|light">) */
+@import './assets/styles/cyber.css';
 </style>
 
 <style scoped>

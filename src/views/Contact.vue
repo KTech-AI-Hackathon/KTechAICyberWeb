@@ -35,8 +35,11 @@
               :aria-describedby="errors.name ? 'name-error' : undefined"
               required
             />
-            <span v-if="errors.name" id="name-error" class="error-message" role="alert">
+            <span v-if="errors.name === 'required'" id="name-error" class="error-message" role="alert">
               {{ t('contact.form.validation.nameRequired') }}
+            </span>
+            <span v-else-if="errors.name === 'tooShort'" id="name-error" class="error-message" role="alert">
+              {{ t('contact.form.validation.nameTooShort') }}
             </span>
           </div>
 
@@ -57,8 +60,11 @@
               :aria-describedby="errors.phone ? 'phone-error' : undefined"
               required
             />
-            <span v-if="errors.phone" id="phone-error" class="error-message" role="alert">
+            <span v-if="errors.phone === 'required'" id="phone-error" class="error-message" role="alert">
               {{ t('contact.form.validation.phoneRequired') }}
+            </span>
+            <span v-else-if="errors.phone === 'invalid'" id="phone-error" class="error-message" role="alert">
+              {{ t('contact.form.validation.phoneInvalid') }}
             </span>
           </div>
 
@@ -83,6 +89,7 @@
               {{ t('contact.form.validation.companyRequired') }}
             </span>
           </div>
+
 
           <!-- Email Field -->
           <div class="form-group">
@@ -117,10 +124,15 @@
                 v-model="formData.privacy"
                 type="checkbox"
                 name="privacy"
+                :aria-invalid="errors.privacy ? 'true' : 'false'"
+                :aria-describedby="errors.privacy ? 'privacy-error' : undefined"
                 required
               />
               <span>{{ t('contact.form.privacy') }}</span>
             </label>
+            <span v-if="errors.privacy" id="privacy-error" class="error-message" role="alert">
+              {{ t('contact.form.validation.privacyRequired') }}
+            </span>
           </div>
 
           <!-- Submit Button -->
@@ -245,36 +257,45 @@ const submitStatus = ref(null)
 
 // Email validation regex
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+// Phone must be all digits (an optional leading + is tolerated).
+const phoneDigitsRegex = /^\+?\d+$/
 
-// Validate form
+// Validate form. Each error is stored as a string code (e.g. 'required',
+// 'tooShort', 'invalid') so the template can render a distinct, accessible
+// message per rule. Returns true when the form is valid.
 const validateForm = () => {
   errors.value = {}
 
-  // Name validation
+  // Name validation: required + min 2 characters.
   if (!formData.name.trim()) {
-    errors.value.name = true
+    errors.value.name = 'required'
+  } else if (formData.name.trim().length < 2) {
+    errors.value.name = 'tooShort'
   }
 
-  // Phone validation
-  if (!formData.phone.trim()) {
-    errors.value.phone = true
+  // Phone validation: required + numeric only.
+  const trimmedPhone = formData.phone.trim()
+  if (!trimmedPhone) {
+    errors.value.phone = 'required'
+  } else if (!phoneDigitsRegex.test(trimmedPhone)) {
+    errors.value.phone = 'invalid'
   }
 
-  // Company validation
+  // Company validation: required.
   if (!formData.company.trim()) {
-    errors.value.company = true
+    errors.value.company = 'required'
   }
 
-  // Email validation
+  // Email validation: required + valid format.
   if (!formData.email.trim()) {
     errors.value.email = 'required'
   } else if (!emailRegex.test(formData.email)) {
     errors.value.email = 'invalid'
   }
 
-  // Privacy validation
+  // Privacy validation: must be checked.
   if (!formData.privacy) {
-    errors.value.privacy = true
+    errors.value.privacy = 'required'
   }
 
   return Object.keys(errors.value).length === 0

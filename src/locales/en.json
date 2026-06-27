@@ -1,4 +1,63 @@
 {
+  "theme": {
+    "toggle": "Toggle theme",
+    "dark": "Dark theme",
+    "light": "Light theme",
+    "darkLabel": "Dark",
+    "lightLabel": "Light"
+  },
+  "contact": {
+    "title": "Contact",
+    "titleAccent": "Us",
+    "subtitle": "Reach out to start your next project",
+    "breadcrumb": "Home / Contact",
+    "form": {
+      "title": "Send Us a Message",
+      "name": "Name",
+      "namePlaceholder": "Your full name",
+      "phone": "Phone",
+      "phonePlaceholder": "Your phone number",
+      "company": "Company",
+      "companyPlaceholder": "Your company name",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "privacy": "I agree to the privacy policy",
+      "submit": "Submit",
+      "submitting": "Submitting...",
+      "success": "Thank you! Your message has been sent.",
+      "error": "Please fix the errors above before submitting.",
+      "validation": {
+        "nameRequired": "Name is required.",
+        "nameTooShort": "Name must be at least 2 characters.",
+        "phoneRequired": "Phone is required.",
+        "phoneInvalid": "Phone must contain only digits.",
+        "companyRequired": "Company is required.",
+        "emailRequired": "Email is required.",
+        "emailInvalid": "Please enter a valid email address.",
+        "privacyRequired": "You must agree to the privacy policy."
+      }
+    },
+    "info": {
+      "title": "Company Information",
+      "address": "Address",
+      "addressValue": "Luohu District, Shenzhen, Guangdong, China",
+      "email": "Email",
+      "emailValue": "contact@ktech.fintech",
+      "phone": "Phone",
+      "phoneValue": "+86 755 0000 0000",
+      "wechat": "WeChat",
+      "wechatValue": "ktech-official",
+      "social": "Follow Us"
+    },
+    "demo": {
+      "title": "Request a Demo",
+      "description": "See our platform in action with a personalized walkthrough.",
+      "consultant": "Consultation",
+      "solution": "Solution",
+      "consulting": "Consulting",
+      "button": "Request Demo"
+    }
+  },
   "nav": {
     "home": "Home",
     "about": "About",
