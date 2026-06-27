@@ -99,33 +99,48 @@
     "companyName": "开泰远景信息科技有限公司"
   },
   "home": {
-    "title": "KTech AI",
-    "subtitle": "赛博朋克智能系统",
+    "title": "致力于成为中国—东盟地区领先的金融科技公司",
+    "subtitle": "为客户提供更好的金融服务科技",
     "hero": {
-      "title": "下一代人工智能",
-      "description": "运用尖端技术和赛博朋克美学，构建人工智能的未来。"
+      "description": "开泰远景信息科技有限公司（KTech）是 KASIKORNBANK（开泰银行）集团在华的科技子公司，也是首家由外资银行发起、经深圳市地方金融监督管理局批准设立的金融科技公司。",
+      "description2": "我们提供区块链、大数据、人工智能等综合金融科技服务，助力中国—东盟经济与金融合作迈向更美好的未来。"
     },
-    "stats": {
-      "uptime": "99.9%",
-      "requests": "100万+",
-      "latency": "50ms"
-    },
-    "features": {
-      "heading": "核心功能",
-      "ai": {
-        "title": "AI 模型",
-        "description": "由最先进的transformer技术驱动的先进神经网络"
-      },
-      "realtime": {
-        "title": "实时处理",
-        "description": "通过优化的基础设施实现闪电般快速的响应"
-      },
-      "secure": {
-        "title": "安全可靠",
-        "description": "企业级安全，采用抗量子加密技术"
+    "cta": "了解更多",
+    "whatwedo": {
+      "heading": "我们的业务",
+      "group": {
+        "blockchain": {
+          "label": "区块链与 Web3",
+          "publicchain": {
+            "title": "受监管的公共区块链",
+            "description": "对监管友好的区块链基础设施"
+          },
+          "crossborder": {
+            "title": "跨境支付",
+            "description": "多通道跨境支付解决方案"
+          },
+          "custody": {
+            "title": "数字资产托管",
+            "description": "银行级安全的数字资产托管解决方案"
+          },
+          "stablecoin": {
+            "title": "稳定币",
+            "description": "合规就绪的稳定币解决方案"
+          }
+        },
+        "banking": {
+          "label": "银行解决方案",
+          "retaillending": {
+            "title": "零售信贷",
+            "description": "零售信贷一站式 IT 解决方案提供商"
+          },
+          "supplychain": {
+            "title": "供应链金融",
+            "description": "先进的在线供应链金融解决方案"
+          }
+        }
       }
-    },
-    "cta": "立即开始"
+    }
   },
   "about": {
     "title": "关于 KTECH",
