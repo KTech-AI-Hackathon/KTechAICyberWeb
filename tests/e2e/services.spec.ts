@@ -8,7 +8,24 @@ import { test, expect } from './fixtures/test-fixtures';
  * @tags smoke regression navigation
  */
 
-test.describe('Services Page', { tag: '@smoke' }, () => {
+/**
+ * SKIP (obsolete): this entire spec targets a Services *index* page at the
+ * route `/services` that no longer exists. The services UX was redesigned into
+ * individual detail pages under `/services/<slug>` (see src/main.js: only
+ * /services/supply-chain-finance, /services/project-and-program-management,
+ * /services/blockchain, /services/big-data-ai, /services/retail-lending are
+ * routed). There is no `/services` index route, so `page.goto('/services')`
+ * renders NotFound.
+ *
+ * The spec also asserts stale structure: 4 service cards (the unrouted
+ * src/views/Services.vue defines 5), the title text "SERVICES"/"服务" (the real
+ * i18n value is "Core Services"/"核心服务"), and a `.nav-links a[href="/services"]`
+ * nav entry (the main nav only has Home/About/News/Contact — no Services link).
+ * Restoring this spec would require re-adding a /services index route and a nav
+ * entry, which is a product decision, not test drift. Skipped (not deleted) so
+ * the coverage intent is preserved.
+ */
+test.describe.skip('Services Page', { tag: '@smoke' }, () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/services');
   });
@@ -161,7 +178,7 @@ test.describe('Services Page', { tag: '@smoke' }, () => {
   });
 });
 
-test.describe('Services Page Responsive', { tag: '@responsive' }, () => {
+test.describe.skip('Services Page Responsive', { tag: '@responsive' }, () => {
   test('should display single column on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/services');
@@ -199,7 +216,7 @@ test.describe('Services Page Responsive', { tag: '@responsive' }, () => {
   });
 });
 
-test.describe('Services Page i18n', { tag: '@i18n' }, () => {
+test.describe.skip('Services Page i18n', { tag: '@i18n' }, () => {
   test('should support English language', async ({ page }) => {
     await page.goto('/services');
 

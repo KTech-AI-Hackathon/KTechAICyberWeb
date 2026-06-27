@@ -35,9 +35,14 @@ test.describe('Privacy Policy Page (#87)', () => {
 
   test('footer contains a Privacy Policy link', async ({ page }) => {
     await page.goto('/');
-    const link = page.locator('.cyber-footer .footer-link');
+    // The footer now has two .footer-link elements (Privacy Policy + Terms of
+    // Service), so scope to the Privacy link by its href suffix to avoid a
+    // strict-mode violation on the multi-element locator. The deployed href
+    // includes the Vite base subpath (/KTechAICyberWeb/privacy) because the
+    // router uses createWebHistory(import.meta.env.BASE_URL).
+    const link = page.locator('.cyber-footer .footer-link').filter({ hasText: /Privacy/i });
     await expect(link).toBeVisible();
-    await expect(link).toHaveAttribute('href', '/privacy');
+    await expect(link).toHaveAttribute('href', /\/privacy$/);
   });
 
   test('lists all six GDPR user rights', async ({ page }) => {
