@@ -72,6 +72,11 @@ import NavigationDropdown from './NavigationDropdown.vue'
 const { t } = useLanguage()
 
 const router = useRouter()
+// In some unit-test mounts router-link is stubbed without a real router
+// injected, so useRouter() returns undefined. Guard the M3 afterEach hook so
+// the drawer close-on-navigate logic is a no-op there instead of crashing
+// during onMounted. Production always provides a router.
+const routerSafe = router && typeof router.afterEach === 'function' ? router : null
 
 // State
 const isScrolled = ref(false)
@@ -198,7 +203,7 @@ let removeAfterEach = null
 onMounted(() => {
   window.addEventListener('scroll', handleScroll, { passive: true })
   document.addEventListener('keydown', handleEscapeGlobal)
-  removeAfterEach = router.afterEach(() => {
+  removeAfterEach = routerSafe?.afterEach(() => {
     if (mobileOpen.value) closeMobile()
   })
 })
