@@ -313,7 +313,130 @@
         "ariaLabel": "Request a consultation for Big Data and AI solutions"
       }
     },
+    "retailLending": {
+      "title": "Retail Lending Solution",
+      "subtitle": "A Digital Retail Lending Platform that automates the full credit lifecycle from onboarding to collection",
+      "breadcrumb": "Home > Retail Lending",
+      "hero": {
+        "heading": "Digital Retail Lending Platform",
+        "description": "Accelerate loan origination, risk decisioning, and lifecycle management with an end-to-end Digital Retail Lending Platform engineered for banks and fintechs."
+      },
+      "overview": {
+        "heading": "Service Overview",
+        "description": "Our Retail Lending Solution combines a configurable risk engine, intelligent automation, and anti-fraud capabilities into a single platform. From digital onboarding to lifecycle servicing, we help financial institutions launch lending products faster while keeping cost, risk, and compliance under control."
+      },
+      "coreFeatures": {
+        "heading": "Core Capabilities",
+        "riskEngine": {
+          "title": "Risk Engine",
+          "description": "A configurable rules and scoring engine that prices and approves loans in real time, with multi-dimensional risk models tuned to your portfolio."
+        },
+        "automation": {
+          "title": "Process Automation",
+          "description": "Automated workflows for application intake, verification, approval, and disbursement that cut manual handling and speed up time-to-cash."
+        },
+        "antiFraud": {
+          "title": "Anti-Fraud",
+          "description": "Device fingerprinting, behavioral analytics, and real-time interception that detect application fraud and money laundering across channels."
+        },
+        "creditDecisioning": {
+          "title": "Credit Decisioning",
+          "description": "Instant credit decisions powered by alternative data, bureau integration, and ML scorecards, with explainable outputs for every approval."
+        }
+      },
+      "loanTypes": {
+        "heading": "Loan Products",
+        "personal": {
+          "title": "Personal Lending",
+          "description": "Unsecured personal loans and installment credit with instant approval, dynamic pricing, and self-serve origination for consumers."
+        },
+        "sme": {
+          "title": "SME Lending",
+          "description": "Working capital, term loans, and invoice financing for small and medium enterprises, with cash-flow-based underwriting and flexible drawdowns."
+        },
+        "coLending": {
+          "title": "Co-Lending",
+          "description": "Programmable co-lending and loan syndication that lets originators and partner banks share exposure, funding, and servicing on a single ledger."
+        }
+      },
+      "techFeatures": {
+        "heading": "Technology Architecture",
+        "baas": {
+          "title": "Banking-as-a-Service",
+          "description": "API-first core built on a Banking-as-a-Service layer, enabling new lending products, partners, and channels to plug in without re-platforming."
+        },
+        "digitalOnboarding": {
+          "title": "Digital Onboarding",
+          "description": "eKYC, video verification, and OCR-based document capture that onboard borrowers in minutes with minimal friction and full audit trails."
+        },
+        "lifecycle": {
+          "title": "Lifecycle Management",
+          "description": "End-to-end servicing across disbursement, repayment, collections, and restructuring, with proactive alerts and customer self-service."
+        },
+        "governance": {
+          "title": "Governance & Compliance",
+          "description": "Policy engines, audit logs, and regulatory reporting that keep lending operations compliant with lending and consumer-protection regulations."
+        }
+      },
+      "metrics": {
+        "heading": "By the Numbers",
+        "approvals": {
+          "value": "80%",
+          "label": "Auto-Approval Rate"
+        },
+        "opsCost": {
+          "value": "70%",
+          "label": "Operational Cost Reduction"
+        },
+        "automation": {
+          "value": "90%",
+          "label": "Process Automation"
+        },
+        "fraud": {
+          "value": "99.9%",
+          "label": "Fraud Detection Accuracy"
+        }
+      },
+      "process": {
+        "heading": "Delivery Process",
+        "consult": {
+          "step": "01",
+          "title": "Consult",
+          "description": "We assess your lending products, risk appetite, and target segments to scope a high-impact platform initiative."
+        },
+        "design": {
+          "step": "02",
+          "title": "Design",
+          "description": "We architect the risk engine, product catalogue, and integration map before any code is written."
+        },
+        "deploy": {
+          "step": "03",
+          "title": "Deploy",
+          "description": "We build, integrate, and ship the platform into production with CI/CD, observability, and pilot support built in."
+        },
+        "optimize": {
+          "step": "04",
+          "title": "Optimize",
+          "description": "We continuously tune scorecards, policies, and journeys as your loan book and data evolve."
+        }
+      },
+      "cta": {
+        "heading": "Launch Lending, Faster",
+        "description": "Ready to deploy a Digital Retail Lending Platform? Let's design your roadmap together.",
+        "button": "Request Consultation",
+        "ariaLabel": "Request a consultation for the Retail Lending Solution"
+      }
+    },
     "items": {
+      "retailCredit": {
+        "title": "Retail Lending",
+        "description": "A Digital Retail Lending Platform that automates origination, risk decisioning, and lifecycle management for banks and fintechs.",
+        "features": {
+          "underwriting": "Risk Underwriting",
+          "analytics": "Credit Analytics",
+          "compliance": "Regulatory Compliance"
+        }
+      },
       "bigDataAI": {
         "title": "Big Data & AI",
         "description": "Machine learning, predictive analytics, and governed data platforms that turn raw data into intelligent action.",
