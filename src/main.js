@@ -17,6 +17,10 @@ import ServiceProjectManagement from './views/ServiceProjectManagement.vue'
 import Blockchain from './views/Blockchain.vue'
 import ServiceBigData from './views/ServiceBigData.vue'
 import ServiceRetailLending from './views/ServiceRetailLending.vue'
+import ServiceCrossBorderPayment from './views/ServiceCrossBorderPayment.vue'
+import ServiceDigitalAssetCustody from './views/ServiceDigitalAssetCustody.vue'
+import ServiceStablecoin from './views/ServiceStablecoin.vue'
+import JoinUs from './views/JoinUs.vue'
 import Contact from './views/Contact.vue'
 import PositionList from './views/PositionList.vue'
 import PrivacyPolicy from './views/PrivacyPolicy.vue'
@@ -33,6 +37,10 @@ const routes = [
   { path: '/services/blockchain', component: Blockchain },
   { path: '/services/big-data-ai', component: ServiceBigData },
   { path: '/services/retail-lending', component: ServiceRetailLending },
+  { path: '/services/cross-border-payment', component: ServiceCrossBorderPayment },
+  { path: '/services/digital-asset-custody', component: ServiceDigitalAssetCustody },
+  { path: '/services/stablecoin', component: ServiceStablecoin },
+  { path: '/join-us', component: JoinUs },
   { path: '/contact', component: Contact },
   { path: '/careers', component: PositionList },
   { path: '/privacy', component: PrivacyPolicy },
