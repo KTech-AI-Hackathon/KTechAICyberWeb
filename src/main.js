@@ -15,6 +15,7 @@ import SupplyChainFinance from './views/SupplyChainFinance.vue'
 import ServiceProjectManagement from './views/ServiceProjectManagement.vue'
 import Blockchain from './views/Blockchain.vue'
 import Contact from './views/Contact.vue'
+import PositionList from './views/PositionList.vue'
 import PrivacyPolicy from './views/PrivacyPolicy.vue'
 
 const routes = [
@@ -26,6 +27,7 @@ const routes = [
   { path: '/services/project-and-program-management', component: ServiceProjectManagement },
   { path: '/services/blockchain', component: Blockchain },
   { path: '/contact', component: Contact },
+  { path: '/careers', component: PositionList },
   { path: '/privacy', component: PrivacyPolicy }
 ]
 

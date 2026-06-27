@@ -1,0 +1,235 @@
+[
+  {
+    "id": 1,
+    "title": { "en": "Frontend Developer", "zh": "前端开发工程师" },
+    "department": "engineering",
+    "location": "shanghai",
+    "type": "fulltime",
+    "salary": { "en": "¥25,000 - ¥40,000", "zh": "¥25,000 - ¥40,000" },
+    "postedDate": "2025-05-15",
+    "deadline": "2025-07-15",
+    "description": {
+      "en": "We are looking for an experienced Frontend Developer to join our dynamic team and build cutting-edge web applications.",
+      "zh": "我们正在寻找一位经验丰富的前端开发工程师加入我们的动态团队，构建前沿的网络应用程序。"
+    },
+    "responsibilities": {
+      "en": ["Develop responsive web applications using Vue.js", "Collaborate with designers to implement pixel-perfect UIs", "Optimize application performance for maximum speed", "Participate in code reviews and technical discussions"],
+      "zh": ["使用 Vue.js 开发响应式网络应用程序", "与设计师合作实现像素级完美的界面", "优化应用程序性能以获得最大速度", "参与代码审查和技术讨论"]
+    },
+    "requirements": {
+      "en": ["3+ years of frontend development experience", "Strong proficiency in Vue.js and modern JavaScript", "Experience with state management (Pinia/Vuex)", "Familiarity with RESTful APIs and GraphQL"],
+      "zh": ["3年以上前端开发经验", "精通 Vue.js 和现代 JavaScript", "有状态管理 (Pinia/Vuex) 经验", "熟悉 RESTful API 和 GraphQL"]
+    },
+    "benefits": {
+      "en": ["Competitive salary and performance bonus", "Flexible working hours and remote options", "Professional development budget", "Health and wellness benefits"],
+      "zh": ["有竞争力的薪酬和绩效奖金", "灵活的工作时间和远程选择", "专业发展预算", "健康和福利"]
+    },
+    "culture": {
+      "en": "We value innovation, collaboration, and continuous learning in our engineering culture.",
+      "zh": "我们的工程文化重视创新、合作和持续学习。"
+    }
+  },
+  {
+    "id": 2,
+    "title": { "en": "Product Manager", "zh": "产品经理" },
+    "department": "product",
+    "location": "beijing",
+    "type": "fulltime",
+    "salary": { "en": "¥30,000 - ¥50,000", "zh": "¥30,000 - ¥50,000" },
+    "postedDate": "2025-05-20",
+    "description": {
+      "en": "Join our product team to drive innovation and shape the future of our technology solutions.",
+      "zh": "加入我们的产品团队推动创新，塑造我们技术解决方案的未来。"
+    },
+    "responsibilities": {
+      "en": ["Define product strategy and roadmap", "Work closely with engineering teams to deliver features", "Conduct market research and user interviews", "Analyze product metrics and user feedback"],
+      "zh": ["定义产品战略和路线图", "与工程团队密切合作交付功能", "进行市场研究和用户访谈", "分析产品指标和用户反馈"]
+    },
+    "requirements": {
+      "en": ["5+ years of product management experience", "Strong analytical and problem-solving skills", "Excellent communication and leadership abilities", "Experience with agile development methodologies"],
+      "zh": ["5年以上产品管理经验", "强大的分析和解决问题的能力", "优秀的沟通和领导能力", "有敏捷开发方法论经验"]
+    },
+    "benefits": {
+      "en": ["Stock options and equity package", "Comprehensive health insurance", "Flexible work arrangements", "Annual learning and development stipend"],
+      "zh": ["股票期权和股权包", "综合健康保险", "灵活的工作安排", "年度学习和发展津贴"]
+    },
+    "culture": {
+      "en": "We are customer-obsessed and data-driven in our approach to product development.",
+      "zh": "我们在产品开发方法中以客户为中心和数据驱动。"
+    }
+  },
+  {
+    "id": 3,
+    "title": { "en": "UI/UX Designer", "zh": "UI/UX设计师" },
+    "department": "design",
+    "location": "remote",
+    "type": "fulltime",
+    "salary": { "en": "¥20,000 - ¥35,000", "zh": "¥20,000 - ¥35,000" },
+    "postedDate": "2025-05-25",
+    "description": {
+      "en": "Create beautiful and functional user experiences that delight our customers and drive engagement.",
+      "zh": "创造美观且实用的用户体验，让客户满意并提高参与度。"
+    },
+    "responsibilities": {
+      "en": ["Design intuitive user interfaces and interactions", "Conduct user research and usability testing", "Create wireframes, prototypes, and high-fidelity designs", "Collaborate with developers to ensure design implementation"],
+      "zh": ["设计直观的用户界面和交互", "进行用户研究和可用性测试", "创建线框图、原型和高保真设计", "与开发人员合作确保设计实现"]
+    },
+    "requirements": {
+      "en": ["3+ years of UI/UX design experience", "Proficiency in Figma, Sketch, or Adobe XD", "Strong portfolio demonstrating design process", "Understanding of design systems and accessibility"],
+      "zh": ["3年以上 UI/UX 设计经验", "精通 Figma、Sketch 或 Adobe XD", "有展示设计过程的强大作品集", "理解设计系统和可访问性"]
+    },
+    "benefits": {
+      "en": ["Remote-first work culture", "Creative and collaborative environment", "Top-tier design tools and resources", "Regular design workshops and events"],
+      "zh": ["远程优先的工作文化", "创意和协作环境", "顶级设计工具和资源", "定期设计研讨会和活动"]
+    },
+    "culture": {
+      "en": "Design thinking is in our DNA—we believe great design drives great products.",
+      "zh": "设计思维融入我们的基因——我们相信优秀的设计推动优秀的产品。"
+    }
+  },
+  {
+    "id": 4,
+    "title": { "en": "Backend Developer", "zh": "后端开发工程师" },
+    "department": "engineering",
+    "location": "bangkok",
+    "type": "fulltime",
+    "salary": { "en": "¥30,000 - ¥45,000", "zh": "¥30,000 - ¥45,000" },
+    "postedDate": "2025-06-01",
+    "description": {
+      "en": "Build scalable and robust backend systems that power our cutting-edge applications.",
+      "zh": "构建可扩展且强大的后端系统，为我们前沿的应用程序提供动力。"
+    },
+    "responsibilities": {
+      "en": ["Design and implement RESTful APIs and microservices", "Optimize database queries and application performance", "Implement security best practices and data protection", "Collaborate with frontend teams on integration"],
+      "zh": ["设计和实现 RESTful API 和微服务", "优化数据库查询和应用程序性能", "实施安全最佳实践和数据保护", "与前端团队协作进行集成"]
+    },
+    "requirements": {
+      "en": ["4+ years of backend development experience", "Proficiency in Node.js, Python, or Go", "Experience with SQL and NoSQL databases", "Knowledge of cloud platforms (AWS/GCP/Azure)"],
+      "zh": ["4年以上后端开发经验", "精通 Node.js、Python 或 Go", "有 SQL 和 NoSQL 数据库经验", "了解云平台 (AWS/GCP/Azure)"]
+    },
+    "benefits": {
+      "en": ["Relocation assistance for international candidates", "Housing allowance in Bangkok", "International health insurance", "Thai language classes"],
+      "zh": ["国际候选人搬迁援助", "曼谷住房津贴", "国际健康保险", "泰语课程"]
+    },
+    "culture": {
+      "en": "We foster a culture of technical excellence and continuous improvement in our engineering practices.",
+      "zh": "我们在工程实践中培养技术卓越和持续改进的文化。"
+    }
+  },
+  {
+    "id": 5,
+    "title": { "en": "Full Stack Developer", "zh": "全栈开发工程师" },
+    "department": "engineering",
+    "location": "shanghai",
+    "type": "fulltime",
+    "salary": { "en": "¥35,000 - ¥55,000", "zh": "¥35,000 - ¥55,000" },
+    "postedDate": "2025-06-05",
+    "description": {
+      "en": "Join our team as a Full Stack Developer and work on all aspects of our application stack.",
+      "zh": "作为全栈开发工程师加入我们的团队，处理我们应用程序堆栈的所有方面。"
+    },
+    "responsibilities": {
+      "en": ["Develop and maintain both frontend and backend components", "Design database schemas and API architectures", "Implement CI/CD pipelines and DevOps practices", "Mentor junior developers and conduct code reviews"],
+      "zh": ["开发和维护前端和后端组件", "设计数据库架构和 API 架构", "实施 CI/CD 管道和 DevOps 实践", "指导初级开发人员进行代码审查"]
+    },
+    "requirements": {
+      "en": ["5+ years of full stack development experience", "Strong proficiency in Vue.js and Node.js", "Experience with containerization (Docker/Kubernetes)", "Understanding of cloud-native architectures"],
+      "zh": ["5年以上全栈开发经验", "精通 Vue.js 和 Node.js", "有容器化 (Docker/Kubernetes) 经验", "了解云原生架构"]
+    },
+    "benefits": {
+      "en": ["Top-of-market compensation", "Annual performance bonus", "Conference attendance budget", "Latest hardware and equipment"],
+      "zh": ["市场顶薪", "年度绩效奖金", "会议出席预算", "最新硬件和设备"]
+    },
+    "culture": {
+      "en": "We embrace a culture of learning and sharing knowledge across the entire stack.",
+      "zh": "我们倡导在整个堆栈中学习和分享知识的文化。"
+    }
+  },
+  {
+    "id": 6,
+    "title": { "en": "DevOps Engineer", "zh": "DevOps工程师" },
+    "department": "engineering",
+    "location": "beijing",
+    "type": "fulltime",
+    "salary": { "en": "¥32,000 - ¥50,000", "zh": "¥32,000 - ¥50,000" },
+    "postedDate": "2025-06-10",
+    "description": {
+      "en": "Drive our infrastructure automation and ensure high availability of our production systems.",
+      "zh": "推动我们的基础设施自动化，并确保我们生产系统的高可用性。"
+    },
+    "responsibilities": {
+      "en": ["Design and implement CI/CD pipelines", "Manage cloud infrastructure and containerized deployments", "Monitor system performance and implement alerting", "Automate operational processes and improve reliability"],
+      "zh": ["设计和实施 CI/CD 管道", "管理云基础设施和容器化部署", "监控系统性能并实施警报", "自动化操作流程并提高可靠性"]
+    },
+    "requirements": {
+      "en": ["4+ years of DevOps experience", "Expertise in Docker, Kubernetes, and Helm", "Experience with CI/CD tools (Jenkins/GitLab CI)", "Strong scripting skills (Python/Bash/Go)"],
+      "zh": ["4年以上 DevOps 经验", "精通 Docker、Kubernetes 和 Helm", "有 CI/CD 工具 (Jenkins/GitLab CI) 经验", "强大的脚本技能 (Python/Bash/Go)"]
+    },
+    "benefits": {
+      "en": ["On-call rotation with compensation", "Training and certification budget", "Flexible schedule", "Home office setup allowance"],
+      "zh": ["有补偿的待命轮换", "培训和认证预算", "灵活的时间表", "家庭办公室设置津贴"]
+    },
+    "culture": {
+      "en": "We promote a culture of reliability engineering and continuous improvement of our systems.",
+      "zh": "我们推广可靠性工程文化并持续改进我们的系统。"
+    }
+  },
+  {
+    "id": 7,
+    "title": { "en": "Data Engineer", "zh": "数据工程师" },
+    "department": "engineering",
+    "location": "remote",
+    "type": "fulltime",
+    "salary": { "en": "¥28,000 - ¥45,000", "zh": "¥28,000 - ¥45,000" },
+    "postedDate": "2025-06-12",
+    "description": {
+      "en": "Build and maintain our data infrastructure to power analytics and machine learning initiatives.",
+      "zh": "构建和维护我们的数据基础设施，为分析和机器学习计划提供动力。"
+    },
+    "responsibilities": {
+      "en": ["Design and implement data pipelines and ETL processes", "Optimize data storage and query performance", "Collaborate with data scientists on ML model deployment", "Ensure data quality and governance compliance"],
+      "zh": ["设计和实施数据管道和 ETL 流程", "优化数据存储和查询性能", "与数据科学家合作部署 ML 模型", "确保数据质量和治理合规"]
+    },
+    "requirements": {
+      "en": ["3+ years of data engineering experience", "Proficiency in SQL and Python/Scala", "Experience with big data technologies (Spark/Kafka)", "Knowledge of data warehousing solutions"],
+      "zh": ["3年以上数据工程经验", "精通 SQL 和 Python/Scala", "有大数据技术 (Spark/Kafka) 经验", "了解数据仓库解决方案"]
+    },
+    "benefits": {
+      "en": ["Fully remote position", "Flexible timezone", "Annual learning budget", "Co-working space allowance"],
+      "zh": ["完全远程职位", "灵活时区", "年度学习预算", "联合办公空间津贴"]
+    },
+    "culture": {
+      "en": "We are data-driven and believe in empowering teams with timely and accurate insights.",
+      "zh": "我们是数据驱动的，相信通过及时准确的见解赋予团队力量。"
+    }
+  },
+  {
+    "id": 8,
+    "title": { "en": "QA Engineer", "zh": "测试工程师" },
+    "department": "engineering",
+    "location": "shanghai",
+    "type": "fulltime",
+    "salary": { "en": "¥22,000 - ¥35,000", "zh": "¥22,000 - ¥35,000" },
+    "postedDate": "2025-06-15",
+    "description": {
+      "en": "Ensure the quality and reliability of our products through comprehensive testing strategies.",
+      "zh": "通过全面的测试策略确保我们产品的质量和可靠性。"
+    },
+    "responsibilities": {
+      "en": ["Design and execute automated test suites", "Perform manual and exploratory testing", "Collaborate with developers on test coverage", "Analyze test results and report bugs"],
+      "zh": ["设计和执行自动化测试套件", "进行手动和探索性测试", "与开发人员协作测试覆盖率", "分析测试结果并报告错误"]
+    },
+    "requirements": {
+      "en": ["2+ years of QA/testing experience", "Experience with automation tools (Selenium/Cypress)", "Knowledge of testing methodologies and best practices", "Understanding of web and mobile testing"],
+      "zh": ["2年以上 QA/测试经验", "有自动化工具 (Selenium/Cypress) 经验", "了解测试方法论和最佳实践", "了解网络和移动测试"]
+    },
+    "benefits": {
+      "en": ["Career growth opportunities in QA", "Testing tool and certification budget", "Flexible working hours", "Team bonding activities"],
+      "zh": ["QA 职业发展机会", "测试工具和认证预算", "灵活的工作时间", "团队建设活动"]
+    },
+    "culture": {
+      "en": "We believe quality is everyone's responsibility and foster a culture of excellence.",
+      "zh": "我们相信质量是每个人的责任，并培养卓越的文化。"
+    }
+  }
+]
