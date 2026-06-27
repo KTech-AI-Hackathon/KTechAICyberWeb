@@ -1,42 +1,15 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import Home from '../../src/views/Home.vue'
+import { useLanguage } from '../../src/composables/useLanguage'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import { createPinia } from 'pinia'
 
-// Mock composables
-vi.mock('../../src/composables/useLanguage', () => ({
-  useLanguage: () => ({
-    t: (key) => {
-      const translations = {
-        'home.title': 'KTech AI',
-        'home.subtitle': 'Cyberpunk Intelligence Systems',
-        'home.hero.title': 'Next Generation AI',
-        'home.hero.description': 'Building the future of artificial intelligence with cutting-edge technology and cyberpunk aesthetics.',
-        'home.stats.uptime': 'Uptime',
-        'home.stats.requests': 'Requests',
-        'home.stats.latency': 'Latency',
-        'home.features.ai.title': 'AI Models',
-        'home.features.ai.description': 'Advanced neural networks powered by state-of-the-art transformers',
-        'home.features.realtime.title': 'Real-time',
-        'home.features.realtime.description': 'Lightning-fast responses with our optimized infrastructure',
-        'home.features.secure.title': 'Secure',
-        'home.features.secure.description': 'Enterprise-grade security with quantum-resistant encryption',
-        'home.cta': 'Get Started'
-      }
-      return translations[key] || key
-    }
-  })
-}))
+// Drives the REAL useLanguage composable (translations are statically bundled
+// in src/locales/{en,zh}.json). No module mock, no useIntersectionObserver mock —
+// Home.vue does not use the intersection observer.
 
-vi.mock('../../src/composables/useIntersectionObserver', () => ({
-  useIntersectionObserverList: () => ({
-    visibleItems: { value: new Set() },
-    observeItem: vi.fn()
-  })
-}))
-
-describe('Home.vue (Hero Component)', () => {
+describe('Home.vue', () => {
   let router
   let pinia
   let wrapper
@@ -44,343 +17,169 @@ describe('Home.vue (Hero Component)', () => {
   beforeEach(() => {
     router = createRouter({
       history: createMemoryHistory(),
-      routes: [
-        { path: '/', component: Home }
-      ]
+      routes: [{ path: '/', component: Home }, { path: '/about', component: { template: '<div>About</div>' } }],
     })
     pinia = createPinia()
+    useLanguage().setLanguage('en')
   })
 
-  describe('Rendering', () => {
-    it('should mount without errors', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('renders main home container', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      expect(wrapper.find('.home').exists()).toBe(true)
-    })
-
-    it('renders animated background grid', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      const grids = wrapper.findAll('.grid-bg')
-      expect(grids.length).toBeGreaterThanOrEqual(1)
-    })
-
-    it('renders content container', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      expect(wrapper.find('.content').exists()).toBe(true)
-    })
+  afterEach(() => {
+    if (wrapper) wrapper.unmount()
+    useLanguage().setLanguage('en')
   })
 
-  describe('Header Section', () => {
-    it('renders cyber header', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      expect(wrapper.find('.cyber-header').exists()).toBe(true)
+  const mountHome = () => {
+    wrapper = mount(Home, { global: { plugins: [router, pinia] } })
+    return wrapper
+  }
+
+  describe('Cyberpunk structure', () => {
+    it('renders the .home root, grid backgrounds, and cyber header', () => {
+      const w = mountHome()
+      expect(w.find('.home').exists()).toBe(true)
+      expect(w.findAll('.grid-bg').length).toBeGreaterThanOrEqual(1)
+      expect(w.find('.grid-bg-2').exists()).toBe(true)
+      expect(w.find('header.cyber-header').exists()).toBe(true)
     })
 
-    it('displays main title with neon text effect', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      const title = wrapper.find('.neon-text')
+    it('keeps neon-text + glitch-text + data-text on the title', () => {
+      const w = mountHome()
+      const title = w.find('h1.neon-text.glitch-text')
       expect(title.exists()).toBe(true)
-      expect(title.text()).toContain('KTech AI')
+      expect(title.attributes('data-text')).toContain(
+        'Leading Fintech Company in China ASEAN Region',
+      )
     })
 
-    it('has glitch-text class on title', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      const title = wrapper.find('.glitch-text')
-      expect(title.exists()).toBe(true)
+    it('keeps the .cyber-card hero container and the neon-border CTA', () => {
+      const w = mountHome()
+      expect(w.find('.cyber-card').exists()).toBe(true)
+      const cta = w.find('.cta')
+      expect(cta.exists()).toBe(true)
+      expect(cta.find('.cyber-button.neon-border').exists()).toBe(true)
     })
 
-    it('displays subtitle', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      const subtitle = wrapper.find('.subtitle')
-      expect(subtitle.exists()).toBe(true)
-      expect(subtitle.text()).toContain('Cyberpunk Intelligence Systems')
+    it('uses a single semantic h1 and at least one section', () => {
+      const w = mountHome()
+      expect(w.findAll('h1').length).toBe(1)
+      expect(w.findAll('section').length).toBeGreaterThan(0)
     })
   })
 
-  describe('Hero Section', () => {
-    it('renders hero section', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      expect(wrapper.find('.hero').exists()).toBe(true)
+  describe('Hero content (en)', () => {
+    it('H1 + subtitle carry the official KTech copy', () => {
+      const w = mountHome()
+      expect(w.find('h1').text()).toContain(
+        'Leading Fintech Company in China ASEAN Region',
+      )
+      expect(w.find('.subtitle').text()).toBe('Better fintech for customers')
     })
 
-    it('renders cyber card', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      expect(wrapper.find('.cyber-card').exists()).toBe(true)
+    it('first hero paragraph names KBank and the Shenzhen regulator', () => {
+      const w = mountHome()
+      const firstP = w.findAll('.cyber-card p')[0].text()
+      expect(firstP).toContain('KASIKORNBANK')
+      expect(firstP).toContain('KBank')
+      expect(firstP).toContain('Shenzhen Municipal Financial Regulatory Bureau')
     })
 
-    it('displays hero title', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      const heroTitle = wrapper.find('.cyber-card h2')
-      expect(heroTitle.exists()).toBe(true)
-      expect(heroTitle.text()).toContain('Next Generation AI')
+    it('second hero paragraph lists blockchain, big data, AI', () => {
+      const w = mountHome()
+      const paragraphs = w.findAll('.cyber-card p')
+      const second = paragraphs[1].text()
+      expect(second).toContain('blockchain')
+      expect(second).toContain('big data')
+      expect(second).toContain('artificial intelligence')
     })
 
-    it('displays hero description', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      const heroDesc = wrapper.find('.cyber-card p')
-      expect(heroDesc.exists()).toBe(true)
-      expect(heroDesc.text()).toContain('Building the future')
+    it('CTA reads "Learn more" and points to /about', () => {
+      const w = mountHome()
+      const cta = w.find('.cta')
+      expect(cta.text()).toContain('Learn more')
+      expect(cta.find('a[href="/about"]').exists()).toBe(true)
     })
   })
 
-  describe('Stats Section', () => {
-    it('renders stats container', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      expect(wrapper.find('.stats').exists()).toBe(true)
+  describe('What We Do section (en)', () => {
+    it('renders the heading + both group labels', () => {
+      const w = mountHome()
+      const text = w.text()
+      expect(text).toContain('What We Do')
+      expect(text).toContain('Blockchain & Web3')
+      expect(text).toContain('Banking Solution')
     })
 
-    it('displays three stat items', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      const stats = wrapper.findAll('.stat')
-      expect(stats.length).toBe(3)
+    it('renders exactly six solution cards', () => {
+      const w = mountHome()
+      expect(w.findAll('.solution-card').length).toBe(6)
     })
 
-    it('displays uptime stat correctly', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      const firstStat = wrapper.findAll('.stat')[0]
-      expect(firstStat.find('.stat-value').text()).toBe('99.9%')
-      expect(firstStat.find('.stat-label').text()).toBe('Uptime')
-    })
-
-    it('displays requests stat correctly', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      const secondStat = wrapper.findAll('.stat')[1]
-      expect(secondStat.find('.stat-value').text()).toBe('1M+')
-      expect(secondStat.find('.stat-label').text()).toBe('Requests')
-    })
-
-    it('displays latency stat correctly', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      const thirdStat = wrapper.findAll('.stat')[2]
-      expect(thirdStat.find('.stat-value').text()).toBe('50ms')
-      expect(thirdStat.find('.stat-label').text()).toBe('Latency')
-    })
-
-    it('applies neon-text class to stat values', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      const statValues = wrapper.findAll('.stat-value.neon-text')
-      expect(statValues.length).toBe(3)
+    it('renders every card title and description', () => {
+      const w = mountHome()
+      const text = w.text()
+      // Blockchain & Web3 group
+      expect(text).toContain('Regulated Public Blockchain')
+      expect(text).toContain('Regulation-friendly blockchain infrastructure')
+      expect(text).toContain('Cross Border Payment')
+      expect(text).toContain('Multi-rail cross-border payment solution')
+      expect(text).toContain('Digital Asset Custody')
+      expect(text).toContain('Bank-grade secure digital asset custody solution')
+      expect(text).toContain('Stablecoin')
+      expect(text).toContain('Compliance-ready stablecoin solution')
+      // Banking Solution group
+      expect(text).toContain('Retail Lending')
+      expect(text).toContain('Unified IT solution provider for retail lending')
+      expect(text).toContain('Supply Chain Finance')
+      expect(text).toContain('Advanced online supply chain financial solutions')
     })
   })
 
-  describe('Features Section', () => {
-    it('renders features section', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      expect(wrapper.find('.features').exists()).toBe(true)
-    })
-
-    it('displays three feature cards', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      const features = wrapper.findAll('.feature-card')
-      expect(features.length).toBe(3)
-    })
-
-    it('first feature displays AI content', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      const firstFeature = wrapper.findAll('.feature-card')[0]
-      expect(firstFeature.find('h3').text()).toBe('AI Models')
-      expect(firstFeature.find('p').text()).toContain('neural networks')
-    })
-
-    it('feature cards have neon-border class', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      const featureIcons = wrapper.findAll('.feature-icon.neon-border')
-      expect(featureIcons.length).toBe(3)
-    })
-
-    it('features display icons', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      const icons = wrapper.findAll('.feature-icon')
-      expect(icons.length).toBe(3)
-    })
-  })
-
-  describe('CTA Section', () => {
-    it('renders CTA section', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      expect(wrapper.find('.cta').exists()).toBe(true)
-    })
-
-    it('renders cyber button', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      const button = wrapper.find('.cyber-button')
-      expect(button.exists()).toBe(true)
-    })
-
-    it('button has neon-border class', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      const button = wrapper.find('.cyber-button.neon-border')
-      expect(button.exists()).toBe(true)
-    })
-
-    it('displays correct CTA text', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      const button = wrapper.find('.cyber-button')
-      expect(button.text()).toBe('Get Started')
+  describe('Stats block removed', () => {
+    it('does not render fabricated stats markup or numbers', () => {
+      const w = mountHome()
+      expect(w.find('.stats').exists()).toBe(false)
+      expect(w.findAll('.stat-value').length).toBe(0)
+      const text = w.text()
+      expect(text).not.toContain('99.9%')
+      expect(text).not.toContain('1M+')
+      expect(text).not.toContain('50ms')
     })
   })
 
   describe('Accessibility', () => {
-    it('uses semantic HTML elements', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      expect(wrapper.find('header').exists()).toBe(true)
-      expect(wrapper.find('section').exists()).toBe(true)
+    it('has a sensible heading hierarchy (1x h1, section h2, 2 group h3, 6 card h4)', () => {
+      const w = mountHome()
+      expect(w.findAll('h1').length).toBe(1)
+      expect(w.findAll('h2').length).toBeGreaterThan(0)
+      // 2 What-We-Do group labels.
+      expect(w.findAll('h3').length).toBe(2)
+      // 6 solution-card titles.
+      expect(w.findAll('h4').length).toBe(6)
     })
 
-    it('has proper heading hierarchy', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      const headings = wrapper.findAll('h1, h2, h3')
-      expect(headings.length).toBeGreaterThanOrEqual(5)
+    it('uses semantic <header> and <section> landmarks', () => {
+      const w = mountHome()
+      expect(w.find('header').exists()).toBe(true)
+      expect(w.findAll('section').length).toBeGreaterThan(0)
     })
   })
 
-  describe('Cyberpunk Styling', () => {
-    it('applies neon-text class to title', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      expect(wrapper.find('.neon-text').exists()).toBe(true)
+  describe('i18n regression guards', () => {
+    it('never renders a raw home.* placeholder key', () => {
+      const w = mountHome()
+      const text = w.text()
+      // Keys render glued to neighbouring text — do NOT use \b.
+      const rawKeyPattern = /home\.[a-zA-Z][a-zA-Z0-9.]*/g
+      expect(text.match(rawKeyPattern)).toBeNull()
     })
 
-    it('applies glitch-text class to title', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      expect(wrapper.find('.glitch-text').exists()).toBe(true)
-    })
-
-    it('has data-text attribute on glitch title', () => {
-      wrapper = mount(Home, {
-        global: {
-          plugins: [router, pinia]
-        }
-      })
-      const title = wrapper.find('.glitch-text')
-      expect(title.attributes('data-text')).toBe('KTech AI')
+    it('renders the zh catalog when toggled', () => {
+      useLanguage().setLanguage('zh')
+      const w = mountHome()
+      const text = w.text()
+      expect(text).toContain('致力于成为中国—东盟地区领先的金融科技公司')
+      expect(text).toContain('受监管的公共区块链')
+      expect(text).toContain('了解更多')
     })
   })
 })

@@ -99,33 +99,48 @@
     "companyName": "Kaitai Vision Information Technology Co., Ltd."
   },
   "home": {
-    "title": "KTech AI",
-    "subtitle": "Cyberpunk Intelligence Systems",
+    "title": "Determined to Become a Leading Fintech Company in China ASEAN Region",
+    "subtitle": "Better fintech for customers",
     "hero": {
-      "title": "Next Generation AI",
-      "description": "Building the future of artificial intelligence with cutting-edge technology and cyberpunk aesthetics."
+      "description": "As China-based technology subsidiary of KASIKORNBANK (KBank) group, KTech is the first fintech company initiated by a foreign bank and approved by Shenzhen Municipal Financial Regulatory Bureau.",
+      "description2": "We provide comprehensive financial technology services such as blockchain, big data, artificial intelligence and more, for a better China-ASEAN economic and financial cooperation."
     },
-    "stats": {
-      "uptime": "99.9%",
-      "requests": "1M+",
-      "latency": "50ms"
-    },
-    "features": {
-      "heading": "Key Features",
-      "ai": {
-        "title": "AI Models",
-        "description": "Advanced neural networks powered by state-of-the-art transformers"
-      },
-      "realtime": {
-        "title": "Real-time",
-        "description": "Lightning-fast responses with our optimized infrastructure"
-      },
-      "secure": {
-        "title": "Secure",
-        "description": "Enterprise-grade security with quantum-resistant encryption"
+    "cta": "Learn more",
+    "whatwedo": {
+      "heading": "What We Do",
+      "group": {
+        "blockchain": {
+          "label": "Blockchain & Web3",
+          "publicchain": {
+            "title": "Regulated Public Blockchain",
+            "description": "Regulation-friendly blockchain infrastructure"
+          },
+          "crossborder": {
+            "title": "Cross Border Payment",
+            "description": "Multi-rail cross-border payment solution"
+          },
+          "custody": {
+            "title": "Digital Asset Custody",
+            "description": "Bank-grade secure digital asset custody solution"
+          },
+          "stablecoin": {
+            "title": "Stablecoin",
+            "description": "Compliance-ready stablecoin solution"
+          }
+        },
+        "banking": {
+          "label": "Banking Solution",
+          "retaillending": {
+            "title": "Retail Lending",
+            "description": "Unified IT solution provider for retail lending"
+          },
+          "supplychain": {
+            "title": "Supply Chain Finance",
+            "description": "Advanced online supply chain financial solutions"
+          }
+        }
       }
-    },
-    "cta": "Get Started"
+    }
   },
   "about": {
     "title": "ABOUT KTECH",
