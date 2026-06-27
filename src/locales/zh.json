@@ -313,7 +313,130 @@
         "ariaLabel": "申请大数据与人工智能解决方案咨询"
       }
     },
+    "retailLending": {
+      "title": "零售贷款解决方案",
+      "subtitle": "数字零售贷款平台，自动化从准入到催收的完整信贷生命周期",
+      "breadcrumb": "首页 > 零售贷款",
+      "hero": {
+        "heading": "数字零售贷款平台",
+        "description": "借助端到端数字零售贷款平台，加速贷款发起、风险决策与生命周期管理，专为银行与金融科技企业打造。"
+      },
+      "overview": {
+        "heading": "服务概述",
+        "description": "我们的零售贷款解决方案将可配置的风险引擎、智能自动化与反欺诈能力整合于统一平台。从数字准入到生命周期服务，我们帮助金融机构更快推出贷款产品，同时有效控制成本、风险与合规。"
+      },
+      "coreFeatures": {
+        "heading": "核心能力",
+        "riskEngine": {
+          "title": "风险引擎",
+          "description": "可配置的规则与评分引擎，实时定价并审批贷款，配合针对您的组合调优的多维风险模型。"
+        },
+        "automation": {
+          "title": "流程自动化",
+          "description": "覆盖申请受理、核验、审批与放款的自动化工作流，减少人工操作并加速回款。"
+        },
+        "antiFraud": {
+          "title": "反欺诈",
+          "description": "设备指纹、行为分析与实时拦截，跨渠道检测申请欺诈与洗钱行为。"
+        },
+        "creditDecisioning": {
+          "title": "信贷决策",
+          "description": "基于替代数据、征信接入与机器学习评分卡实现即时信贷决策，每次审批均有可解释的输出。"
+        }
+      },
+      "loanTypes": {
+        "heading": "贷款产品",
+        "personal": {
+          "title": "个人贷款",
+          "description": "无抵押个人贷款与分期信用，面向消费者提供即时审批、动态定价与自助发起。"
+        },
+        "sme": {
+          "title": "小微企业贷款",
+          "description": "面向中小微企业的经营性贷款、定期贷款与发票融资，基于现金流授信并支持灵活提款。"
+        },
+        "coLending": {
+          "title": "联合贷款",
+          "description": "可编程的联合贷款与银团贷款，让发起方与合作银行在统一账本上共享敞口、资金与服务。"
+        }
+      },
+      "techFeatures": {
+        "heading": "技术架构",
+        "baas": {
+          "title": "银行即服务",
+          "description": "基于银行即服务（BaaS）层的 API 优先核心，让新的贷款产品、合作方与渠道无需重构平台即可接入。"
+        },
+        "digitalOnboarding": {
+          "title": "数字准入",
+          "description": "电子核验、视频验证与基于 OCR 的证件采集，在数分钟内完成借款人准入，体验顺畅且全程可审计。"
+        },
+        "lifecycle": {
+          "title": "生命周期管理",
+          "description": "覆盖放款、还款、催收与重组的端到端服务，配备主动提醒与客户自助能力。"
+        },
+        "governance": {
+          "title": "治理与合规",
+          "description": "策略引擎、审计日志与监管报表，确保贷款运营符合信贷与消费者保护法规。"
+        }
+      },
+      "metrics": {
+        "heading": "数据一览",
+        "approvals": {
+          "value": "80%",
+          "label": "自动审批率"
+        },
+        "opsCost": {
+          "value": "70%",
+          "label": "运营成本下降"
+        },
+        "automation": {
+          "value": "90%",
+          "label": "流程自动化"
+        },
+        "fraud": {
+          "value": "99.9%",
+          "label": "欺诈检测准确率"
+        }
+      },
+      "process": {
+        "heading": "交付流程",
+        "consult": {
+          "step": "01",
+          "title": "咨询",
+          "description": "评估您的贷款产品、风险偏好与目标客群，界定高影响力的平台项目范围。"
+        },
+        "design": {
+          "step": "02",
+          "title": "设计",
+          "description": "在编写任何代码之前，先完成风险引擎、产品目录与集成方案的设计。"
+        },
+        "deploy": {
+          "step": "03",
+          "title": "部署",
+          "description": "完成平台的构建、集成并交付上线，内置 CI/CD、可观测性与试点支持。"
+        },
+        "optimize": {
+          "step": "04",
+          "title": "优化",
+          "description": "随着贷款组合与数据演进，持续调优评分卡、策略与客户旅程。"
+        }
+      },
+      "cta": {
+        "heading": "更快上线贷款业务",
+        "description": "准备好部署数字零售贷款平台了吗？让我们一起规划您的路线图。",
+        "button": "申请咨询",
+        "ariaLabel": "申请零售贷款解决方案咨询"
+      }
+    },
     "items": {
+      "retailCredit": {
+        "title": "零售贷款",
+        "description": "数字零售贷款平台，为银行与金融科技企业自动化发起、风险决策与生命周期管理。",
+        "features": {
+          "underwriting": "风险授信",
+          "analytics": "信贷分析",
+          "compliance": "合规管理"
+        }
+      },
       "bigDataAI": {
         "title": "大数据与人工智能",
         "description": "机器学习、预测分析与受治理的数据平台，将原始数据转化为智能行动。",
