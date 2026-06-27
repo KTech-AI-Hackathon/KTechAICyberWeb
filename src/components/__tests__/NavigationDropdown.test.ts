@@ -205,6 +205,29 @@ describe('NavigationDropdown.vue', () => {
       expect(wrapper.vm.isOpen).toBe(false)
     })
 
+    it('S5: a click-opened (pinned) menu survives a desktop mouseleave', async () => {
+      // Hover + click previously disagreed on state: opening by click then
+      // moving the mouse away would close the menu unexpectedly. After the
+      // unified model, click-open pins the menu so hover-leave cannot close it.
+      const root = wrapper.find('.nav-dropdown')
+      const trigger = wrapper.find('.dropdown-trigger')
+      // Pin open via click.
+      await trigger.trigger('click')
+      expect(wrapper.vm.isOpen).toBe(true)
+
+      await root.trigger('mouseleave')
+      expect(wrapper.vm.isOpen).toBe(true)
+      expect(wrapper.find('.dropdown-menu').exists()).toBe(true)
+    })
+
+    it('S5: hovering open then mouseleave still closes (hover path unchanged)', async () => {
+      const root = wrapper.find('.nav-dropdown')
+      await root.trigger('mouseenter')
+      expect(wrapper.vm.isOpen).toBe(true)
+      await root.trigger('mouseleave')
+      expect(wrapper.vm.isOpen).toBe(false)
+    })
+
     it('does not open on mouseenter at mobile widths (<=768)', async () => {
       Object.defineProperty(window, 'innerWidth', {
         configurable: true,

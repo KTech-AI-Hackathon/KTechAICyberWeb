@@ -93,6 +93,11 @@ const autoMenuId = `dropdown-menu-${Math.random().toString(36).slice(2, 9)}`
 const menuId = computed(() => props.menuId || autoMenuId)
 
 const isOpen = ref(false)
+// S5: track whether the menu was opened/pinned by an explicit interaction
+// (click or keyboard). A pinned menu is NOT closed by mouseleave — only the
+// hover path opens/closes on mouseleave. This unifies the desktop open model
+// so hover and click can no longer disagree on state.
+const pinned = ref(false)
 const triggerRef = ref(null)
 const menuRef = ref(null)
 
@@ -120,20 +125,26 @@ const open = () => {
 
 const close = () => {
   isOpen.value = false
+  pinned.value = false
 }
 
 const toggle = () => {
-  isOpen.value = !isOpen.value
+  // Click toggles pin: opening pins (immune to mouseleave), closing unpins.
+  const willOpen = !isOpen.value
+  isOpen.value = willOpen
+  pinned.value = willOpen
 }
 
 const handleMouseEnter = () => {
-  if (isDesktopViewport()) {
+  if (isDesktopViewport() && !pinned.value) {
     isOpen.value = true
   }
 }
 
 const handleMouseLeave = () => {
-  if (isDesktopViewport()) {
+  // Only the hover path closes on mouseleave; a pinned (click-opened) menu
+  // stays open until the user picks an item, presses Escape, or clicks out.
+  if (isDesktopViewport() && !pinned.value) {
     isOpen.value = false
   }
 }
@@ -173,13 +184,13 @@ const onItemKeydown = (e, idx) => {
 
 const handleClickOutside = (e) => {
   if (triggerRef.value && !triggerRef.value.contains(e.target)) {
-    isOpen.value = false
+    close()
   }
 }
 
 const handleEscape = (e) => {
   if (e.key === 'Escape' && isOpen.value) {
-    isOpen.value = false
+    close()
     triggerRef.value?.focus()
   }
 }
