@@ -116,9 +116,58 @@
   "about": {
     "title": "关于 KTECH",
     "subtitle": "在人工智能与人类交汇处创新",
+    "pageTitle": "关于",
+    "pageTitleAccent": "KTECH",
+    "pageSubtitle": "一家致力于为下一个十年打造智能金融系统的金融科技与人工智能企业。",
     "mission": {
       "heading": "我们的使命",
       "description": "KTech 致力于构建变革性的 AI 解决方案，不断突破可能性的边界。"
+    },
+    "vision": {
+      "title": "我们的愿景",
+      "description": "成为金融机构最信赖的 AI 合作伙伴，让智能金融惠及每一家企业。"
+    },
+    "culture": {
+      "title": "我们的文化",
+      "customer": "客户至上",
+      "agile": "敏捷创新",
+      "collaboration": "开放协作",
+      "professional": "专业卓越"
+    },
+    "whoWeAre": {
+      "title": "我们是谁",
+      "companyName": "公司名称",
+      "companyInfo": "开泰远景信息科技有限公司 —— 一家总部位于深圳的金融科技与人工智能企业。",
+      "parentCompany": "母公司",
+      "parentInfo": "依托于一家在银行与信贷领域拥有深厚积累的成熟金融服务集团。",
+      "capital": "注册资本",
+      "capitalAmount": "人民币 5000 万元",
+      "services": "核心服务",
+      "servicesList": "面向金融机构的供应链金融、零售贷款平台及大数据与人工智能解决方案。"
+    },
+    "achievements": {
+      "title": "我们的成就",
+      "projects": "已为银行、金融科技企业及受监管行业交付 20+ 个企业级项目。",
+      "firstFintech": "首家为区域性金融科技企业打造端到端数字贷款平台的公司。",
+      "firstMnc": "首家为跨国金融机构交付 AI 驱动风险引擎的公司。",
+      "iso9001": "通过 ISO 9001 质量管理体系认证。",
+      "iso27001": "通过 ISO 27001 信息安全管理体系认证。",
+      "iso20000": "通过 ISO 20000 IT 服务管理体系认证。"
+    },
+    "serviceProvider": {
+      "title": "我们的业务",
+      "service1": {
+        "title": "金融科技",
+        "description": "为银行与金融科技企业打造的端到端贷款、信贷与供应链金融平台。"
+      },
+      "service2": {
+        "title": "AI 与大数据",
+        "description": "机器学习、预测分析与受治理的数据平台，将数据转化为决策。"
+      },
+      "service3": {
+        "title": "企业级解决方案",
+        "description": "定制软件、系统集成与咨询服务，端到端实现受监管金融业务的现代化。"
+      }
     },
     "stats": {
       "projects": {
