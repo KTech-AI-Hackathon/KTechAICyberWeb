@@ -7,12 +7,14 @@
  * - Rendering Tests: Component mount and section structure
  * - Section/Content Tests: All About sections present with correct structure
  * - Accessibility Tests: Semantic HTML, heading hierarchy, ARIA
- * - i18n Tests: Translation function behavior and key usage
+ * - i18n Tests: Translation function behavior and real-copy rendering
  * - Styling Tests: Cyberpunk theme classes and structural hooks
  * - Edge Cases: Re-mount stability, no console errors
  *
- * Note: useLanguage() returns the key itself as fallback when no translations
- * are loaded in the test environment, so content assertions check for keys.
+ * Translations ARE bundled in the test environment (useLanguage statically
+ * imports src/locales/*.json), so content assertions check for the real
+ * English copy, not raw keys. A regression guard below ensures no raw
+ * `about.*` placeholder key ever leaks into the rendered output.
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
@@ -75,18 +77,18 @@ describe('About.vue', () => {
 
     it('renders the pageTitle key inside the h1', () => {
       const title = wrapper.find('.page-title')
-      expect(title.text()).toContain('about.pageTitle')
+      expect(title.text()).toContain('ABOUT')
     })
 
     it('renders the pageTitleAccent inside an accent span', () => {
       const accent = wrapper.find('.page-title .accent')
       expect(accent.exists()).toBe(true)
-      expect(accent.text()).toBe('about.pageTitleAccent')
+      expect(accent.text()).toBe('KTECH')
     })
 
     it('exposes the data-text attribute for the glitch effect', () => {
       const title = wrapper.find('.page-title')
-      expect(title.attributes('data-text')).toContain('about.pageTitle')
+      expect(title.attributes('data-text')).toContain('ABOUT')
     })
 
     it('applies the neon-text and glitch-text classes to the title', () => {
@@ -98,7 +100,9 @@ describe('About.vue', () => {
     it('renders the page subtitle paragraph', () => {
       const subtitle = wrapper.find('.page-subtitle')
       expect(subtitle.exists()).toBe(true)
-      expect(subtitle.text()).toBe('about.pageSubtitle')
+      expect(subtitle.text()).toBe(
+        'A fintech and AI company engineering intelligent financial systems for the next decade.',
+      )
     })
   })
 
@@ -108,7 +112,7 @@ describe('About.vue', () => {
   describe('Who We Are Section', () => {
     it('renders the section title heading', () => {
       expect(wrapper.find('.who-we-are .section-title').text()).toBe(
-        'about.whoWeAre.title',
+        'Who We Are',
       )
     })
 
@@ -124,26 +128,32 @@ describe('About.vue', () => {
 
     it('renders the company name card heading and info', () => {
       const cards = wrapper.findAll('.who-we-are .content-card')
-      expect(cards[0].find('h3').text()).toBe('about.whoWeAre.companyName')
-      expect(cards[0].find('p').text()).toBe('about.whoWeAre.companyInfo')
+      expect(cards[0].find('h3').text()).toBe('Company Name')
+      expect(cards[0].find('p').text()).toBe(
+        'Kaitai Vision Information Technology Co., Ltd. — a fintech and AI company headquartered in Shenzhen.',
+      )
     })
 
     it('renders the parent company card heading and info', () => {
       const cards = wrapper.findAll('.who-we-are .content-card')
-      expect(cards[1].find('h3').text()).toBe('about.whoWeAre.parentCompany')
-      expect(cards[1].find('p').text()).toBe('about.whoWeAre.parentInfo')
+      expect(cards[1].find('h3').text()).toBe('Parent Company')
+      expect(cards[1].find('p').text()).toBe(
+        'Backed by an established financial services group with deep expertise across banking and credit markets.',
+      )
     })
 
     it('renders the capital card heading and amount', () => {
       const cards = wrapper.findAll('.who-we-are .content-card')
-      expect(cards[2].find('h3').text()).toBe('about.whoWeAre.capital')
-      expect(cards[2].find('p').text()).toBe('about.whoWeAre.capitalAmount')
+      expect(cards[2].find('h3').text()).toBe('Registered Capital')
+      expect(cards[2].find('p').text()).toBe('RMB 50 million')
     })
 
     it('renders the services card heading and list', () => {
       const cards = wrapper.findAll('.who-we-are .content-card')
-      expect(cards[3].find('h3').text()).toBe('about.whoWeAre.services')
-      expect(cards[3].find('p').text()).toBe('about.whoWeAre.servicesList')
+      expect(cards[3].find('h3').text()).toBe('Core Services')
+      expect(cards[3].find('p').text()).toBe(
+        'Supply chain finance, retail lending platforms, and big data & AI solutions for financial institutions.',
+      )
     })
   })
 
@@ -153,7 +163,7 @@ describe('About.vue', () => {
   describe('Achievements Section', () => {
     it('renders the section title heading', () => {
       expect(wrapper.find('.achievements .section-title').text()).toBe(
-        'about.achievements.title',
+        'Our Achievements',
       )
     })
 
@@ -198,12 +208,24 @@ describe('About.vue', () => {
 
     it('renders the ISO achievement descriptions via i18n', () => {
       const cards = wrapper.findAll('.achievements .achievement-card')
-      expect(cards[0].find('p').text()).toBe('about.achievements.iso9001')
-      expect(cards[1].find('p').text()).toBe('about.achievements.iso27001')
-      expect(cards[2].find('p').text()).toBe('about.achievements.iso20000')
-      expect(cards[3].find('p').text()).toBe('about.achievements.firstMnc')
-      expect(cards[4].find('p').text()).toBe('about.achievements.firstFintech')
-      expect(cards[5].find('p').text()).toBe('about.achievements.projects')
+      expect(cards[0].find('p').text()).toBe(
+        'ISO 9001 certified for quality management systems.',
+      )
+      expect(cards[1].find('p').text()).toBe(
+        'ISO 27001 certified for information security management.',
+      )
+      expect(cards[2].find('p').text()).toBe(
+        'ISO 20000 certified for IT service management.',
+      )
+      expect(cards[3].find('p').text()).toBe(
+        'First to deliver an AI-driven risk engine for a multinational financial institution.',
+      )
+      expect(cards[4].find('p').text()).toBe(
+        'First to launch an end-to-end digital lending platform for a regional fintech.',
+      )
+      expect(cards[5].find('p').text()).toBe(
+        'Delivered 20+ enterprise projects for banks, fintechs, and regulated industries.',
+      )
     })
   })
 
@@ -218,8 +240,10 @@ describe('About.vue', () => {
 
     it('renders the vision card title and description', () => {
       const visionCard = wrapper.findAll('.vmc-card')[0]
-      expect(visionCard.find('h3').text()).toBe('about.vision.title')
-      expect(visionCard.find('p').text()).toBe('about.vision.description')
+      expect(visionCard.find('h3').text()).toBe('Our Vision')
+      expect(visionCard.find('p').text()).toBe(
+        'To become the most trusted AI partner for financial institutions, making intelligent finance accessible to every business.',
+      )
     })
 
     it('renders the mission card title and description', () => {
@@ -233,7 +257,7 @@ describe('About.vue', () => {
 
     it('renders the culture section heading', () => {
       expect(wrapper.find('.vision-mission .section-title').text()).toBe(
-        'about.culture.title',
+        'Our Culture',
       )
     })
 
@@ -243,10 +267,10 @@ describe('About.vue', () => {
 
     it('renders the four culture values via i18n keys', () => {
       const items = wrapper.findAll('.culture-item')
-      expect(items[0].find('h4').text()).toBe('about.culture.customer')
-      expect(items[1].find('h4').text()).toBe('about.culture.collaboration')
-      expect(items[2].find('h4').text()).toBe('about.culture.agile')
-      expect(items[3].find('h4').text()).toBe('about.culture.professional')
+      expect(items[0].find('h4').text()).toBe('Customer First')
+      expect(items[1].find('h4').text()).toBe('Open Collaboration')
+      expect(items[2].find('h4').text()).toBe('Agile Innovation')
+      expect(items[3].find('h4').text()).toBe('Professional Excellence')
     })
   })
 
@@ -256,7 +280,7 @@ describe('About.vue', () => {
   describe('Service Provider Section', () => {
     it('renders the section title heading', () => {
       expect(wrapper.find('.service-provider .section-title').text()).toBe(
-        'about.serviceProvider.title',
+        'What We Do',
       )
     })
 
@@ -271,23 +295,17 @@ describe('About.vue', () => {
 
     it('renders each service card with title and description', () => {
       const cards = wrapper.findAll('.service-card')
-      expect(cards[0].find('h3').text()).toBe(
-        'about.serviceProvider.service1.title',
-      )
+      expect(cards[0].find('h3').text()).toBe('Financial Technology')
       expect(cards[0].find('p').text()).toBe(
-        'about.serviceProvider.service1.description',
+        'End-to-end lending, credit, and supply chain finance platforms engineered for banks and fintechs.',
       )
-      expect(cards[1].find('h3').text()).toBe(
-        'about.serviceProvider.service2.title',
-      )
+      expect(cards[1].find('h3').text()).toBe('AI & Big Data')
       expect(cards[1].find('p').text()).toBe(
-        'about.serviceProvider.service2.description',
+        'Machine learning, predictive analytics, and governed data platforms that turn data into decisions.',
       )
-      expect(cards[2].find('h3').text()).toBe(
-        'about.serviceProvider.service3.title',
-      )
+      expect(cards[2].find('h3').text()).toBe('Enterprise Solutions')
       expect(cards[2].find('p').text()).toBe(
-        'about.serviceProvider.service3.description',
+        'Custom software, integration, and consulting that modernize regulated financial operations end to end.',
       )
     })
 
@@ -394,18 +412,19 @@ describe('About.vue', () => {
       expect(typeof (wrapper.vm as any).t).toBe('function')
     })
 
-    it('returns the key as fallback when translation is not loaded', () => {
+    it('resolves real English copy for the page title key', () => {
       const result = (wrapper.vm as any).t('about.pageTitle')
-      expect(result).toBe('about.pageTitle')
+      expect(result).toBe('ABOUT')
     })
 
     it('uses the same t() instance across all rendered sections', () => {
       // The hero, every section title, and the stat labels all flow through t()
-      expect(wrapper.text()).toContain('about.pageTitle')
-      expect(wrapper.text()).toContain('about.whoWeAre.title')
-      expect(wrapper.text()).toContain('about.achievements.title')
-      expect(wrapper.text()).toContain('about.culture.title')
-      expect(wrapper.text()).toContain('about.serviceProvider.title')
+      // and render real English copy (translations are bundled in the test env).
+      expect(wrapper.text()).toContain('ABOUT')
+      expect(wrapper.text()).toContain('Who We Are')
+      expect(wrapper.text()).toContain('Our Achievements')
+      expect(wrapper.text()).toContain('Our Culture')
+      expect(wrapper.text()).toContain('What We Do')
     })
 
     it('handles unknown keys by returning them unchanged', () => {
@@ -486,11 +505,23 @@ describe('About.vue', () => {
       w2.unmount()
     })
 
-    it('renders all expected user-facing i18n keys exactly once', () => {
+    it('renders the hero title, accent, and subtitle copy exactly once', () => {
       const text = wrapper.text()
-      expect(text).toContain('about.pageTitle')
-      expect(text).toContain('about.pageTitleAccent')
-      expect(text).toContain('about.pageSubtitle')
+      expect(text).toContain('ABOUT')
+      expect(text).toContain('KTECH')
+      expect(text).toContain(
+        'A fintech and AI company engineering intelligent financial systems for the next decade.',
+      )
+    })
+
+    it('never renders a raw about.* placeholder key (regression guard)', () => {
+      // Every about.* key referenced by About.vue must resolve to real copy.
+      // If a key is missing from src/locales/en.json, useLanguage() falls back
+      // to the raw dotted key, which would surface in the rendered text.
+      const text = wrapper.text()
+      const rawKeyPattern = /\babout\.[a-zA-Z][a-zA-Z0-9.]*/g
+      const matches = text.match(rawKeyPattern)
+      expect(matches).toBeNull()
     })
   })
 })
