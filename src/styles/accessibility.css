@@ -139,6 +139,14 @@ nav a:focus-visible {
   .logo-pulse {
     animation: none !important;
   }
+
+  /* Neutralize mouse-move parallax (AC #177). The per-handler guard in
+     useParallax already short-circuits, but this kills any transform a
+     prior frame applied before the guard ran. */
+  [data-parallax="on"] {
+    transform: none !important;
+    transition: none !important;
+  }
 }
 
 /* =============================================================================
