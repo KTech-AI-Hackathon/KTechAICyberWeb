@@ -40,15 +40,20 @@ function listJsChunks() {
   return readdirSync(ASSETS_DIR).filter((f) => f.endsWith('.js'))
 }
 
-// NOTE: thresholds are pinned AFTER measuring the post-optimization build,
-// with ~20% headroom so CI does not flake on minor dependency updates. They
-// intentionally guard the two CWV-relevant regressions:
+// NOTE: thresholds are pinned AFTER measuring the post-optimization build
+// (lazy routes + vendor manualChunks + sourcemaps off), with headroom so CI
+// does not flake on minor dependency updates. They intentionally guard the two
+// CWV-relevant regressions:
 //   - TOTAL_ENTRY_GZIP_BUDGET: entry chunks shipped on first paint must stay
 //     bounded (regression = a route accidentally pulls a heavy dep eagerly).
 //   - MAX_ROUTE_CHUNK_GZIP_BUDGET: no single non-vendor route chunk may blow
 //     past this (regression = a view grew a huge dependency).
-const TOTAL_ENTRY_GZIP_BUDGET = 1 // placeholder, finalized after measurement
-const MAX_ROUTE_CHUNK_GZIP_BUDGET = 1 // placeholder, finalized after measurement
+//
+// Measured baseline (post #18 optimization): total gzip 131,332 bytes; largest
+// non-vendor/non-index route chunk 'positions-*.js' gzip 5,296 bytes. Budgets
+// set at ~22% (total) and ~32% (per-chunk) headroom above that baseline.
+const TOTAL_ENTRY_GZIP_BUDGET = 160000
+const MAX_ROUTE_CHUNK_GZIP_BUDGET = 7000
 
 // The suite is skipped entirely when no build is present. describe.skipIf
 // evaluates its condition once at collection time.
