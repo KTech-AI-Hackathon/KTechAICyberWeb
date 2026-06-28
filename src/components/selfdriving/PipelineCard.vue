@@ -36,11 +36,19 @@ const statusKey = `selfDriving.phases.${props.phase}.status`
     :style="{ '--card-accent': `var(${accentVar})` }"
     :data-phase="phase"
     :data-current="isCurrent ? 'true' : 'false'"
+    role="listitem"
   >
     <span class="pipeline-card-marker" aria-hidden="true"></span>
-    <header class="pipeline-card-header">
-      <h3 class="pipeline-card-title">{{ t(titleKey) }}</h3>
-    </header>
+    <!-- The stage title is visible LABEL text, not a document heading. The 8
+         stage names are data-viz labels for an auto-playing rail (the demo's
+         single <h2> is the section's heading); promoting each to an <h3> would
+         pollute the host page's heading outline with 8 transient entries
+         between its real sections. The parent PipelineTrack is a role="list"
+         and this card is a role="listitem", so screen readers still get
+         structure without inflating the heading map. -->
+    <div class="pipeline-card-header">
+      <span class="pipeline-card-title">{{ t(titleKey) }}</span>
+    </div>
     <p class="pipeline-card-status">{{ t(statusKey) }}</p>
   </article>
 </template>
@@ -92,7 +100,7 @@ const statusKey = `selfDriving.phases.${props.phase}.status`
 }
 .pipeline-card-title {
   margin: 0;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.95rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;

@@ -166,8 +166,15 @@ const nearStyle = computed(() => depthStyle(34))
   >
     <!-- Visible heading so a screen-reader user (and a sighted user) knows what
          this auto-playing region is. The demo IS page content now (not a hidden
-         background), so it gets a real landmark label + heading. -->
-    <h2 class="self-driving-heading neon-text">{{ t('selfDriving.heading') }}</h2>
+         background), so it gets a real landmark label + heading. Rendered as
+         an <h3> (NOT <h2>) because this section is mounted as the FIRST in-flow
+         block on Home/About, ahead of the page's primary "Our Business" <h2>
+         (#224 rebrand). Demoting to <h3> keeps the page's heading order valid
+         (h1 -> h2 "Our Business" -> h3 demo sub-heading -> h4 cards) so the
+         #224 a11y test (first-h2 == "Our Business") and axe heading-order rules
+         both hold. The <section> itself carries aria-label, so the landmark is
+         still named independently of this heading. -->
+    <h3 class="self-driving-heading neon-text">{{ t('selfDriving.heading') }}</h3>
 
     <!-- Scanlines contained WITHIN this demo's stacking context. The shared
          Scanlines.vue component is `position: fixed; z-index: var(--z-scanlines)`
@@ -259,7 +266,7 @@ const nearStyle = computed(() => depthStyle(34))
   z-index: 2;
   margin: 0 0 1.5rem;
   text-align: center;
-  font-family: 'Orbitron', sans-serif;
+  font-family: var(--font-display);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -305,7 +312,7 @@ const nearStyle = computed(() => depthStyle(34))
 .self-driving-static-summary {
   margin: 0;
   text-align: center;
-  font-family: 'Orbitron', sans-serif;
+  font-family: var(--font-display);
   letter-spacing: 0.1em;
   color: var(--neon-green, #00ff88);
   text-shadow: 0 0 6px var(--neon-green, #00ff88);

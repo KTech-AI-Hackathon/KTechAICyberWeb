@@ -433,6 +433,10 @@ h1 {
   border: 1px solid rgba(0, 255, 204, 0.15);
   border-radius: 4px;
   overflow: hidden;
+  /* scroll-margin-top: when an E2E/user scrollIntoView()'s the demo, leave
+     head-room for the fixed Header so the StatusReadout at the top of the
+     stage is NOT occluded by the nav (mobile Chrome E2E occlusion gate). */
+  scroll-margin-top: 6rem;
 }
 
 /* CTA */

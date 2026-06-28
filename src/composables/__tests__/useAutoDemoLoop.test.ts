@@ -546,4 +546,99 @@ describe('useAutoDemoLoop()', () => {
     expect(throttleLevel.value).toBe('full')
     wrapper.unmount()
   })
+
+  // 12. legacy MediaQueryList fallback (addListener/removeListener) ---------
+  // Old browsers (Safari < 14) ship MediaQueryList WITHOUT addEventListener;
+  // the composable must fall back to the deprecated addListener/removeListener
+  // API. This exercises the else-if branches in setup() + cleanup().
+
+  it('legacy MQL: uses addListener/removeListener when addEventListener is absent', () => {
+    // Mock a legacy MediaQueryList: has addListener/removeListener but NOT
+    // addEventListener/removeEventListener.
+    const addSpy = vi.fn()
+    const removeSpy = vi.fn()
+    window.matchMedia = ((query: string) =>
+      ({
+        matches: false,
+        media: query,
+        addListener: addSpy,
+        removeListener: removeSpy,
+        onchange: null,
+        dispatchEvent: () => false,
+      }) as MediaQueryList) as any
+    queueRAF()
+    mockIntersectionObserver()
+
+    const { wrapper } = mountHost()
+
+    // The legacy addListener fallback was used at setup (NOT addEventListener,
+    // which is undefined on this mock MQL).
+    expect(addSpy).toHaveBeenCalledTimes(1)
+    expect(addSpy).toHaveBeenCalledWith(expect.any(Function))
+
+    wrapper.unmount()
+
+    // And the legacy removeListener fallback was used at cleanup.
+    expect(removeSpy).toHaveBeenCalledTimes(1)
+    expect(removeSpy).toHaveBeenCalledWith(expect.any(Function))
+  })
+
+  // 13. start() is a no-op under reduced motion ----------------------------
+
+  it('start(): no-op under reduced motion (does not schedule a frame)', () => {
+    mockMatchMedia({ '(prefers-reduced-motion: reduce)': true })
+    const raf = neverRAF()
+    mockIntersectionObserver()
+    const { wrapper, getApi } = mountHost()
+    const { start } = getApi()
+
+    // Already in static mode from mount; calling start() must NOT schedule.
+    const before = raf.callCount
+    start()
+    expect(raf.callCount).toBe(before)
+
+    wrapper.unmount()
+  })
+
+  // 14. rAF re-entrancy guard (loop paused between scheduling and firing) ---
+
+  it('re-entrancy: a frame queued while active is skipped if paused before firing', () => {
+    mockMatchMedia({ '(prefers-reduced-motion: reduce)': false })
+    const raf = queueRAF()
+    mockIntersectionObserver()
+    const { wrapper, getApi } = mountHost()
+    const { pause } = getApi()
+
+    // Capture total rAF invocations so far (mount scheduled >= 1 frame).
+    const scheduledBeforeFiring = raf.totalScheduled
+
+    // Pause BEFORE the queued frame fires. The pending callback must detect
+    // isActive=false and bail without rescheduling (the re-entrancy guard).
+    pause()
+    raf.step()
+
+    // Firing the paused frame did NOT schedule a new frame.
+    expect(raf.totalScheduled).toBe(scheduledBeforeFiring)
+
+    wrapper.unmount()
+  })
+
+  // 15. missing IntersectionObserver guard ---------------------------------
+
+  it('no-IO: setup degrades gracefully when IntersectionObserver is undefined', () => {
+    mockMatchMedia({ '(prefers-reduced-motion: reduce)': false })
+    queueRAF()
+    // Remove IntersectionObserver entirely (SSR-like / unsupported runtime).
+    const originalIO = (window as any).IntersectionObserver
+    delete (window as any).IntersectionObserver
+
+    const { wrapper, getApi } = mountHost()
+    const { isActive } = getApi()
+
+    // The loop still runs (rAF-based); only the offscreen throttle is skipped.
+    expect(isActive.value).toBe(true)
+    wrapper.unmount()
+
+    ;(window as any).IntersectionObserver = originalIO
+  })
 })

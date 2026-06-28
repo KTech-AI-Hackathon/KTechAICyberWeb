@@ -71,7 +71,7 @@ const phaseLine = computed(() => {
   gap: 0.3rem;
 }
 .status-readout-cycle {
-  font-family: 'Orbitron', 'Rajdhani', sans-serif;
+  font-family: var(--font-display);
   font-size: 0.85rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;

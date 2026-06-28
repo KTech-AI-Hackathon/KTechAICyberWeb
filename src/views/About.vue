@@ -359,6 +359,9 @@ const { enabled } = useParallax({
   border: 1px solid rgba(0, 255, 204, 0.15);
   border-radius: 4px;
   overflow: hidden;
+  /* scroll-margin-top: leave head-room for the fixed Header so the demo's
+     StatusReadout is NOT occluded by the nav (mobile Chrome E2E gate). */
+  scroll-margin-top: 6rem;
 }
 
 /* Hero Section */

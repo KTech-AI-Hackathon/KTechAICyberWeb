@@ -140,7 +140,8 @@ describe('SelfDrivingDemo', () => {
     // behind the route, which fully occluded the demo; the contract is now
     // "visible content".)
     expect(root.attributes('aria-hidden')).toBeFalsy()
-    // A visible <h2> heading labels the region for sighted + SR users.
+    // A visible heading labels the region for sighted + SR users. Tag is <h3>
+    // (demoted from <h2> so the host page's first <h2> stays "Our Business").
     expect(wrapper.find('.self-driving-heading').exists()).toBe(true)
     // data-current-phase is one of the 8 pipeline phases.
     const phase = root.attributes('data-current-phase')
