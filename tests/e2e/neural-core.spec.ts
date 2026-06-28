@@ -24,11 +24,18 @@ test.describe('#179 AI Core neural-network visualizer', () => {
   test('the neural core renders on the shipped homepage', async ({ page }) => {
     const core = page.locator('[data-test="neural-core"]')
     await expect(core).toBeVisible()
-    // >=3 labeled layers, >=12 nodes, >=1 synapse on desktop.
+    // The graph degrades on mobile (max-width: 768px) from the 13-node desktop
+    // layout to a 7-node mobile layout (NeuralCore mobile-degrade, AC4). The
+    // node-count floor must therefore track the viewport, otherwise the same
+    // assertion that passes on Desktop Chrome fails on Mobile Chrome.
+    const vw = page.viewportSize()
+    const isMobile = !!vw && vw.width <= 768
+    const minNodes = isMobile ? 6 : 12
+    // >=3 labeled layers on both viewports.
     const layerCount = await page.locator('[data-test="neural-layer-label"]').count()
     expect(layerCount).toBeGreaterThanOrEqual(3)
     const nodeCount = await page.locator('[data-test="neural-node"]').count()
-    expect(nodeCount).toBeGreaterThanOrEqual(12)
+    expect(nodeCount).toBeGreaterThanOrEqual(minNodes)
     const synapseCount = await page.locator('[data-test="neural-synapse"]').count()
     expect(synapseCount).toBeGreaterThanOrEqual(1)
   })
