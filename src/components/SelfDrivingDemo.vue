@@ -47,6 +47,7 @@ const {
   loopIteration,
   isStatic,
   phaseDurationMs,
+  depthShift,
   observe,
 } = useAutoDemoLoop()
 
@@ -113,6 +114,19 @@ const readoutKey = computed(() => {
 
 // Static key-frame summary surfaced under reduced motion (still tells the story).
 const staticSummary = computed(() => t('selfDriving.readout.merged'))
+
+// --- AC2: PARALLAX DEPTH -----------------------------------------------------
+// Map the composable's slow -1..1 `depthShift` sine to per-layer translate()
+// intensities. Far plane drifts least (subtle), near plane drifts most — the
+// classic parallax depth cue. transform-only (GPU-cheap); the reduced-motion
+// CSS rule pins every depth layer's transform to none.
+function depthStyle(px) {
+  const s = depthShift.value // -1..1
+  return { transform: `translate3d(${(s * px).toFixed(2)}px, 0, 0)` }
+}
+const farStyle = computed(() => depthStyle(8))
+const midStyle = computed(() => depthStyle(20))
+const nearStyle = computed(() => depthStyle(34))
 </script>
 
 <template>
@@ -129,7 +143,14 @@ const staticSummary = computed(() => t('selfDriving.readout.merged'))
   >
     <Scanlines />
 
-    <div class="self-driving-stage">
+    <!-- AC2 PARALLAX DEPTH — three planes translated at different intensities by
+         the composable's shared-rAF `depthShift` sine (far < mid < near). All
+         decorative; the whole region is already aria-hidden above. -->
+    <div class="depth-layer depth-far" :style="farStyle" aria-hidden="true">
+      <div class="depth-neon-flow"></div>
+    </div>
+
+    <div class="self-driving-stage depth-layer depth-mid" :style="midStyle">
       <header class="self-driving-header">
         <StatusReadout
           :loop-iteration="loopIteration"
@@ -148,6 +169,10 @@ const staticSummary = computed(() => t('selfDriving.readout.merged'))
       <p v-if="isStatic" class="self-driving-static-summary">
         {{ staticSummary }}
       </p>
+    </div>
+
+    <div class="depth-layer depth-near" :style="nearStyle" aria-hidden="true">
+      <div class="depth-foreground-grid"></div>
     </div>
 
     <!-- AC2 GLITCH TRANSITION — one-shot chromatic-aberration flash fired on
@@ -207,6 +232,63 @@ const staticSummary = computed(() => t('selfDriving.readout.merged'))
   text-shadow: 0 0 6px var(--neon-green, #00ff88);
 }
 
+/* ---- AC2 PARALLAX DEPTH ------------------------------------------------
+ * Three depth planes. Each is positioned absolutely and translated ONLY via
+ * the inline `depthStyle()` transform the composable drives (different px
+ * intensities per layer create the parallax cue). The decorative far/near
+ * planes paint faint neon tokens so depth is visible without new colors. */
+.depth-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* transform is set inline by depthStyle(); will-change keeps it GPU-cheap. */
+  will-change: transform;
+}
+.depth-far {
+  z-index: 0;
+  opacity: 0.5;
+}
+.depth-mid {
+  /* The mid plane carries the real content (track + readout + feed). */
+  z-index: 1;
+}
+.depth-near {
+  z-index: 2;
+  opacity: 0.35;
+}
+.depth-neon-flow {
+  position: absolute;
+  inset: -10% -20%;
+  background: radial-gradient(
+      ellipse at 30% 40%,
+      rgba(0, 255, 204, 0.08) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse at 70% 60%,
+      rgba(255, 0, 170, 0.07) 0%,
+      transparent 60%
+    );
+}
+.depth-foreground-grid {
+  position: absolute;
+  inset: -5%;
+  background-image: repeating-linear-gradient(
+      90deg,
+      rgba(0, 255, 255, 0.05) 0,
+      rgba(0, 255, 255, 0.05) 1px,
+      transparent 1px,
+      transparent 48px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 0, 255, 0.04) 0,
+      rgba(0, 255, 136, 0.04) 1px,
+      transparent 1px,
+      transparent 48px
+    );
+}
+
 /* ---- AC2 GLITCH TRANSITION (one-shot, phase-change) -------------------
  * Chromatic-aberration scan-tear using the existing cyber palette tokens
  * (--magenta / --cyan). Fires via v-if on phase change; the 0.6s animation
@@ -261,8 +343,9 @@ const staticSummary = computed(() => t('selfDriving.readout.merged'))
 
 /* Reduced motion: kill every transition/animation on this layer; the static
    summary + the (color-only) current-card highlight still convey the story.
-   Defense-in-depth: the watcher also skips firing glitchFlash under reduced
-   motion, but this CSS locks the overlay's transform too (mirrors the
+   Defense-in-depth: the composable pins depthShift=0 and the watcher skips
+   glitchFlash under reduced motion, but this CSS also locks any transform a
+   prior frame may have written before the guard ran (mirrors the
    accessibility.css [data-parallax="on"] neutralizer pattern). */
 @media (prefers-reduced-motion: reduce) {
   .self-driving-demo,
@@ -270,6 +353,7 @@ const staticSummary = computed(() => t('selfDriving.readout.merged'))
     animation: none !important;
     transition: none !important;
   }
+  .depth-layer,
   .self-driving-glitch {
     transform: none !important;
   }

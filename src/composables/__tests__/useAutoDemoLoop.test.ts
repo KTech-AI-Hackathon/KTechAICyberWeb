@@ -393,7 +393,53 @@ describe('useAutoDemoLoop()', () => {
     wrapper.unmount()
   })
 
-  // 8. cleanup-on-unmount --------------------------------------------------
+  // 8. parallax depth signal (AC2) ----------------------------------------
+
+  it('AC2 parallax: depthShift oscillates in -1..1 as the shared rAF clock advances', () => {
+    mockMatchMedia({ '(prefers-reduced-motion: reduce)': false })
+    const raf = queueRAF()
+    mockIntersectionObserver()
+    const { wrapper, getApi } = mountHost()
+    const { depthShift } = getApi()
+
+    // PARALLAX_PERIOD_MS=12000; depthShift = sin(2*pi*accum/period). Sample the
+    // whole period in 16ms frames and assert it (a) reaches near its +1 peak,
+    // (b) reaches near its -1 trough, and (c) crosses zero — proving it is a
+    // real oscillation driven by the shared rAF clock, not a constant.
+    let t = 0
+    let max = -Infinity
+    let min = Infinity
+    let crossedZero = false
+    let prev = depthShift.value
+    for (let i = 0; i < 12 * 60; i++) {
+      // 12s of 16ms frames ~ one full period
+      t += 16
+      raf.step(t)
+      const v = depthShift.value
+      if (v > max) max = v
+      if (v < min) min = v
+      if ((prev < 0 && v >= 0) || (prev > 0 && v <= 0)) crossedZero = true
+      prev = v
+    }
+    expect(max).toBeGreaterThan(0.9) // near +1 peak
+    expect(min).toBeLessThan(-0.9) // near -1 trough
+    expect(crossedZero).toBe(true)
+    expect(depthShift.value).toBeGreaterThanOrEqual(-1)
+    expect(depthShift.value).toBeLessThanOrEqual(1)
+    wrapper.unmount()
+  })
+
+  it('AC2 parallax: depthShift is pinned at 0 under reduced motion (no depth drift)', () => {
+    mockMatchMedia({ '(prefers-reduced-motion: reduce)': true })
+    neverRAF()
+    mockIntersectionObserver()
+    const { wrapper, getApi } = mountHost()
+    const { depthShift } = getApi()
+    expect(depthShift.value).toBe(0)
+    wrapper.unmount()
+  })
+
+  // 9. cleanup-on-unmount --------------------------------------------------
 
   it('cleanup-on-unmount: rAF cancelled, IO.disconnect called, listeners removed', () => {
     mockMatchMedia({ '(prefers-reduced-motion: reduce)': false })

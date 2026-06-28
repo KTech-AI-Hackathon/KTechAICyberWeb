@@ -285,4 +285,61 @@ describe('SelfDrivingDemo', () => {
 
     wrapper.unmount()
   })
+
+  // -------------------------------------------------------------------------
+  // AC2 — PARALLAX DEPTH (3 planes translated by the shared-rAF depthShift)
+  // -------------------------------------------------------------------------
+
+  it('AC2 parallax: renders three depth planes (far / mid / near)', async () => {
+    installMatchMedia({ reduce: false })
+    const wrapper = mount(SelfDrivingDemo, { attachTo: document.body })
+    await nextTick()
+    expect(wrapper.find('.depth-far').exists()).toBe(true)
+    expect(wrapper.find('.depth-mid').exists()).toBe(true)
+    expect(wrapper.find('.depth-near').exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('AC2 parallax: depth planes carry an inline transform that changes as the rAF clock advances', async () => {
+    installMatchMedia({ reduce: false })
+    const raf = deferredRAF()
+
+    const wrapper = mount(SelfDrivingDemo, { attachTo: document.body })
+    await nextTick()
+
+    const near = () => wrapper.find('.depth-near')
+    // The depthShift sine starts at 0 (sin(0)=0); step far enough that the
+    // accumulator moves toward its peak. PARALLAX_PERIOD_MS=12000, so a
+    // quarter-period (~3000ms) lands the sine at 1.0 (maximal, stable).
+    const firstTransform = near().attributes('style') || ''
+    let t = 0
+    for (let i = 0; i < 200; i++) {
+      t += 16
+      raf.step(t)
+    }
+    await nextTick()
+    const laterTransform = near().attributes('style') || ''
+    // The near plane (intensity 34px) must carry a translate3d transform that
+    // is non-trivial at the peak (34px * 1.0 = 34px, modulo rounding).
+    expect(laterTransform).toMatch(/translate3d\(/)
+    expect(laterTransform).not.toBe(firstTransform)
+    expect(
+      parseFloat(laterTransform.replace(/.*translate3d\(([-\d.]+)px.*/, '$1')),
+    ).toBeGreaterThan(20)
+
+    wrapper.unmount()
+  })
+
+  it('AC2 parallax: depth planes have NO translate transform under reduced motion', async () => {
+    installMatchMedia({ reduce: true })
+    neverRAF()
+
+    const wrapper = mount(SelfDrivingDemo, { attachTo: document.body })
+    await nextTick()
+    // Under reduced motion the composable pins depthShift=0, so the inline
+    // transform is translate3d(0.00px, 0, 0) — the scene is flat (AC4).
+    const nearStyle = wrapper.find('.depth-near').attributes('style') || ''
+    expect(nearStyle).toMatch(/translate3d\(0(?:\.00)?px/)
+    wrapper.unmount()
+  })
 })

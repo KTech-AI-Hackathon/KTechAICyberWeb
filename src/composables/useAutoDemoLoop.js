@@ -59,6 +59,14 @@ const PHASE_DURATION_MS = 2500
 // visibly slows (the AC asks for slow-mo under load), but never freezes.
 const HALF_FACTOR = 0.5
 
+// Parallax depth (AC2 — "parallax depth"): the demo must show 2-3 depth planes
+// moving at different rates with ZERO interaction (it is an always-on ambient
+// layer, not a mouse-driven widget). depthAccumMs advances every frame on the
+// SAME shared rAF loop (no second timer); the view derives a slow -1..1 sine
+// from it (PARALLAX_PERIOD_MS) and translates its depth layers at different
+// intensities. transform-only, GPU-cheap, cancelled on unmount with the loop.
+const PARALLAX_PERIOD_MS = 12000
+
 // A frame whose delta exceeds this is considered a jank frame. Sustained jank
 // (HEAVY_LOAD_CONSECUTIVE frames in a row) flips throttleLevel to 'half'.
 const HEAVY_LOAD_FRAME_MS = 50
@@ -86,11 +94,20 @@ export function useAutoDemoLoop() {
   // phaseId is derived live from phaseIndex so the view tracks the FSM.
   const phaseId = readonly(computed(() => PHASES[phaseIndex.value]))
 
+  // Parallax depth signal (AC2). A slow -1..1 sine the view maps to per-layer
+  // translate() intensities (far < mid < near) to create depth. Driven by the
+  // shared rAF clock below — no second timer. Under reduced motion this stays 0.
+  const depthShift = ref(0)
+
   // --- internal frame state (non-reactive) -------------------------------
   let rafHandle = null
   let lastFrameTime = 0
   let heavyFrames = 0
   let lightFrames = 0
+  // Continuously-advancing accumulator for the parallax depth signal. It is
+  // independent of phase duration so depth keeps flowing mid-phase, not just
+  // on phase boundaries. Reset to 0 on (re)start alongside lastFrameTime.
+  let depthAccumMs = 0
 
   // --- reduced-motion wiring (mirrors useNeuralNet) ----------------------
   const prefersReducedMotion = ref(false)
@@ -111,6 +128,10 @@ export function useAutoDemoLoop() {
     cancelInFlight()
     isStatic.value = true
     isActive.value = false
+    // Pin the parallax depth signal at 0 so reduced-motion renders a flat,
+    // static key-frame (AC4 — no animation of any kind in this branch).
+    depthAccumMs = 0
+    depthShift.value = 0
   }
 
   function exitStatic() {
@@ -118,6 +139,7 @@ export function useAutoDemoLoop() {
     isActive.value = true
     // Reset frame timing so the first resumed frame does not jump.
     lastFrameTime = 0
+    depthAccumMs = 0
     scheduleFrame()
   }
 
@@ -188,6 +210,15 @@ export function useAutoDemoLoop() {
 
     const factor = throttleLevel.value === 'half' ? HALF_FACTOR : 1
     phaseElapsedMs.value += delta * factor
+
+    // Parallax depth (AC2): advance the continuous accumulator on the same tick
+    // as the phase clock (slowed by the same throttle factor so depth slow-mos
+    // in lockstep with the pipeline under load). Mapped to a slow -1..1 sine so
+    // the view's depth planes drift back and forth, not march off-screen.
+    depthAccumMs += delta * factor
+    const phase =
+      (depthAccumMs % PARALLAX_PERIOD_MS) / PARALLAX_PERIOD_MS // 0..1
+    depthShift.value = Math.sin(phase * Math.PI * 2) // -1..1
 
     applyThrottleFromConditions()
 
@@ -338,6 +369,8 @@ export function useAutoDemoLoop() {
     isStatic,
     throttleLevel,
     prefersReducedMotion,
+    // parallax depth signal (AC2) — slow -1..1 sine for the view's depth planes
+    depthShift,
     // controls / wiring
     start,
     pause,
