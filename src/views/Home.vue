@@ -53,6 +53,11 @@
           <span>{{ t('home.cta') }}</span>
         </router-link>
       </div>
+
+      <!-- AI Neural Terminal command console (#161) -->
+      <section class="neural-terminal-section">
+        <NeuralTerminal />
+      </section>
     </div>
   </div>
 </template>
@@ -60,6 +65,7 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useLanguage } from '../composables/useLanguage'
+import NeuralTerminal from '../components/NeuralTerminal.vue'
 
 const { t } = useLanguage()
 
@@ -342,6 +348,11 @@ h1 {
   text-shadow:
     0 0 5px currentColor,
     0 0 10px currentColor;
+}
+
+/* Neural Terminal section */
+.neural-terminal-section {
+  margin-top: 3rem;
 }
 
 /* Responsive */
