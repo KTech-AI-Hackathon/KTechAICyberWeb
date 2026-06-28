@@ -463,4 +463,49 @@ describe('useAutoDemoLoop()', () => {
     )
     removeSpy.mockRestore()
   })
+
+  // 10. observe() does not retain a stale target (INFO-1) -------------------
+
+  it('INFO-1: observe() unobserves the previous target before observing the new one', () => {
+    mockMatchMedia({ '(prefers-reduced-motion: reduce)': false })
+    queueRAF()
+    mockIntersectionObserver()
+    const { wrapper, getApi } = mountHost()
+    const { observe } = getApi()
+    const io = lastIO()
+
+    // On mount the composable observed document.documentElement by default.
+    expect(io.observe).toHaveBeenCalledWith(document.documentElement)
+
+    // Re-point the observer at a new element (this is what the view does in
+    // onMounted). The previous documentElement observation must be released so
+    // it cannot flip isOffscreen after the real root has scrolled away.
+    const newEl = document.createElement('div')
+    observe(newEl)
+
+    expect(io.observe).toHaveBeenLastCalledWith(newEl)
+    // The previous default target was unobserved.
+    expect(io.unobserve).toHaveBeenCalledWith(document.documentElement)
+    wrapper.unmount()
+  })
+
+  it('INFO-1: observe() unobserves an earlier observed element when re-pointed', () => {
+    mockMatchMedia({ '(prefers-reduced-motion: reduce)': false })
+    queueRAF()
+    mockIntersectionObserver()
+    const { wrapper, getApi } = mountHost()
+    const { observe } = getApi()
+    const io = lastIO()
+
+    const first = document.createElement('div')
+    const second = document.createElement('div')
+    observe(first)
+    observe(second)
+
+    // The most recent target is observed.
+    expect(io.observe).toHaveBeenLastCalledWith(second)
+    // The earlier explicitly-observed element was released too.
+    expect(io.unobserve).toHaveBeenCalledWith(first)
+    wrapper.unmount()
+  })
 })

@@ -287,6 +287,23 @@ export function useAutoDemoLoop() {
   }
 
   function observe(el) {
+    // INFO-1: unobserve the PREVIOUS target (and the documentElement that
+    // onMounted observed by default) before observing the new one, so we never
+    // retain a stale observation. Previously the view re-pointed the observer
+    // at its root but left the default documentElement observation live, so two
+    // targets were tracked and a stale one could flip isOffscreen after the
+    // real root had scrolled away.
+    if (io && observedEl && observedEl !== el) {
+      io.unobserve(observedEl)
+    }
+    if (
+      io &&
+      typeof document !== 'undefined' &&
+      document.documentElement &&
+      document.documentElement !== el
+    ) {
+      io.unobserve(document.documentElement)
+    }
     observedEl = el
     if (!io) createObserver()
     if (io && el) io.observe(el)
