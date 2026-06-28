@@ -1,5 +1,5 @@
 import { test, expect } from './fixtures/test-fixtures';
-import { EXPECTED_HERO, EXPECTED_SERVICES, EXPECTED_HONORS, EXPECTED_CONTACT_ITEMS } from './fixtures/test-data';
+import { EXPECTED_HERO, EXPECTED_SERVICES, EXPECTED_CONTACT_ITEMS } from './fixtures/test-data';
 
 /**
  * Homepage E2E Tests
@@ -16,7 +16,7 @@ import { EXPECTED_HERO, EXPECTED_SERVICES, EXPECTED_HONORS, EXPECTED_CONTACT_ITE
  * — it does NOT contain any of the sections/selectors this spec drives via the
  * HomePage page object:
  *   - `#hero` / `.hero-title` / `.hero-subtitle` / `.hero-stats` / `.stat-number`
- *   - `#services` / `#honors` / `#contact` hash sections (and the
+ *   - `#services` / `#contact` hash sections (and the
  *     `.nav-links a[href="#services"]` anchors)
  *   - `.scanlines`, `.hero-bg`, a nav-logo containing "KAI"/"TECH" (the live
  *     logo is the i18n `nav.logo` = "KTECH.AI")
@@ -106,19 +106,6 @@ test.describe.skip('Homepage Content', () => {
       const details = await homePage.getServiceCardDetails(i);
       expect(details.title).toBe(EXPECTED_SERVICES[i].title);
     }
-  });
-
-  test('should display all honor badges', async ({ homePage }) => {
-    await homePage.goto();
-
-    // Scroll to honors section
-    await homePage.scrollToSection('honors');
-
-    // Get honor badge count
-    const badgeCount = await homePage.getHonorBadgeCount();
-
-    // Verify we have honor badges
-    expect(badgeCount).toBeGreaterThanOrEqual(EXPECTED_HONORS.length);
   });
 
   test('should display contact information', async ({ homePage }) => {
