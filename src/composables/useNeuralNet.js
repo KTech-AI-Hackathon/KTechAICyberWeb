@@ -30,7 +30,7 @@
  * @ticket #179
  */
 
-import { ref, computed, readonly, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, readonly, watch, unref, onMounted, onUnmounted } from 'vue'
 
 // ---------------------------------------------------------------------------
 // Layer / graph configuration
@@ -184,21 +184,52 @@ function resolvePathFor(startId, nodes, synapses, lastLayerIndex) {
 
 /**
  * @param {object} [opts]
- * @param {boolean} [opts.mobile=false] Force the mobile (degraded) graph.
+ * @param {boolean | import('vue').Ref<boolean>} [opts.mobile=false]
+ *   Force the mobile (degraded) graph. Accepts a plain boolean (read once at
+ *   setup, for backwards compatibility with the original #179 contract) OR a
+ *   ref/getter so the view can drive the node count reactively off a
+ *   matchMedia('(max-width: 768px)') listener and degrade the graph live when
+ *   the viewport shrinks (AC4: mobile degrades gracefully — fewer nodes).
  */
 export function useNeuralNet(opts = {}) {
-  const mobile = !!opts.mobile
+  // Accept either a plain boolean or a ref/getter. `unref` unwraps a ref or
+  // returns the value as-is; computed() below tracks the reactive source when
+  // one is passed, so the graph rebuilds when isMobile flips.
+  const mobileSource = opts.mobile
 
   // --- graph ---------------------------------------------------------------
-  const sizes = mobile ? MOBILE_SIZES : DESKTOP_SIZES
-  const graph = buildGraph(sizes)
+  // sizes/nodes/synapseSeed/layers are all derived from the (possibly
+  // reactive) mobile flag via computeds, so flipping isMobile live rebuilds
+  // the whole graph without remounting the component.
+  const sizes = computed(() => (unref(mobileSource) ? MOBILE_SIZES : DESKTOP_SIZES))
+  const graph = computed(() => buildGraph(sizes.value))
 
   // Nodes live in a ref so drag can mutate coordinates reactively. We keep a
   // stable array reference and mutate item fields (drag updates x/y in place
   // then bump a revision counter to trigger computed recompute).
-  const nodes = ref(graph.nodes.map((n) => ({ ...n })))
-  const synapseSeed = graph.synapses
-  const layers = graph.layers
+  const nodes = ref(graph.value.nodes.map((n) => ({ ...n })))
+  const synapseSeed = computed(() => graph.value.synapses)
+  // `layers` is a reactive array (not a ref) so the existing public contract —
+  // callers read layers.length / layers[i] directly — keeps working, while the
+  // template still re-renders when we splice the rebuilt layer set in. We
+  // mutate it in place on a graph rebuild to preserve the proxy identity.
+  const layers = reactive(graph.value.layers.slice())
+
+  // When the mobile flag flips, the seeded graph changes — resync the live
+  // node + layer arrays from the freshly built graph so the SVG re-renders
+  // with the new node count. This keeps drag state out of the rebuild (a
+  // viewport resize is a clean reset).
+  watch(
+    graph,
+    (g) => {
+      // Cancel any in-flight inference before swapping the graph; the old
+      // pulses' paths reference node ids that no longer exist.
+      resetInference()
+      nodes.value = g.nodes.map((n) => ({ ...n }))
+      layers.splice(0, layers.length, ...g.layers)
+    },
+    { flush: 'post' },
+  )
 
   // Revision counter so the synapse-geometry computed observes node moves
   // without us rebuilding the node array each drag frame.
@@ -206,8 +237,9 @@ export function useNeuralNet(opts = {}) {
 
   const synapses = computed(() => {
     void geometryRevision.value // track
+    const seed = synapseSeed.value
     const byId = new Map(nodes.value.map((n) => [n.id, n]))
-    return synapseSeed.map((s) => {
+    return seed.map((s) => {
       const a = byId.get(s.from)
       const b = byId.get(s.to)
       return {
@@ -223,9 +255,11 @@ export function useNeuralNet(opts = {}) {
   })
 
   // --- resolvePath ---------------------------------------------------------
-  const lastLayerIndex = layers.length - 1
+  // lastLayerIndex reads off the (reactive) layers array so it tracks graph
+  // rebuilds when the mobile flag flips.
+  const lastLayerIndex = computed(() => layers.length - 1)
   function resolvePath(startId) {
-    return resolvePathFor(startId, nodes.value, synapseSeed, lastLayerIndex)
+    return resolvePathFor(startId, nodes.value, synapseSeed.value, lastLayerIndex.value)
   }
 
   // --- inference state machine --------------------------------------------

@@ -131,6 +131,35 @@ describe('NeuralCore.vue (#179)', () => {
     expect(layerLabels.length).toBeGreaterThanOrEqual(3)
   })
 
+  // --- mobile degrade (AC4) -------------------------------------------------
+  // matchMedia('(max-width: 768px)') matches => the view renders the mobile
+  // graph (7 nodes), strictly fewer than the desktop 13. This is the AC4
+  // "mobile degrades gracefully (fewer nodes)" gate at the view level: it
+  // proves NeuralCore reads the matchMedia result and passes it through to
+  // useNeuralNet, not just that the composable accepts { mobile: true }.
+  it('AC4: matchMedia(max-width:768px) matches => renders the mobile node count (fewer than desktop)', async () => {
+    // Desktop baseline (matches=false) -> 13 nodes.
+    installMatchMedia({ reduce: false, mobile: false })
+    syncRAF()
+    const desktop = mount(NeuralCore, { attachTo: document.body })
+    await flushPromises()
+    await nextTick()
+    const desktopNodeCount = desktop.findAll('[data-test="neural-node"]').length
+    expect(desktopNodeCount).toBe(13)
+    desktop.unmount()
+
+    // Mobile (matches=true) -> 7 nodes, strictly fewer than desktop.
+    installMatchMedia({ reduce: false, mobile: true })
+    syncRAF()
+    const mobile = mount(NeuralCore, { attachTo: document.body })
+    await flushPromises()
+    await nextTick()
+    const mobileNodeCount = mobile.findAll('[data-test="neural-node"]').length
+    expect(mobileNodeCount).toBe(7)
+    expect(mobileNodeCount).toBeLessThan(desktopNodeCount)
+    mobile.unmount()
+  })
+
   it('renders the Run Inference button with a localized aria-label', async () => {
     const w = await mountCore()
     const btn = w.find('[data-test="neural-run-inference"]')

@@ -175,7 +175,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import Scanlines from './Scanlines.vue'
 import { useLanguage } from '../composables/useLanguage'
 import { useNeuralNet } from '../composables/useNeuralNet.js'
@@ -184,6 +184,20 @@ const { t } = useLanguage()
 
 // Y position of the layer labels (above the topmost node row, inside viewBox).
 const LABEL_Y = 12
+
+// --- mobile degrade (AC4) -------------------------------------------------
+// The viewport width drives whether we render the full 13-node desktop graph
+// or the 7-node mobile graph. We watch matchMedia('(max-width: 768px)') and
+// pass the reactive flag into useNeuralNet so the composable rebuilds the
+// graph live when the viewport shrinks — mobile degrades to fewer nodes
+// instead of cramming 13 nodes onto a phone screen. Mirrors the
+// prefers-reduced-motion matchMedia listener pattern in useNeuralNet.
+const MOBILE_QUERY = '(max-width: 768px)'
+const isMobile = ref(false)
+let mobileMq = null
+const onMobileChange = (e) => {
+  isMobile.value = !!(e && e.matches)
+}
 
 const {
   layers,
@@ -198,7 +212,7 @@ const {
   endDrag,
   prefersReducedMotion,
   isBreathingEligible,
-} = useNeuralNet()
+} = useNeuralNet({ mobile: isMobile })
 
 // --- hover/focus highlight -------------------------------------------------
 // Tracking the hovered/focused node id lets us mark its connected synapses
@@ -328,6 +342,31 @@ watch(inferenceState, async (state) => {
     setTimeout(() => {
       glitchFlash.value = false
     }, 800)
+  }
+})
+
+// --- mobile-degrade matchMedia lifecycle ----------------------------------
+// Seed isMobile from the current match and subscribe so viewport changes
+// (resize across the 768px breakpoint, device rotate) rebuild the graph live.
+onMounted(() => {
+  if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+    mobileMq = window.matchMedia(MOBILE_QUERY)
+    isMobile.value = !!mobileMq.matches
+    if (mobileMq.addEventListener) {
+      mobileMq.addEventListener('change', onMobileChange)
+    } else if (mobileMq.addListener) {
+      mobileMq.addListener(onMobileChange)
+    }
+  }
+})
+
+onUnmounted(() => {
+  if (mobileMq) {
+    if (mobileMq.removeEventListener) {
+      mobileMq.removeEventListener('change', onMobileChange)
+    } else if (mobileMq.removeListener) {
+      mobileMq.removeListener(onMobileChange)
+    }
   }
 })
 </script>
