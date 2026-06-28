@@ -121,12 +121,51 @@
     "notes": "FLAGSHIP: paused for human review per user instruction (no auto-merge). Iter-19 occlusion blind spot caught by adversarial reviewer (global bg was fully hidden behind hero); fixed by pivoting to in-flow section + elementFromPoint E2E. origin/main drifted to 04c9917 mid-run; rebase before merge."
   },
   "182": {
-    "status": "InProgress",
-    "stage": "security",
     "title": "[CYBER] Cyber Ops HUD interactive dashboard",
-    "branch": "autodev-182-cyber-ops-hud",
-    "startedAt": "2026-06-29",
+    "status": "Done",
+    "stage": "archived",
+    "pr": 212,
+    "mergeSha": "068ca38",
+    "merge_sha": "068ca384a59ae9a7da62056d1a2db9bd279aa528",
+    "mergedAt": "2026-06-28T17:43:57Z",
+    "completed_at": "2026-06-28T17:43:57Z",
     "iteration": 21,
-    "securityVerdict": "PASS (0 critical, 0 high, 0 medium)"
+    "github_state": "CLOSED",
+    "branch": "autodev-182-cyber-ops-hud (merged, branch deleted)",
+    "baseline": "origin/main @ 74f1380",
+    "startedAt": "2026-06-29",
+    "started_at": "2026-06-29",
+    "merge_method": "--merge (NOT squash; all 10 optimization commits preserved on main as searchable history)",
+    "pr_url": "https://github.com/jasonhou007/KTechAICyberWeb/pull/212",
+    "board_card": "PVTI_lAHOB5DQUc4BboAJzgxDH58 -> Done (98236657)",
+    "securityVerdict": "PASS (0 critical, 0 high, 0 medium)",
+    "type": "feature (interactive real-time dashboard widget grid)",
+    "commits": [
+      "cc399f1",
+      "c7d5dec",
+      "b6e7bd4",
+      "c5d5a73",
+      "1ce7539",
+      "a667653",
+      "20eb72d",
+      "f2e5658",
+      "62f1e4d",
+      "45bb2d2"
+    ],
+    "honest_results": {
+      "vitest": "2182 tests pass (0 fail)",
+      "coverage": "95.82% lines / 85.78% branches / 94.57% statements / 94.32% functions (all above gate)",
+      "build": "vite build green",
+      "i18n_parity": "en 982 = zh 982 (opsHud namespace present in both); no raw keys rendered",
+      "shipped_app": "CyberOpsHud renders in Home.vue, enforced by HomeOpsHudWiring.test.ts gate",
+      "hud_e2e": "8/8 HUD E2E PASS on chromium + Mobile Chrome (cyber-ops-hud.spec.ts x7 + cyber-ops-hud.evidence.spec.ts x1)",
+      "security": "0 Critical, 0 High, 0 Medium (SEC001 clean)",
+      "evaluator": "GOOD / 88 — APPROVE",
+      "evidence": "tickets/182/evidence/{before-hud-rest,after-hud-pulse-anomaly,after-hud-investigate}.png",
+      "ci_failure_set_diff": "EMPTY on real engines — HUD: chromium 8 pass/0 fail, Mobile Chrome 8 pass/0 fail; only firefox (24) + webkit (24) fail, ALL with (2ms) browser-binary-missing signature = pre-existing infra debt identical on main baseline. Job marked cancelled (run timed out on webkit/Mobile Safari which cannot launch). Zero new real failures."
+    },
+    "phase_5b": "All 15 AC checkboxes in issue #182 body flipped [ ]->[x] via gh issue edit --body-file (perl in-place); verified 15/15 [x] on remote. Issue closed via PR 'Closes #182' keyword + back-filled 'Closed via PR #212' comment.",
+    "board_done_confirmed": "graphql: node PVTI_lAHOB5DQUc4BboAJzgxDH58 -> {state: CLOSED, Status field value: 'Done'}",
+    "notes": "M-sized feature. TDD red->green. Simulated real-time HUD (useOpsFeed composable, no backend) with 4 widgets, filterable feed, anomaly drill-down, pulse-the-network, prefers-reduced-motion safe. Distinct paradigm from #179/#180/#161."
   }
 }
