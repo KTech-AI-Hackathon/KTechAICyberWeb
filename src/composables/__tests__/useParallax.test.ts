@@ -21,6 +21,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, ref, nextTick } from 'vue'
+import fs from 'node:fs'
+import path from 'node:path'
 import { useParallax } from '../useParallax'
 
 // ---------------------------------------------------------------------------
@@ -335,5 +337,44 @@ describe('useParallax()', () => {
     expect(getEnabled2()?.value).toBe(false)
     expect(w2.find('.root').attributes('data-parallax-on')).toBeUndefined()
     w2.unmount()
+  })
+
+  // -------------------------------------------------------------------------
+  // CSS-source gates (proves the global neutralization rule exists)
+  // -------------------------------------------------------------------------
+  describe('accessibility.css reduced-motion neutralization (AC #177)', () => {
+    const cssPath = path.resolve(
+      process.cwd(),
+      'src',
+      'styles',
+      'accessibility.css',
+    )
+    let cssSource: string
+
+    beforeEach(() => {
+      cssSource = fs.readFileSync(cssPath, 'utf-8')
+    })
+
+    it('contains a [data-parallax="on"] selector inside the reduced-motion block', () => {
+      // Slice the reduced-motion media block out of the file so we can assert the
+      // rule lives INSIDE it (not in a stray location).
+      const reducedIdx = cssSource.indexOf('@media (prefers-reduced-motion: reduce)')
+      expect(reducedIdx).toBeGreaterThan(-1)
+      const nextMediaIdx = cssSource.indexOf('@media', reducedIdx + 1)
+      const blockEnd = nextMediaIdx === -1 ? cssSource.length : nextMediaIdx
+      const reducedBlock = cssSource.slice(reducedIdx, blockEnd)
+
+      expect(reducedBlock).toContain('[data-parallax="on"]')
+    })
+
+    it('forces transform:none under reduced-motion for parallax layers', () => {
+      const reducedIdx = cssSource.indexOf('@media (prefers-reduced-motion: reduce)')
+      const nextMediaIdx = cssSource.indexOf('@media', reducedIdx + 1)
+      const blockEnd = nextMediaIdx === -1 ? cssSource.length : nextMediaIdx
+      const reducedBlock = cssSource.slice(reducedIdx, blockEnd)
+
+      // The rule must neutralize any transform a prior frame applied.
+      expect(reducedBlock).toMatch(/transform:\s*none/)
+    })
   })
 })
