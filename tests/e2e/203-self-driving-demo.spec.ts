@@ -92,4 +92,72 @@ test.describe('#203 Self-Driving ambient demo background', () => {
     await page.goto(`${BASE}about`, { waitUntil: 'networkidle' })
     await expect(page.locator('[data-selfdriving-root]')).toBeVisible()
   })
+
+  // -------------------------------------------------------------------------
+  // VISIBILITY GATE (iter-13 occlusion regression test)
+  // -------------------------------------------------------------------------
+  // This is the test that SHOULD HAVE caught the iter-13 flagship defect: the
+  // demo was mounted globally as a position:fixed; aria-hidden ambient
+  // background painted BEHIND the routed page, so every route's opaque
+  // foreground fully OCCLUDED it. elementFromPoint() at every pipeline card
+  // center returned the hero <h1>, not the demo — the narrative was invisible.
+  // No automated gate caught it; the coordinator found it manually.
+  //
+  // This test scrolls the demo into view, then for every pipeline card (and the
+  // streaming feed + status readout) asserts that the TOPMOST element at that
+  // point is INSIDE the demo — i.e. the demo's content is not occluded by the
+  // hero/header/main. It FAILS on the pre-fix global-background mount (the
+  // fixed demo painted behind the hero, so elementFromPoint returned the hero)
+  // and PASSES on the in-flow section mount.
+  // -------------------------------------------------------------------------
+  test('visibility (AC1): the demo content is NOT occluded — elementFromPoint at every card/feed/readout center hits the demo', async ({ page }) => {
+    await page.goto(BASE, { waitUntil: 'networkidle' })
+    await expect(page.locator('[data-selfdriving-root]')).toBeVisible()
+
+    // Wait for the FSM to mount + the first phase to render the cards.
+    await page.waitForTimeout(2000)
+
+    // Scroll the demo into the viewport so elementFromPoint can hit it (the
+    // demo is in-flow, so it may sit below the fold depending on the page's
+    // header height; scrolling is part of the user flow, not occlusion).
+    await page.locator('[data-selfdriving-root]').scrollIntoViewIfNeeded()
+    await page.waitForTimeout(500)
+
+    // For every pipeline card + the feed + readout, the topmost element at the
+    // center must be INSIDE the demo region (not the hero/header/main).
+    const occluded = await page.evaluate(() => {
+      const root = document.querySelector('[data-selfdriving-root]')
+      if (!root) return { error: 'no demo root' }
+      const targets = Array.from(root.querySelectorAll('.pipeline-card'))
+      const feed = root.querySelector('[class*=streaming]')
+      const readout = root.querySelector('[class*=readout]')
+      if (feed) targets.push(feed)
+      if (readout) targets.push(readout)
+      const offenders = []
+      for (const el of targets) {
+        const r = el.getBoundingClientRect()
+        const cx = r.left + r.width / 2
+        const cy = r.top + r.height / 2
+        const top = document.elementFromPoint(cx, cy)
+        const inDemo = top ? root.contains(top) : false
+        if (!inDemo) {
+          offenders.push({
+            label: (el.textContent || '').trim().slice(0, 16),
+            center: [Math.round(cx), Math.round(cy)],
+            topTag: top ? top.tagName : 'NULL',
+            topClass: top && typeof top.className === 'string'
+              ? top.className.split(' ')[0]
+              : '',
+          })
+        }
+      }
+      return { checked: targets.length, offenders }
+    })
+
+    expect(occluded.error).toBeUndefined()
+    expect(occluded.checked).toBeGreaterThan(0)
+    // Every probed card/feed/readout center must hit an element INSIDE the demo.
+    // A non-empty offenders list means the demo is occluded at that point.
+    expect(occluded.offenders, JSON.stringify(occluded.offenders)).toEqual([])
+  })
 })
