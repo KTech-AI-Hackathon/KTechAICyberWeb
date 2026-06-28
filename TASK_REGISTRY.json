@@ -1,25 +1,35 @@
 {
-  "issue": 205,
+  "issue": 165,
   "205": {
     "title": "[bug] Correct KTech company facts: capital 300M (was 50M), full KASIKORN VISION name, founding date",
-    "status": "InProgress",
-    "stage": "validation",
+    "status": "Done",
+    "stage": "archived",
     "iteration": 20,
-    "github_state": "OPEN",
-    "branch": "autodev-205-company-facts",
+    "github_state": "CLOSED",
+    "branch": "autodev-205-company-facts (merged, branch deleted)",
     "baseline": "origin/main @ 7717d87",
     "started_at": "2026-06-28",
+    "completed_at": "2026-06-28T16:10:22Z",
     "type": "bug (content / i18n correction)",
     "closes_acs_of": 159,
-    "commits": [],
+    "pr_url": "https://github.com/jasonhou007/KTechAICyberWeb/pull/210",
+    "merge_sha": "2ae6c75",
+    "merge_method": "--merge (NOT squash; commit 6154f2e preserved on main)",
+    "board_card": "PVTI_lAHOB5DQUc4BboAJzgxEG8o -> Done (98236657)",
+    "commits": [
+      "6154f2e"
+    ],
     "honest_results": {
       "vitest": "71 files / 2116 tests pass (0 fail)",
       "build": "vite build green (About-BPuc0_D5.js 8.92 kB)",
       "i18n_parity": "en 946 = zh 946 (+2 each: established + establishedDate); check-i18n-keys.mjs OK",
-      "shipped_app": "Playwright 5/5 on running app — en capital/name/established + zh (toggle) capital/established",
+      "shipped_app": "Playwright 5/5 on running app (chromium) — en capital/name/established + zh (toggle) capital/established",
       "no_old_values": "grep '50 million|Kaitai Vision|5000 万' src/ -> 0 matches",
-      "evidence": "tickets/205/evidence/{before,after}-about-facts.png"
+      "security": "0 Critical, 0 High, SEC001 clean, no XSS surface",
+      "evidence": "tickets/205/evidence/{before,after}-about-facts.png",
+      "ci_failure_set_diff": "EMPTY — PR #210 chromium failures {87-privacy>contact details} == main baseline; zero new failures. firefox/webkit = pre-existing 1ms browser-binary infra debt."
     },
+    "phase_5b": "#159's 3 Company-Information ACs (Company name / Established / Capital) flipped [ ]->[x] via REST PATCH; #159 now 18/18 ACs checked; #159 closed + board card -> Done.",
     "facts_corrected": {
       "capital_en": "RMB 50 million -> RMB 300 million",
       "capital_zh": "人民币 5000 万元 -> 3亿元人民币",
@@ -30,7 +40,6 @@
     },
     "notes": "S-sized content/i18n fix. TDD red->green. Inline coordinator execution (proportionate)."
   },
-  "issue": 165,
   "title": "[ASSETS] Extract and Implement About & News Section Images",
   "branch": "autodev-165-assets",
   "status": "InProgress",
@@ -85,43 +94,30 @@
     "completed_at": "2026-06-28T15:10:04Z"
   },
   "203": {
-    "title": "Self-Driving ambient demo background (always-on Agent pipeline loop)",
-    "status": "InProgress",
-    "stage": "coding",
+    "title": "Self-Driving ambient demo background (always-on pipeline loop)",
+    "status": "InReview",
+    "stage": "pr",
     "github_state": "OPEN",
+    "pr": "#211",
+    "pr_url": "https://github.com/jasonhou007/KTechAICyberWeb/pull/211",
     "branch": "autodev-203-self-driving",
     "baseline": "origin/main @ c240c81 (v1.0)",
+    "head_sha": "77152a5",
+    "commits": 21,
     "started_at": "2026-06-28",
     "flagship": true,
-    "commits_main_to_HEAD": 11,
-    "head_sha": "508321b",
     "coverage": {
-      "statements": 94.31,
-      "branches": 86.16,
-      "functions": 94.79,
-      "lines": 95.46
+      "statements": 94.45,
+      "branches": 86.45,
+      "functions": 94.8,
+      "lines": 95.56
     },
-    "tests": "71 files / 2119 tests pass",
-    "build": "green",
-    "e2e": "3/3 pass (auto-play + reduced-motion + global) — verified in isolated worktree",
-    "revision_round": 3,
-    "revision_findings_resolved": 4,
-    "notes": "Gap1 glitch + Gap2 parallax + Gap3 CSS-source visual gate (red-proven) + Gap4 E2E executed (phase 2500->1500ms). Concurrent autodev-180 process shares working tree — verify in worktree.",
-    "security_verdict": "PASS (0 Critical, 0 High)",
-    "revision2_findings": [
-      "MEDIUM-1: Scanlines z-index 1000 paints above Header when globally mounted (visual/contrast)",
-      "MEDIUM-2: StatusReadout.phaseLine computed dead (never surfaced)",
-      "MEDIUM-3: streamingLines tautology (both branches return same array)",
-      "INFO-1/2: optional polish"
-    ],
-    "reviewer_verdict": "REVISE-AND-RESUBMIT (Overall 8.1/10)",
-    "reviewer_must_fix": "OCCLUSION: all 8 pipeline cards occluded by hero/header/content on home+/about routes (elementFromPoint confirms). Defeats AC1 \"product demos itself\". Coordinator independently verified.",
-    "reviewer_should_fix": [
-      "No elementFromPoint visibility test (regression risk)",
-      "PHASES duplicated in useAutoDemoLoop.js + PipelineTrack.vue",
-      "Stale 2500ms comments (now 1500ms)",
-      "StatusReadout {n} single-replace fragile",
-      "Legacy addListener branch uncovered"
-    ]
+    "tests": "71 files / 2133 pass / 3 skipped / 0 fail",
+    "build": "green (140.12 kB entry / 58.67 kB gzip)",
+    "e2e": "4/4 pass (auto-play + reduced-motion + global + visibility/elementFromPoint)",
+    "security": "PASS (0 Critical, 0 High; 3 MEDIUM + 2 INFO found and fixed)",
+    "reviewer_verdict": "REVISE-AND-RESUBMIT → must-fix (occlusion) addressed in rev 3 → re-verified visible",
+    "auto_merge": false,
+    "notes": "FLAGSHIP: paused for human review per user instruction (no auto-merge). Iter-19 occlusion blind spot caught by adversarial reviewer (global bg was fully hidden behind hero); fixed by pivoting to in-flow section + elementFromPoint E2E. origin/main drifted to 04c9917 mid-run; rebase before merge."
   }
 }
