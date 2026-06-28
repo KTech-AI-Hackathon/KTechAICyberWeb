@@ -122,10 +122,11 @@
   },
   "182": {
     "status": "InProgress",
-    "stage": "planning",
+    "stage": "security",
     "title": "[CYBER] Cyber Ops HUD interactive dashboard",
     "branch": "autodev-182-cyber-ops-hud",
     "startedAt": "2026-06-29",
-    "iteration": 21
+    "iteration": 21,
+    "securityVerdict": "PASS (0 critical, 0 high, 0 medium)"
   }
 }
