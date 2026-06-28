@@ -1,27 +1,33 @@
 /**
  * @file App.selfdriving-wiring.test.ts
  * @description Shipped-app verification that SelfDrivingDemo is actually wired
- * into App.vue (#203 Self-Driving ambient demo).
+ * into a route a user sees (#203 Self-Driving demo).
  *
  * WHY THIS TEST EXISTS:
  * The #203 demo ships a SelfDrivingDemo.vue component + useAutoDemoLoop
  * composable + 4 child components. If that root component is NEVER rendered
- * inside App.vue — only tested in isolation — the entire feature is dead code
- * on the shipped app (same class of bug as the #164 nav overhaul that lived as
- * an orphan until a wiring test was added; see App.nav-wiring.test.ts). Every
- * isolated SelfDrivingDemo unit test would still pass while the site showed no
- * ambient background.
+ * inside a real route — only tested in isolation — the entire feature is dead
+ * code on the shipped app (same class of bug as the #164 nav overhaul that
+ * lived as an orphan until a wiring test was added; see App.nav-wiring.test.ts).
+ * Every isolated SelfDrivingDemo unit test would still pass while the site
+ * showed no demo.
  *
- * This test mounts the REAL App.vue with a REAL router and the REAL child
- * components (Header, SelfDrivingDemo, the toggles, i18n are NOT mocked), then
- * asserts that the demo's root element + its bound data attributes actually
- * reach the DOM. If anyone reverts the wiring (removes <SelfDrivingDemo /> from
- * App.vue), this test fails — [data-selfdriving-root] would vanish.
+ * MOUNT STRATEGY (iter-13 occlusion fix):
+ * The demo is mounted IN-FLOW inside Home.vue (and About.vue) as a visible
+ * flagship <section> — NOT as a global `position: fixed; aria-hidden` ambient
+ * background in App.vue. The earlier global-background mount was fully occluded
+ * behind every route's opaque foreground (elementFromPoint() at every pipeline
+ * card center returned the hero <h1>, not the demo), so the demo was invisible.
+ * This test therefore mounts the REAL App.vue + REAL Home.vue (via a real
+ * router) and asserts the demo reaches the DOM as VISIBLE, NON-aria-hidden
+ * content. If anyone reverts the wiring (removes <SelfDrivingDemo /> from
+ * Home.vue), this test fails — [data-selfdriving-root] would vanish from `/`.
  *
- * Test that would FAIL if SelfDrivingDemo weren't wired:
- *   - [data-selfdriving-root] is present in the rendered App.
+ * Test that would FAIL if SelfDrivingDemo weren't wired into Home:
+ *   - [data-selfdriving-root] is present in the rendered `/` route.
  *   - data-current-phase is one of the 8 pipeline phases (proves the composable
  *     mounted and bound its FSM state).
+ *   - the root is NOT aria-hidden (it is real, visible content now).
  *
  * @ticket #203
  */
@@ -83,9 +89,15 @@ vi.stubGlobal(
   },
 )
 
+// Real route components — the demo is wired into Home/About, so we must mount
+// the REAL views (not stub templates) for [data-selfdriving-root] to reach the
+// DOM. Lazy import mirrors the real router setup.
+const Home = (await import('../views/Home.vue')).default
+const About = (await import('../views/About.vue')).default
+
 const routes = [
-  { path: '/', component: { template: '<div></div>' } },
-  { path: '/about', component: { template: '<div></div>' } },
+  { path: '/', name: 'home', component: Home },
+  { path: '/about', name: 'about', component: About },
 ]
 
 const buildRouter = (): Router =>
@@ -93,7 +105,7 @@ const buildRouter = (): Router =>
 
 const App = (await import('../App.vue')).default
 
-describe('App.vue -> SelfDrivingDemo wiring (#203 shipped-app gate)', () => {
+describe('Home route -> SelfDrivingDemo wiring (#203 shipped-app gate)', () => {
   let pinia: ReturnType<typeof createPinia>
 
   beforeEach(() => {
@@ -106,9 +118,9 @@ describe('App.vue -> SelfDrivingDemo wiring (#203 shipped-app gate)', () => {
     vi.restoreAllMocks()
   })
 
-  const mountApp = async () => {
+  const mountAt = async (path: string) => {
     const router = buildRouter()
-    await router.push('/')
+    await router.push(path)
     await router.isReady()
     const wrapper = mount(App, { global: { plugins: [pinia, router] } })
     await flushPromises()
@@ -116,13 +128,13 @@ describe('App.vue -> SelfDrivingDemo wiring (#203 shipped-app gate)', () => {
     return wrapper
   }
 
-  it('renders [data-selfdriving-root] in the shipped App (not only in isolation)', async () => {
-    const wrapper = await mountApp()
+  it('renders [data-selfdriving-root] on the home route (not only in isolation)', async () => {
+    const wrapper = await mountAt('/')
     expect(wrapper.find('[data-selfdriving-root]').exists()).toBe(true)
   })
 
   it('binds a real pipeline phase to data-current-phase (proves the FSM mounted)', async () => {
-    const wrapper = await mountApp()
+    const wrapper = await mountAt('/')
     const phase = wrapper.find('[data-selfdriving-root]').attributes('data-current-phase')
     expect(phase).toBeTruthy()
     expect([
@@ -131,10 +143,14 @@ describe('App.vue -> SelfDrivingDemo wiring (#203 shipped-app gate)', () => {
     ]).toContain(phase)
   })
 
-  it('the demo region is aria-hidden so foreground content stays selectable', async () => {
-    const wrapper = await mountApp()
+  it('the demo region is NOT aria-hidden — it is visible page content now', async () => {
+    // The demo was converted from a global `aria-hidden` ambient background
+    // (fully occluded behind the route) to an in-flow flagship section, so the
+    // root must NOT carry aria-hidden. This assertion would FAIL on the old
+    // ambient-background mount (which set aria-hidden="true").
+    const wrapper = await mountAt('/')
     expect(
       wrapper.find('[data-selfdriving-root]').attributes('aria-hidden'),
-    ).toBe('true')
+    ).toBeFalsy()
   })
 })

@@ -128,13 +128,20 @@ describe('SelfDrivingDemo', () => {
     setLanguage('en')
   })
 
-  it('renders the root with data-selfdriving-root + aria-hidden="true" + phase attrs', async () => {
+  it('renders the root with data-selfdriving-root + a visible heading + phase attrs (NOT aria-hidden)', async () => {
     installMatchMedia({ reduce: false })
     const wrapper = mount(SelfDrivingDemo, { attachTo: document.body })
     await nextTick()
     const root = wrapper.find('[data-selfdriving-root]')
     expect(root.exists()).toBe(true)
-    expect(root.attributes('aria-hidden')).toBe('true')
+    // The demo is now real, visible page content (an in-flow flagship section),
+    // NOT a hidden ambient background — so the root must NOT be aria-hidden.
+    // (An earlier revision mounted it globally as `position: fixed; aria-hidden`
+    // behind the route, which fully occluded the demo; the contract is now
+    // "visible content".)
+    expect(root.attributes('aria-hidden')).toBeFalsy()
+    // A visible <h2> heading labels the region for sighted + SR users.
+    expect(wrapper.find('.self-driving-heading').exists()).toBe(true)
     // data-current-phase is one of the 8 pipeline phases.
     const phase = root.attributes('data-current-phase')
     expect(phase).toBeTruthy()

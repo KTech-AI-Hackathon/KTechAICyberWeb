@@ -1,17 +1,24 @@
 <script setup>
 /**
  * @component SelfDrivingDemo
- * @description Always-on, looping, NO-CLICK-REQUIRED ambient background that
- * auto-demonstrates the autonomous dev pipeline (#203).
+ * @description Always-on, looping, NO-CLICK-REQUIRED in-flow section that
+ * auto-demonstrates the autonomous dev pipeline (#203) — a FLAGSHIP the user
+ * lands on and immediately sees auto-playing.
  *
  *   INTAKE -> TRIAGE -> PLANNER -> CODER -> SECURITY -> EVALUATOR -> MERGER
  *          -> RESOLVED -> (seamless wrap) -> INTAKE ...
  *
  * Thin presentation layer over useAutoDemoLoop (the FSM owns all state + the
- * single shared rAF loop). Fixed full-viewport layer at z-index: 0 so it paints
- * BEHIND main content (SkipLink/Header/main/footer all sit above). The whole
- * region is aria-hidden="true" because it is pure decoration — the real,
- * selectable page content lives in the foreground.
+ * single shared rAF loop). Mounted as an IN-FLOW <section> on the home and
+ * about routes (see Home.vue / About.vue), so the pipeline rail, streaming
+ * code feed, and status readout are real, visible page content — NOT a hidden
+ * background. (An earlier revision mounted this globally in App.vue as a
+ * `position: fixed; z-index: 0; aria-hidden` ambient layer painted BEHIND the
+ * route; but every route ships opaque foreground content over the full
+ * viewport, so the demo's narrative was fully OCCLUDED — a user on `/` saw
+ * only faint neon atmosphere with the cards/feed/readout invisible behind the
+ * hero. elementFromPoint() at every card center returned the hero <h1>, not
+ * the demo. Converting to an in-flow section is the fix: the demo IS content.)
  *
  * Reduced motion (AC4): the composable flips isStatic=true and never schedules
  * rAF; here we render a static key-frame summary (the full pipeline + a MERGED
@@ -19,13 +26,13 @@
  *
  * Performance (AC3): transform/opacity/canvas only; element count is capped
  * (8 cards + a handful of feed/readout nodes ≈ 40 desktop, fewer on mobile
- * where the track stacks). Throttling/offscreen/handled in the composable.
+ * where the track stacks). Throttling/offscreen handled in the composable.
  *
  * AC2 visual richness: besides neon + scanlines (reused), this layer also ships
  *   - GLITCH TRANSITIONS: a one-shot chromatic-aberration flash fired on every
- *     PHASE CHANGE (not continuously). Phases advance every 2.5s and the flash
- *     lasts ~0.6s, so the strobe rate is ~0.4Hz — far under the 3Hz seizure-
- *     safety ceiling (AC4). Mirrors the NeuralCore one-shot glitch pattern.
+ *     PHASE CHANGE (not continuously). Phases advance every 1500ms and the
+ *     flash lasts ~0.6s, so the strobe rate is ~0.4Hz — far under the 3Hz
+ *     seizure-safety ceiling (AC4). Mirrors the NeuralCore one-shot glitch.
  *
  * Reuses the EXISTING cyber palette + Scanlines.vue — no new palette invented.
  *
@@ -156,18 +163,18 @@ const nearStyle = computed(() => depthStyle(34))
     :data-loop-iteration="loopIteration"
     :data-static="isStatic ? 'true' : 'false'"
     :aria-label="t('selfDriving.aria.regionLabel')"
-    aria-hidden="true"
   >
+    <!-- Visible heading so a screen-reader user (and a sighted user) knows what
+         this auto-playing region is. The demo IS page content now (not a hidden
+         background), so it gets a real landmark label + heading. -->
+    <h2 class="self-driving-heading neon-text">{{ t('selfDriving.heading') }}</h2>
+
     <!-- Scanlines contained WITHIN this demo's stacking context. The shared
          Scanlines.vue component is `position: fixed; z-index: var(--z-scanlines)`
-         (= 1000) so when it was only ever mounted inside scoped sections
-         (NeuralCore/NeuralTerminal) it never escaped. But #203 mounts this demo
-         GLOBALLY in App.vue, so an uncontained Scanlines would paint ABOVE the
-         Header (--z-nav: 100) and all main content across every route. The
-         .self-driving-scanlines-scope wrapper + the :deep(.scanlines) override
-         below pin the overlay to position:absolute + z-index:0 inside this
-         section, so it can never escape to fixed/1000 and stays behind the
-         foreground content the way the docstring promises. -->
+         (= 1000); the .self-driving-scanlines-scope wrapper + the
+         :deep(.scanlines) override below pin the overlay to position:absolute
+         + z-index:0 inside this section, so it can never escape to fixed/1000
+         and cover the page Header or other content. -->
     <div class="self-driving-scanlines-scope" aria-hidden="true">
       <Scanlines />
     </div>
@@ -217,12 +224,22 @@ const nearStyle = computed(() => depthStyle(34))
 </template>
 
 <style scoped>
+/* In-flow flagship section (was: `position: fixed; inset: 0; z-index: 0;
+   pointer-events: none` ambient background). Mounted as a real <section> on
+   the home/about routes so the pipeline rail + streaming feed + readout are
+   VISIBLE page content, not occluded behind the route's opaque foreground.
+   `position: relative` establishes the local stacking context the depth
+   planes + scanlines-scope are positioned against (they are `position:
+   absolute; inset: 0` relative to THIS box). The section sizes to its content
+   (track + feed + readout) with a min-height so the auto-playing demo has a
+   comfortable stage even on short viewports. */
 .self-driving-demo {
-  position: fixed;
-  inset: 0;
+  position: relative;
   z-index: 0;
-  pointer-events: none;
   overflow: hidden;
+  min-height: 420px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
   background:
     radial-gradient(
       ellipse at 20% 0%,
@@ -235,7 +252,16 @@ const nearStyle = computed(() => depthStyle(34))
       transparent 55%
     ),
     var(--bg-primary, #0a0f1c);
-  /* Sit behind foreground content (Header/main/footer all live above z=0). */
+}
+
+.self-driving-heading {
+  position: relative;
+  z-index: 2;
+  margin: 0 0 1.5rem;
+  text-align: center;
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 /* Scanlines containment (MEDIUM-1 z-index inversion fix). The wrapper
@@ -243,8 +269,8 @@ const nearStyle = computed(() => depthStyle(34))
    the :deep(.scanlines) override re-pins the shared Scanlines.vue overlay
    (otherwise `position: fixed; z-index: var(--z-scanlines)` = 1000) to
    position:absolute + z-index:0 inside this section. Net effect: the scanline
-   overlay paints as a backdrop of THIS demo layer only, never above the
-   Header (--z-nav: 100) or any foreground content. */
+   overlay paints as a backdrop of THIS demo section only, never above the page
+   Header (--z-nav: 100) or any other content. */
 .self-driving-scanlines-scope {
   position: absolute;
   inset: 0;
@@ -257,16 +283,20 @@ const nearStyle = computed(() => depthStyle(34))
   inset: 0;
   z-index: 0;
 }
+/* The stage carries the real content (track + readout + feed). Now that the
+   demo is in-flow and not behind anything, opacity is full — the previous
+   `opacity: 0.5` was backwards: it existed to "keep foreground text readable
+   on top", but the real problem was the DEMO being hidden, not the foreground.
+   `position: relative` (not absolute) so the stage participates in the
+   section's flow and the section heights to its content. */
 .self-driving-stage {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   gap: 1.2rem;
-  padding: 6rem 2rem 4rem;
-  /* Soften so foreground text stays readable on top (AC2 legibility). */
-  opacity: 0.5;
 }
 .self-driving-header {
   display: flex;
@@ -380,13 +410,15 @@ const nearStyle = computed(() => depthStyle(34))
   }
 }
 
-/* Mobile: shrink padding + drop opacity slightly so the track fits a narrow
-   viewport (the track also stacks vertically below 768px). */
+/* Mobile: shrink the section padding so the (vertically stacking) track fits a
+   narrow viewport. The stage no longer carries its own padding/opacity (those
+   were ambient-background artifacts); sizing lives on the section. */
 @media (max-width: 768px) {
+  .self-driving-demo {
+    padding: 2rem 1rem;
+  }
   .self-driving-stage {
-    padding: 5rem 1rem 3rem;
     gap: 0.9rem;
-    opacity: 0.4;
   }
 }
 

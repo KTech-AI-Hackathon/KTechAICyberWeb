@@ -133,11 +133,19 @@ describe('SelfDrivingDemo — CSS-source visual gate (#203 iter-13)', () => {
 
   // 1. Root layering --------------------------------------------------------
 
-  it('root: .self-driving-demo declares position: fixed (full-viewport layer)', () => {
-    expect(style).toMatch(/\.self-driving-demo\s*\{[^}]*position:\s*fixed/s)
+  it('root: .self-driving-demo is an IN-FLOW section (position: relative, not fixed)', () => {
+    // iter-13 occlusion fix: the demo was converted from a global
+    // `position: fixed; inset: 0` ambient background (fully occluded behind
+    // every route's opaque foreground) to an IN-FLOW flagship <section> using
+    // `position: relative`. This assertion would FAIL on the old fixed
+    // background mount — it deliberately rejects `position: fixed` so a
+    // regression to the occluded-background pattern is caught here, not only
+    // in the E2E visibility probe.
+    expect(style).toMatch(/\.self-driving-demo\s*\{[^}]*position:\s*relative/s)
+    expect(style).not.toMatch(/\.self-driving-demo\s*\{[^}]*position:\s*fixed/s)
   })
 
-  it('root: .self-driving-demo declares a z-index (sits behind foreground)', () => {
+  it('root: .self-driving-demo declares a z-index (local stacking context)', () => {
     expect(style).toMatch(/\.self-driving-demo\s*\{[^}]*z-index:\s*0/s)
   })
 
