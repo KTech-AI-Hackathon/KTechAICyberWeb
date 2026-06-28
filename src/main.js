@@ -9,16 +9,26 @@ import './assets/styles/main.css'
 
 import App from './App.vue'
 
-// Route-level code splitting: each view is a lazy dynamic import so Vite
-// emits it as its own small chunk, fetched on demand when the route is hit.
-// This replaces the previous single ~243 kB index bundle: the entry now only
-// carries App + router, and Home (the LCP route) loads in parallel with the
-// vendor chunk instead of serially after it. The catch-all keeps the
-// 'not-found' name and NotFound view (#140 blank-page fix) — the lazy import
-// path './views/NotFound.vue' still contains the literal 'NotFound', so the
-// router-base.spec.js text contract still matches.
+// Home is the LCP route AND the entry view users hit on '/'. It MUST be eager:
+// its JS and CSS land in the synchronous initial bundle so the footer's layout
+// is stable from first paint. Lazy-loading Home (#18) split its CSS into a
+// separate async chunk that arrived after initial paint and re-flowed
+// footer.cyber-footer, spiking CLS from 0.054 (passing) to 0.196 (failing >
+// 0.1). Keeping Home eager fixes the CLS regression while preserving the
+// LCP/FCP wins (LCP 2539->1861ms, FCP 2539->1684ms) — those gains come from
+// the OTHER 17 routes below being lazy, not from Home.
+import Home from './views/Home.vue'
+
+// Route-level code splitting: every non-Home view is a lazy dynamic import so
+// Vite emits it as its own small chunk, fetched on demand when the route is
+// hit. This replaces the previous single ~243 kB index bundle: the entry now
+// only carries App + router + Home, and the heavy views (Services, News,
+// PositionList, ...) no longer bloat the initial download. The catch-all keeps
+// the 'not-found' name and NotFound view (#140 blank-page fix) — the lazy
+// import path './views/NotFound.vue' still contains the literal 'NotFound', so
+// the router-base.spec.js text contract still matches.
 const routes = [
-  { path: '/', component: () => import('./views/Home.vue') },
+  { path: '/', component: Home },
   { path: '/about', component: () => import('./views/About.vue') },
   { path: '/news', component: () => import('./views/News.vue') },
   { path: '/news/:slug', component: () => import('./views/NewsDetail.vue'), props: true },
