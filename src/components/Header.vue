@@ -47,6 +47,16 @@
         <router-link to="/contact" @click="closeMobile">{{ t('nav.contact') }}</router-link>
       </li>
     </ul>
+
+    <!-- Optional toolbar slot: App.vue injects the language + theme toggles
+         here so they live on the right edge of the nav (always visible,
+         including on mobile, where they sit beside the hamburger rather than
+         inside the off-canvas drawer). Decoupling the toggles from the nav
+         item list keeps Header focused on routing while App.vue owns the
+         global language/theme controls. -->
+    <div class="nav-toolbar">
+      <slot name="toolbar" />
+    </div>
   </nav>
 </template>
 
@@ -301,6 +311,17 @@ onUnmounted(() => {
 
 .nav-links a.router-link-active {
   color: var(--cyan);
+}
+
+/* Toolbar: language + theme toggles injected by App.vue via the #toolbar
+ * slot. Sits on the right edge of the nav, always visible (including on
+ * mobile, where it stays beside the hamburger instead of entering the
+ * off-canvas drawer). */
+.nav-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: auto;
 }
 
 /* Mobile hamburger toggle: hidden on desktop, flex on mobile. */
