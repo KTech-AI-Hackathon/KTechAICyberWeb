@@ -36,10 +36,16 @@ test.describe('Accessibility', () => {
     const h2Count = await h2Elements.count();
     expect(h2Count).toBeGreaterThan(0);
 
-    // The first h2 on the current Home page is the hero title
-    // (i18n key home.hero.title = "Next Generation AI"). The old assertion
-    // checked for the Chinese section title "核心服务" from a previous design.
-    await expect(h2Elements.nth(0)).toContainText('Next Generation AI');
+    // The first h2 on the current Home page (src/views/Home.vue:27) renders
+    // the i18n key `home.whatwedo.heading` = "What We Do" (en) / "我们的业务"
+    // (zh). #194: the previous assertion expected the string "Next Generation
+    // AI" claimed to come from `home.hero.title`, but that i18n key never
+    // existed — `home.hero` only has `description`/`description2`. The h1 at
+    // Home.vue:11 (`home.title`) is the hero title. Assert against the real
+    // first-h2 text (either locale, since the LanguageSwitcher persists to
+    // localStorage and a parallel worker may have flipped it), keeping the
+    // assertion real: a real section heading present in the shipped DOM.
+    await expect(h2Elements.nth(0)).toContainText(/What We Do|我们的业务/);
   });
 
   test('should have proper language attribute', async ({ homePage }) => {
