@@ -1,5 +1,5 @@
 <template>
-  <div class="about">
+  <div class="about" ref="rootRef" :data-parallax="enabled ? 'on' : null">
     <!-- Animated background -->
     <div class="grid-bg"></div>
     <div class="grid-bg grid-bg-2"></div>
@@ -161,9 +161,22 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useLanguage } from '../composables/useLanguage'
+import { useParallax } from '../composables/useParallax'
 
 const { t } = useLanguage()
+
+// Root scope ref for the reduced-motion-safe mouse-move parallax (#177).
+const rootRef = ref(null)
+const { enabled } = useParallax({
+  rootRef,
+  layers: [
+    { selector: '.grid-bg', intensity: 12 },
+    { selector: '.grid-bg-2', intensity: 6 },
+    { selector: '.about-hero .hero-content', intensity: 20 },
+  ],
+})
 </script>
 
 <style scoped>
@@ -198,6 +211,15 @@ const { t } = useLanguage()
 @keyframes gridMove {
   0% { transform: translate(0, 0); }
   100% { transform: translate(50px, 50px); }
+}
+
+/* Parallax (#177): additive perf hints. No existing rule is restyled — only
+   will-change and, for the hero layer only, a short eased transition. The grid
+   layers deliberately get NO transform transition because gridMove already
+   animates .grid-bg-2's transform and a transition would fight the keyframe. */
+.grid-bg,
+.grid-bg-2 {
+  will-change: transform;
 }
 
 .section {
@@ -243,6 +265,8 @@ const { t } = useLanguage()
 .hero-content {
   position: relative;
   z-index: 2;
+  will-change: transform;
+  transition: transform 0.15s ease-out;
 }
 
 .page-title {

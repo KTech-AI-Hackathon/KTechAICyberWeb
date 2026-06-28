@@ -19,6 +19,8 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount, VueWrapper } from '@vue/test-utils'
+import fs from 'node:fs'
+import path from 'node:path'
 import About from '../About.vue'
 
 describe('About.vue', () => {
@@ -522,6 +524,49 @@ describe('About.vue', () => {
       const rawKeyPattern = /\babout\.[a-zA-Z][a-zA-Z0-9.]*/g
       const matches = text.match(rawKeyPattern)
       expect(matches).toBeNull()
+    })
+  })
+
+  // ============================================
+  // Parallax (AC #177) — parity with Home. Source-level assertions turn RED
+  // if the parallax CSS or useParallax wiring is deleted from About.
+  // ============================================
+  describe('Parallax (AC #177)', () => {
+    const aboutSource = fs.readFileSync(
+      path.resolve(process.cwd(), 'src', 'views', 'About.vue'),
+      'utf-8',
+    )
+
+    it('About uses useParallax (parity with Home)', () => {
+      expect(aboutSource).toMatch(/from\s+['"]\.\.\/composables\/useParallax['"]/)
+      expect(aboutSource).toMatch(/useParallax\s*\(/)
+    })
+
+    it('About wires useParallax with the grid + hero layers', () => {
+      expect(aboutSource).toContain('.grid-bg')
+      expect(aboutSource).toContain('.grid-bg-2')
+      // About's hero layer is .about-hero .hero-content (not .cyber-header).
+      expect(aboutSource).toContain('.about-hero .hero-content')
+      expect(aboutSource).toMatch(/intensity:\s*12/)
+      expect(aboutSource).toMatch(/intensity:\s*6/)
+      expect(aboutSource).toMatch(/intensity:\s*20/)
+    })
+
+    it('About binds the enabled ref to the root (dead-reactive-state guard)', () => {
+      expect(aboutSource).toMatch(/ref=["']rootRef["']/)
+      expect(aboutSource).toMatch(/data-parallax/)
+    })
+
+    it('About parallax CSS source is present (will-change on grid/hero layers)', () => {
+      expect(aboutSource).toMatch(/will-change:\s*transform/)
+      // Hero layer (.hero-content) must carry a transition (no keyframe conflict).
+      expect(aboutSource).toMatch(/\.hero-content[^{]*\{[^}]*transition:\s*transform/s)
+    })
+
+    it('About does NOT add a transform transition to .grid-bg-2 (keyframe conflict)', () => {
+      const grid2Block = aboutSource.match(/\.grid-bg-2\s*\{([^}]*)\}/)
+      expect(grid2Block).not.toBeNull()
+      expect(grid2Block![1]).not.toMatch(/transition:\s*transform/)
     })
   })
 })
