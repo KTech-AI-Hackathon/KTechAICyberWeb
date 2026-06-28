@@ -19,7 +19,7 @@
  * the assertion genuinely catches removal.
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount, VueWrapper } from '@vue/test-utils'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -196,6 +196,78 @@ describe('CyberImage.vue', () => {
       expect(glitchCheck(style)).toBe(true)
       const stripped = style.replace(/@keyframes\s+cyber-glitch[^}]*\}\s*/g, '')
       expect(glitchCheck(stripped)).toBe(false)
+    })
+  })
+
+  // ============================================
+  // Base-path resolution (AC #165 — images must render under the base subpath)
+  // ============================================
+  describe('Base-path resolution', () => {
+    afterEach(() => {
+      // Restore the default vitest BASE_URL ('/') after each case.
+      vi.unstubAllEnvs()
+    })
+
+    it('passes absolute http(s) URLs through unchanged', () => {
+      const w = mount(CyberImage, {
+        props: { src: 'https://example.com/x.webp', alt: 'x' },
+      })
+      expect(w.find('img').attributes('src')).toBe('https://example.com/x.webp')
+      w.unmount()
+    })
+
+    it('passes protocol-relative URLs through unchanged', () => {
+      const w = mount(CyberImage, {
+        props: { src: '//cdn.example.com/x.webp', alt: 'x' },
+      })
+      expect(w.find('img').attributes('src')).toBe('//cdn.example.com/x.webp')
+      w.unmount()
+    })
+
+    it('passes data: URIs through unchanged', () => {
+      const w = mount(CyberImage, {
+        props: { src: 'data:image/png;base64,AAAA', alt: 'x' },
+      })
+      expect(w.find('img').attributes('src')).toBe('data:image/png;base64,AAAA')
+      w.unmount()
+    })
+
+    it('passes relative (non-leading-slash) paths through unchanged', () => {
+      const w = mount(CyberImage, {
+        props: { src: 'relative/x.webp', alt: 'x' },
+      })
+      expect(w.find('img').attributes('src')).toBe('relative/x.webp')
+      w.unmount()
+    })
+
+    it('rebases site-root-relative /images/... under a subpath BASE_URL', () => {
+      // Simulate the production base /KTechAICyberWeb/.
+      vi.stubEnv('BASE_URL', '/KTechAICyberWeb/')
+      const w = mount(CyberImage, {
+        props: { src: '/images/about/about-who-we-are.webp', alt: 'x' },
+      })
+      expect(w.find('img').attributes('src')).toBe(
+        '/KTechAICyberWeb/images/about/about-who-we-are.webp',
+      )
+      w.unmount()
+    })
+
+    it('does not double-prefix a src that already starts with the base', () => {
+      vi.stubEnv('BASE_URL', '/KTechAICyberWeb/')
+      const w = mount(CyberImage, {
+        props: { src: '/KTechAICyberWeb/images/x.webp', alt: 'x' },
+      })
+      expect(w.find('img').attributes('src')).toBe('/KTechAICyberWeb/images/x.webp')
+      w.unmount()
+    })
+
+    it('leaves /images/... unchanged when BASE_URL is the root /', () => {
+      // Default vitest BASE_URL — site-root-relative paths are already correct.
+      const w = mount(CyberImage, {
+        props: { src: '/images/about/x.webp', alt: 'x' },
+      })
+      expect(w.find('img').attributes('src')).toBe('/images/about/x.webp')
+      w.unmount()
     })
   })
 

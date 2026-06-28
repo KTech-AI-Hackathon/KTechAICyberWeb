@@ -1,7 +1,7 @@
 <template>
   <figure :class="['cyber-image', className]">
     <img
-      :src="src"
+      :src="resolvedSrc"
       :alt="alt"
       :loading="eager ? 'eager' : 'lazy'"
       class="cyber-image__img"
@@ -30,7 +30,7 @@
  * <CyberImage src="/x.webp" :alt="..." className="about-hero__figure" />
  */
 
-defineProps({
+const props = defineProps({
   src: {
     type: String,
     required: true,
@@ -47,6 +47,32 @@ defineProps({
     type: String,
     default: '',
   },
+})
+
+import { computed } from 'vue'
+
+/**
+ * Resolve a public-asset image src against the Vite base path.
+ *
+ * The app is deployed at the GitHub Pages subpath /KTechAICyberWeb/ (see `base`
+ * in vite.config.js). Public assets live under that subpath, so a literal
+ * `/images/foo.webp` would 404 (it resolves to the origin root, not the base).
+ * `import.meta.env.BASE_URL` is the configured base ('/KTechAICyberWeb/'), so
+ * prefixing site-relative `/images/...` paths with it yields the correct URL
+ * in both dev and prod. Absolute URLs (http(s)://, data:, protocol-relative)
+ * and already-prefixed paths are passed through unchanged.
+ */
+const resolvedSrc = computed(() => {
+  const src = props.src
+  if (!src) return src
+  // Pass through URLs that already carry a scheme or start with the base.
+  if (/^(https?:)?\/\//i.test(src)) return src
+  if (src.startsWith('data:')) return src
+  const base = import.meta.env.BASE_URL || '/'
+  if (src.startsWith(base)) return src
+  // Only rebase site-root-relative public paths (e.g. /images/...).
+  if (src.startsWith('/')) return base.replace(/\/$/, '') + src
+  return src
 })
 </script>
 
