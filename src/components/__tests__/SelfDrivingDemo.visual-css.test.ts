@@ -25,6 +25,10 @@
  *     depth planes have a real transform hook, not just decorative divs).
  *  5. AC4 REDUCED MOTION: a @media (prefers-reduced-motion: reduce) block sets
  *     `animation: none` AND `transition: none` (the seizure-safety contract).
+ *  6. SCANLINES CONTAINMENT (MEDIUM-1 z-index inversion fix): a
+ *     :deep(.scanlines) override pins the shared overlay to position:absolute +
+ *     z-index:0 inside this section, so the globally-mounted demo's scanlines
+ *     can never escape to fixed/z-1000 and cover the Header (--z-nav: 100).
  *
  * RED-TEST PROOF (per the iter-13 gate, performed 2026-06-28):
  *  - Glitch animation binding: temporarily removed the
@@ -208,7 +212,59 @@ describe('SelfDrivingDemo — CSS-source visual gate (#203 iter-13)', () => {
     expect(block).toMatch(/transform:\s*none/)
   })
 
-  // 6. LIVE-DOM check (inline transform resolves in happy-dom) -------------
+  // 6. SCANLINES CONTAINMENT (MEDIUM-1 z-index inversion fix) ---------------
+  // The shared Scanlines.vue overlay is `position: fixed; z-index:
+  // var(--z-scanlines)` (= 1000). #203 mounts this demo GLOBALLY in App.vue, so
+  // without containment the overlay would paint ABOVE the Header (--z-nav: 100)
+  // and all main content across every route. These guard the fix: the overlay
+  // is re-pinned to position:absolute + z-index:0 inside this demo's scope.
+
+  it('MEDIUM-1: :deep(.scanlines) override re-pins the overlay to position:absolute', () => {
+    // The override must neutralize the shared Scanlines.vue `position: fixed`
+    // so the overlay cannot escape this section's stacking context.
+    expect(style).toMatch(/\.self-driving-demo\s*:deep\(\.scanlines\)\s*\{[^}]*position:\s*absolute/s)
+  })
+
+  it('MEDIUM-1: :deep(.scanlines) override sets z-index:0 (NOT 1000)', () => {
+    // The override must pin z-index to 0 so the overlay stays behind the
+    // Header (--z-nav: 100) and all foreground content.
+    const overrideMatch = style.match(
+      /\.self-driving-demo\s*:deep\(\.scanlines\)\s*\{([^}]*)\}/s,
+    )
+    expect(overrideMatch, ':deep(.scanlines) override rule must exist').not.toBeNull()
+    const body = overrideMatch![1]
+    expect(body).toMatch(/z-index:\s*0\b/)
+    // And it must NOT still carry the escaped z-1000 value.
+    expect(body).not.toMatch(/z-index:\s*1000/)
+  })
+
+  it('MEDIUM-1: a .self-driving-scanlines-scope wrapper establishes the local stacking context', () => {
+    // The wrapper element clips the overlay and pins it to z-index:0 so even
+    // a future Scanlines.vue change cannot invert the header again.
+    expect(style).toMatch(/\.self-driving-scanlines-scope\s*\{[^}]*position:\s*absolute/s)
+    expect(style).toMatch(/\.self-driving-scanlines-scope\s*\{[^}]*z-index:\s*0/s)
+    expect(style).toMatch(/\.self-driving-scanlines-scope\s*\{[^}]*overflow:\s*hidden/s)
+  })
+
+  it('MEDIUM-1 live-DOM: Scanlines is wrapped by .self-driving-scanlines-scope', async () => {
+    // The DOM contract: the shared Scanlines must live INSIDE the containment
+    // wrapper, not be a direct child of the demo root (which would let it
+    // escape the scope's stacking context).
+    const wrapper = mount(SelfDrivingDemo, { attachTo: document.body })
+    await nextTick()
+    const scope = wrapper.find('.self-driving-scanlines-scope')
+    expect(scope.exists()).toBe(true)
+    // The .scanlines element must be a descendant of the scope wrapper.
+    expect(scope.find('.scanlines').exists()).toBe(true)
+    // And the scanlines must NOT be a direct child of the demo root.
+    const root = wrapper.find('.self-driving-demo')
+    // A direct child .scanlines would mean the wrapper was bypassed.
+    const directChildScanlines = root.findAll(':scope > .scanlines')
+    expect(directChildScanlines.length).toBe(0)
+    wrapper.unmount()
+  })
+
+  // 7. LIVE-DOM check (inline transform resolves in happy-dom) -------------
 
   it('live-DOM: the depth-near plane carries a non-default computed transform', async () => {
     // Scoped CSS does not resolve in happy-dom, but INLINE styles do. The

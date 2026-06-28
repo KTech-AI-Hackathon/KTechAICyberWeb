@@ -141,7 +141,19 @@ const nearStyle = computed(() => depthStyle(34))
     :aria-label="t('selfDriving.aria.regionLabel')"
     aria-hidden="true"
   >
-    <Scanlines />
+    <!-- Scanlines contained WITHIN this demo's stacking context. The shared
+         Scanlines.vue component is `position: fixed; z-index: var(--z-scanlines)`
+         (= 1000) so when it was only ever mounted inside scoped sections
+         (NeuralCore/NeuralTerminal) it never escaped. But #203 mounts this demo
+         GLOBALLY in App.vue, so an uncontained Scanlines would paint ABOVE the
+         Header (--z-nav: 100) and all main content across every route. The
+         .self-driving-scanlines-scope wrapper + the :deep(.scanlines) override
+         below pin the overlay to position:absolute + z-index:0 inside this
+         section, so it can never escape to fixed/1000 and stays behind the
+         foreground content the way the docstring promises. -->
+    <div class="self-driving-scanlines-scope" aria-hidden="true">
+      <Scanlines />
+    </div>
 
     <!-- AC2 PARALLAX DEPTH — three planes translated at different intensities by
          the composable's shared-rAF `depthShift` sine (far < mid < near). All
@@ -207,6 +219,26 @@ const nearStyle = computed(() => depthStyle(34))
     ),
     var(--bg-primary, #0a0f1c);
   /* Sit behind foreground content (Header/main/footer all live above z=0). */
+}
+
+/* Scanlines containment (MEDIUM-1 z-index inversion fix). The wrapper
+   establishes a local stacking context at z-index 0 and clips to itself, and
+   the :deep(.scanlines) override re-pins the shared Scanlines.vue overlay
+   (otherwise `position: fixed; z-index: var(--z-scanlines)` = 1000) to
+   position:absolute + z-index:0 inside this section. Net effect: the scanline
+   overlay paints as a backdrop of THIS demo layer only, never above the
+   Header (--z-nav: 100) or any foreground content. */
+.self-driving-scanlines-scope {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.self-driving-demo :deep(.scanlines) {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 }
 .self-driving-stage {
   position: absolute;
