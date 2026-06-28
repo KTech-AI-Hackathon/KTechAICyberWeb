@@ -26,8 +26,8 @@
  * @ticket #203
  */
 import { computed, ref, onMounted } from 'vue'
-import { useLanguage } from '@/composables/useLanguage'
-import { useAutoDemoLoop } from '@/composables/useAutoDemoLoop'
+import { useLanguage } from '../composables/useLanguage'
+import { useAutoDemoLoop } from '../composables/useAutoDemoLoop'
 import Scanlines from './Scanlines.vue'
 import PipelineTrack from './selfdriving/PipelineTrack.vue'
 import StreamingCode from './selfdriving/StreamingCode.vue'

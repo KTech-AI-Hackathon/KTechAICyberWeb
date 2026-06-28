@@ -10,7 +10,7 @@
  *
  * @ticket #203
  */
-import { useLanguage } from '@/composables/useLanguage'
+import { useLanguage } from '../../composables/useLanguage'
 
 const { t } = useLanguage()
 
