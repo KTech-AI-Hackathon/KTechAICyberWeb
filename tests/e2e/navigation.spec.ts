@@ -11,16 +11,16 @@ import { NAVIGATION_LINKS } from './fixtures/test-data';
 
 /**
  * SKIP (obsolete): this spec drives a hash-based single-page navigation that no
- * longer exists. It expects `.nav-links a[href="#services"|#honors"|#contact"]`
- * anchors that smooth-scroll to `#services`/`#honors`/`#contact` sections on
- * the Home page, plus a `.scrolled` class on a `.nav` element and a clickable
- * nav logo. The current app is a multi-route SPA: the nav (App.vue `.cyber-nav`)
- * uses router-links to `/`, `/about`, `/news`, `/contact` (no hash links), the
- * Home page has no `#services`/`#honors`/`#contact` sections, and there is no
- * `.scrolled`-class behavior. The NAVIGATION_LINKS fixture (服务/荣誉/联系 hash
- * links) is similarly stale. This is a fundamental redesign, not test drift.
- * Skipped (not deleted). Live nav/routing is covered by 140-router-base.spec.ts
- * and theme.spec.ts (theme consistency across nav).
+ * longer exists. It expects `.nav-links a[href="#services"|"#contact"]`
+ * anchors that smooth-scroll to `#services`/`#contact` sections on the Home
+ * page, plus a `.scrolled` class on a `.nav` element and a clickable nav logo.
+ * The current app is a multi-route SPA: the nav (App.vue `.cyber-nav`) uses
+ * router-links to `/`, `/about`, `/news`, `/contact` (no hash links), the Home
+ * page has no `#services`/`#contact` sections, and there is no `.scrolled`-
+ * class behavior. The NAVIGATION_LINKS fixture (服务/联系 hash links) is
+ * similarly stale. This is a fundamental redesign, not test drift. Skipped
+ * (not deleted). Live nav/routing is covered by 140-router-base.spec.ts and
+ * theme.spec.ts (theme consistency across nav).
  */
 test.describe.skip('Navigation Menu', { tag: '@smoke' }, () => {
   test.beforeEach(async ({ homePage }) => {
@@ -55,20 +55,6 @@ test.describe.skip('Navigation Menu', { tag: '@smoke' }, () => {
     const servicesSection = homePage.page.locator('#services');
     const isVisible = await servicesSection.isVisible();
     expect(isVisible).toBeTruthy();
-  });
-
-  test('should navigate to honors section', async ({ homePage }) => {
-    // Click honors link
-    await homePage.clickNavLink('honors');
-
-    // Wait for smooth scroll
-    await homePage.page.waitForTimeout(500);
-
-    // Verify URL contains honors hash
-    expect(homePage.getUrl()).toContain('#honors');
-
-    // Verify honors section is visible
-    await expect(homePage.honorsSection).toBeVisible();
   });
 
   test('should navigate to contact section', async ({ homePage }) => {

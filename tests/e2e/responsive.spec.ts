@@ -15,8 +15,8 @@ import { VIEWPORTS } from './fixtures/test-data';
  * page design via the HomePage page object. It depends on selectors/sections
  * that the current Home page (src/views/Home.vue) does not render: `#hero`,
  * `.hero-title`, `.hero-subtitle`, `.hero-stats`, `.stat-item`, and
- * `scrollToSection('services'|'honors'|'contact')` which targets `#services`/
- * `#honors`/`#contact` sections that no longer exist. The current home is a
+ * `scrollToSection('services'|'contact')` which targets `#services`/`#contact`
+ * sections that no longer exist. The current home is a
  * compact cyberpunk landing page (`.cyber-header`/`.hero`/`.features`) with no
  * scroll-spy sections. This is a fundamental redesign, not test drift; the
  * responsive behavior of the live components is covered by their unit tests

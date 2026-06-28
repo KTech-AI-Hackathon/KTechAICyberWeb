@@ -11,7 +11,7 @@ import { test, expect } from './fixtures/test-fixtures';
  * SKIP (obsolete): this spec drives visual checks against a previous Home page
  * design via the HomePage page object. It depends on sections/selectors the
  * current Home page does not render: `#services` (`.card`/`.card-icon`),
- * `#honors` (`.honor-badge`/`.honor-icon`), `#contact` (`.section-title`
+ * `#contact` (`.section-title`
  * containing "联系我们"), `.footer-copyright` with "© 2026", `.fade-in.visible`
  * scroll-triggered elements, and `.hero-title`. The current app shell
  * (App.vue) uses `.cyber-nav`/`.cyber-footer` and Home.vue is a compact
@@ -34,22 +34,6 @@ test.describe.skip('Visual Elements', () => {
 
     // Check for card title
     const title = firstCard.locator('h3');
-    await expect(title).toBeVisible();
-  });
-
-  test('should display honor badges with icons', async ({ homePage }) => {
-    await homePage.goto();
-    await homePage.scrollToSection('honors');
-
-    const firstBadge = homePage.honorBadges.first();
-    await expect(firstBadge).toBeVisible();
-
-    // Check for badge icon
-    const icon = firstBadge.locator('.honor-icon');
-    await expect(icon).toBeVisible();
-
-    // Check for badge title
-    const title = firstBadge.locator('h4');
     await expect(title).toBeVisible();
   });
 
@@ -128,31 +112,6 @@ test.describe.skip('Interactive Elements', () => {
 
     // The transform matrix should be different after hover
     expect(hoverTransform).not.toBe(initialTransform);
-  });
-
-  test('should animate honor badges on hover', async ({ homePage }) => {
-    await homePage.goto();
-    await homePage.scrollToSection('honors');
-
-    const badge = homePage.honorBadges.first();
-
-    // Get initial box shadow
-    const initialShadow = await badge.evaluate((el) => {
-      return window.getComputedStyle(el).boxShadow;
-    });
-
-    // Hover over badge
-    await badge.hover();
-
-    // Wait for animation
-    await homePage.page.waitForTimeout(400);
-
-    // Box shadow should change
-    const hoverShadow = await badge.evaluate((el) => {
-      return window.getComputedStyle(el).boxShadow;
-    });
-
-    expect(hoverShadow).not.toBe(initialShadow);
   });
 });
 

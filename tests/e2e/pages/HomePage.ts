@@ -17,16 +17,11 @@ export class HomePage extends BasePage {
   readonly navLogo: Locator;
   readonly navLinks: Locator;
   readonly servicesLink: Locator;
-  readonly honorsLink: Locator;
   readonly contactLink: Locator;
 
   // Services section
   readonly servicesSection: Locator;
   readonly serviceCards: Locator;
-
-  // Honors section
-  readonly honorsSection: Locator;
-  readonly honorBadges: Locator;
 
   // Contact section
   readonly contactSection: Locator;
@@ -48,16 +43,11 @@ export class HomePage extends BasePage {
     this.navLogo = page.locator('.nav-logo');
     this.navLinks = page.locator('.nav-links');
     this.servicesLink = page.locator('.nav-links a[href="#services"]');
-    this.honorsLink = page.locator('.nav-links a[href="#honors"]');
     this.contactLink = page.locator('.nav-links a[href="#contact"]');
 
     // Services section
     this.servicesSection = page.locator('#services');
     this.serviceCards = page.locator('.card');
-
-    // Honors section
-    this.honorsSection = page.locator('#honors');
-    this.honorBadges = page.locator('.honor-badge');
 
     // Contact section
     this.contactSection = page.locator('#contact');
@@ -94,10 +84,9 @@ export class HomePage extends BasePage {
   /**
    * Click navigation link
    */
-  async clickNavLink(linkName: 'services' | 'honors' | 'contact') {
+  async clickNavLink(linkName: 'services' | 'contact') {
     const linkMap = {
       services: this.servicesLink,
-      honors: this.honorsLink,
       contact: this.contactLink,
     };
     await linkMap[linkName].click();
@@ -122,14 +111,6 @@ export class HomePage extends BasePage {
   }
 
   /**
-   * Get count of honor badges
-   */
-  async getHonorBadgeCount(): Promise<number> {
-    await this.honorsSection.waitFor({ state: 'visible' });
-    return await this.honorBadges.count();
-  }
-
-  /**
    * Get contact item details by index
    */
   async getContactItemDetails(index: number): Promise<{ title: string; value: string }> {
@@ -142,10 +123,9 @@ export class HomePage extends BasePage {
   /**
    * Scroll to section
    */
-  async scrollToSection(section: 'services' | 'honors' | 'contact') {
+  async scrollToSection(section: 'services' | 'contact') {
     const sectionMap = {
       services: '#services',
-      honors: '#honors',
       contact: '#contact',
     };
     await this.page.locator(sectionMap[section]).scrollIntoViewIfNeeded();
