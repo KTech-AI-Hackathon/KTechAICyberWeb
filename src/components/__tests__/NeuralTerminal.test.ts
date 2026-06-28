@@ -314,22 +314,27 @@ describe('NeuralTerminal.vue (#161)', () => {
       expect(console.classes()).toContain('reduced-motion')
     })
 
-    it('does NOT start a scramble/decode timer under reduced motion (boot stays instant)', async () => {
+    it('does NOT scramble under reduced motion (response renders final text immediately)', async () => {
       installMatchMedia({ reduce: true, mobile: false })
-      vi.useFakeTimers()
-      const spy = vi.spyOn(window, 'setInterval')
       wrapper = mountTerminal()
       await wrapper.find('[data-test="neural-launcher"]').trigger('click')
       const input = wrapper.find('[data-test="neural-input"]')
       await input.setValue('help')
       await input.trigger('keydown', { key: 'Enter' })
       await nextTick()
-      // No scramble interval should have been scheduled for the decode anim.
-      const scrambleIntervals = spy.mock.calls.filter(
-        ([, ms]) => ms !== undefined && ms < 1000,
-      )
-      expect(scrambleIntervals.length).toBe(0)
-      spy.mockRestore()
+      const responses = wrapper.findAll('.terminal-response')
+      expect(responses.length).toBeGreaterThanOrEqual(1)
+      const last = responses[responses.length - 1]
+      // No decode-anim class wired under reduced motion...
+      expect(last.classes()).not.toContain('decode-anim')
+      // ...and the VISIBLE text node already shows the final copy (not a
+      // mid-flight scramble of katakana/hex), proving no decode timer ran.
+      const visible = last.text()
+      const SCRAMBLE_CHARS = 'ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ'
+      expect([...visible].some((ch) => SCRAMBLE_CHARS.includes(ch))).toBe(false)
+      // data-text holds the authoritative final value; the rendered text must
+      // match it (no in-flight divergence).
+      expect(visible).toBe(last.attributes('data-text'))
     })
   })
 
@@ -356,17 +361,52 @@ describe('NeuralTerminal.vue (#161)', () => {
   })
 
   // ============================================
-  // Activity (matrix bg reactivity)
+  // Activity (matrix bg reactivity) — AC 1.6: keystrokes intensify the
+  // matrix; idle relaxes back. Asserted via DOM facts (the .active class on
+  // .neural-matrix + the inline opacity style), NOT vm internals, so the test
+  // would fail if the binding were dropped.
   // ============================================
   describe('activity / matrix bg', () => {
-    it('a keystroke in the input bumps the reactive activity level', async () => {
+    it('a keystroke intensifies the matrix (adds .active + raises opacity above idle)', async () => {
       wrapper = mountTerminal()
       await wrapper.find('[data-test="neural-launcher"]').trigger('click')
-      const before = wrapper.vm.activity
+      const matrix = wrapper.find('.neural-matrix')
+      // Idle: no .active, opacity at the low base.
+      expect(matrix.classes()).not.toContain('active')
+      const idleOpacity = parseFloat(
+        (matrix.attributes('style') || '').match(/opacity:\s*([\d.]+)/)?.[1] ||
+          '0',
+      )
       const input = wrapper.find('[data-test="neural-input"]')
       await input.setValue('h')
       await nextTick()
-      expect(wrapper.vm.activity).toBeGreaterThan(before)
+      // After a keystroke the matrix is intensified.
+      expect(matrix.classes()).toContain('active')
+      const activeOpacity = parseFloat(
+        (matrix.attributes('style') || '').match(/opacity:\s*([\d.]+)/)?.[1] ||
+          '0',
+      )
+      expect(activeOpacity).toBeGreaterThan(idleOpacity || 0)
+    })
+
+    it('activity DECAYS back to idle after the keystroke (AC 1.6 return-to-idle)', async () => {
+      vi.useFakeTimers()
+      wrapper = mountTerminal()
+      await wrapper.find('[data-test="neural-launcher"]').trigger('click')
+      const matrix = wrapper.find('.neural-matrix')
+      const input = wrapper.find('[data-test="neural-input"]')
+      // Drive a keystroke to intensify.
+      await input.setValue('h')
+      await nextTick()
+      expect(wrapper.vm.activity).toBeGreaterThan(0)
+      expect(matrix.classes()).toContain('active')
+      // Advance fake timers far past the decay interval (~150ms) so all bumps
+      // have drained. The interval must fire enough times to bring activity to 0.
+      vi.advanceTimersByTime(5000)
+      await nextTick()
+      expect(wrapper.vm.activity).toBe(0)
+      // Matrix returns to idle: .active gone.
+      expect(matrix.classes()).not.toContain('active')
     })
   })
 

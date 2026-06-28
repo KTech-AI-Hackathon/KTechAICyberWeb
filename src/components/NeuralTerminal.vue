@@ -24,7 +24,12 @@
       :aria-label="t('terminal.aria.consoleLabel')"
       :aria-hidden="!isOpen"
     >
-      <div class="neural-matrix" :class="{ active: activity > 0 }" aria-hidden="true"></div>
+      <div
+        class="neural-matrix"
+        :class="{ active: activity > 0, idle: activity === 0 }"
+        :style="{ opacity: matrixOpacity }"
+        aria-hidden="true"
+      ></div>
       <Scanlines />
 
       <header class="neural-console-bar">
@@ -183,6 +188,21 @@ const onMobileChange = (e) => {
 // console reads like a real neural link. Cleared as soon as the response is in
 // the output buffer.
 const thinking = ref(false)
+
+// --- matrix reactivity (AC 1.6) ---------------------------------------------
+// Each keystroke bumps `activity` (in the composable); here we (a) bind the
+// matrix opacity to it so more keystrokes = more intense, and (b) DECAY it on
+// an interval so the matrix relaxes back to idle when the user stops. The
+// decay lives in the view (the composable just exposes the raw level).
+const MATRIX_BASE_OPACITY = 0.12
+const MATRIX_STEP = 0.02 // extra opacity per keystroke
+const ACTIVITY_DECAY_MS = 150
+let activityDecayTimer = null
+
+const matrixOpacity = computed(() => {
+  // More keystrokes = brighter matrix, capped so it never washes out.
+  return MATRIX_BASE_OPACITY + Math.min(activity.value, 20) * MATRIX_STEP
+})
 
 // --- decode / scramble animation -------------------------------------------
 // Per-line scramble state. We track a map of lineId -> currently-displayed
@@ -423,10 +443,22 @@ onMounted(() => {
     }
   }
   document.addEventListener('keydown', onDocKeydown)
+  // AC 1.6: decay the activity level so the matrix relaxes back to idle when
+  // the user stops typing. The composable only exposes `activity`; the view
+  // owns the decay cadence (per the composable's JSDoc).
+  activityDecayTimer = setInterval(() => {
+    if (activity.value > 0) {
+      activity.value = Math.max(0, activity.value - 1)
+    }
+  }, ACTIVITY_DECAY_MS)
 })
 
 onUnmounted(() => {
   document.removeEventListener('keydown', onDocKeydown)
+  if (activityDecayTimer) {
+    clearInterval(activityDecayTimer)
+    activityDecayTimer = null
+  }
   if (decodeTimer) clearTimeout(decodeTimer)
   bootTimers.forEach((id) => clearTimeout(id))
   if (mobileMq) {
@@ -511,11 +543,14 @@ onUnmounted(() => {
 }
 
 /* ---- matrix bg ------------------------------------------------------------*/
+/* Opacity is driven by the bound inline style (matrixOpacity), so the class
+   rules here only carry the grid-spacing + idle-pulse state effects. AC 1.6:
+   more keystrokes => brighter (inline opacity) + tighter grid (.active); idle
+   => relaxed grid (.idle) with a slow neural pulse. */
 .neural-matrix {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.12;
   background-image:
     linear-gradient(rgba(0, 255, 136, 0.18) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 255, 136, 0.18) 1px, transparent 1px);
@@ -524,8 +559,16 @@ onUnmounted(() => {
 }
 
 .neural-matrix.active {
-  opacity: 0.28;
   background-size: 18px 18px;
+}
+
+.neural-matrix.idle {
+  animation: terminal-matrix-pulse 4s ease-in-out infinite;
+}
+
+@keyframes terminal-matrix-pulse {
+  0%, 100% { filter: brightness(0.9); }
+  50% { filter: brightness(1.15); }
 }
 
 /* ---- console bar ----------------------------------------------------------*/
