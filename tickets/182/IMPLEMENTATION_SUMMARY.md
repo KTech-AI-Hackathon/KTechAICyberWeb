@@ -80,15 +80,17 @@ All data is **simulated locally** by a composable — no network calls (AC4).
 - `src/locales/en.json` + `src/locales/zh.json` — top-level `opsHud` namespace,
   IDENTICAL 36 leaf keys each (parity at 982 = 982).
 
-## Commits (6, one logical change each — no AI/agent mentions)
+## Commits (8, one logical change each — no AI/agent mentions)
 
 ```
-a667653 #182 fix useOpsFeed sync-rAF infinite recursion
-1ce7539 #182 wire CyberOpsHud into Home + shipped-app gate
-c5d5a73 #182 add Cyber Ops HUD widgets + section component
-b6e7bd4 #182 add opsHud locale namespace (en/zh parity)
 c7d5dec #182 add useOpsFeed composable + unit tests (TDD)
-+ (this commit) #182 add Playwright E2E + evidence
+b6e7bd4 #182 add opsHud locale namespace (en/zh parity)
+c5d5a73 #182 add Cyber Ops HUD widgets + section component
+1ce7539 #182 wire CyberOpsHud into Home + shipped-app gate
+a667653 #182 fix useOpsFeed sync-rAF infinite recursion
+20eb72d #182 fix E2E-driven UX bugs + raise branch coverage over gate
+f2e5658 #182 add Playwright E2E + evidence
+62f1e4d #182 advance registry: security PASS (0 critical/0 high/0 medium)
 ```
 
 ## Pulse spike/settle math (TDD-pinned EXACT constants)
