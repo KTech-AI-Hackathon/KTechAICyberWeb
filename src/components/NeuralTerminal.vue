@@ -356,8 +356,10 @@ function onInputKeydown(e) {
 const chipCommands = computed(() => visibleCommands.value)
 
 function chipLabel(name) {
-  // Command name stays English; the chip palette title is localized.
-  return name
+  // The chip DISPLAY label is localized user-facing UI text (AC: UI text must be
+  // localized). Clicking the chip still runs the canonical English command name
+  // (the protocol), so runChip receives cmd.name, not the localized label.
+  return t('terminal.mobile.chips.' + name)
 }
 
 function runChip(name) {
