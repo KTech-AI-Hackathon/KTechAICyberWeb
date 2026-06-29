@@ -94,35 +94,44 @@ test.describe('#188 CSS purge — visual no-regression', () => {
     await page.waitForLoadState('networkidle')
 
     const htmlBefore = await page.locator('html').getAttribute('data-theme')
-    // Sample body color, which is driven by --text-primary via cyber.css
-    // (`body { color: var(--text-primary) }`). --text-primary IS theme-keyed
-    // (dark #e0e0e0 vs light #1a1a2e), so the computed color MUST change on
-    // toggle — proving the [data-theme=light] block in cyber.css still applies
-    // after the :root dedup. (Home h1.neon-text is hardcoded #ffffff and would
-    // NOT change, so it is not a valid sample.)
-    const colorBefore = await page.evaluate(
-      () => getComputedStyle(document.body).color
+    // Read the RESOLVED --text-primary variable off <html>. This is the most
+    // direct proof that the [data-theme="..."] block in cyber.css still applies
+    // after the :root dedup (#188): the variable's value comes straight from
+    // the matching [data-theme] selector, with NO CSS transition in the way
+    // (transitions only affect properties that consume the var, like body.color,
+    // not the var resolution itself). It therefore settles the instant
+    // data-theme flips, on every engine — no fixed-timeout wait needed.
+    // dark #e0e0e0 vs light #1a1a2e (see cyber.css [data-theme] blocks).
+    const varBefore = await page.evaluate(
+      () => getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim()
     )
+    expect(varBefore, '--text-primary must resolve under [data-theme="dark"]').toBe('#e0e0e0')
 
     // Click the theme toggle and assert [data-theme] flips.
     await page.locator('.theme-toggle').click()
     const htmlAfter = await page.locator('html').getAttribute('data-theme')
     expect(htmlAfter, 'data-theme must change after toggle click').not.toBe(htmlBefore)
 
-    // cyber.css applies a 0.3s (300ms) \`color\` transition on every element
-    // (\`* { transition: color 0.3s ease, ... }\`, lines 47-54). On firefox the
-    // transition is still interpolating when getComputedStyle is read
-    // immediately after the click, so body.color reports the mid-flight value
-    // which can equal colorBefore and fail the assertion. Wait out the 300ms
-    // transition before sampling. Cross-browser E2E #222.
-    await page.waitForTimeout(400)
+    // The resolved variable must now reflect the light-theme block. expect.poll
+    // makes this robust against any engine timing without a magic timeout.
+    await expect.poll(
+      async () => page.evaluate(
+        () => getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim()
+      ),
+      { timeout: 3000, message: '--text-primary must flip to the light-theme value' },
+    ).toBe('#1a1a2e')
 
-    // Color-driven-by-theme must also change.
-    const colorAfter = await page.evaluate(
-      () => getComputedStyle(document.body).color
-    )
-    console.log('\n[188] theme toggle:', htmlBefore, '->', htmlAfter, '; body color', colorBefore, '->', colorAfter)
-    expect(colorAfter, 'body color must change with theme (--text-primary is theme-keyed)').not.toBe(colorBefore)
+    // Belt-and-braces: body.color consumes --text-primary, so once the variable
+    // has flipped AND the 300ms `color` transition (`* { transition: color 0.3s }
+    //`, cyber.css lines 47-54) has finished interpolating, body.color must settle
+    // to the resolved light value. Asserting the EXACT settled color (not just
+    // "different from before") proves the transition completed and the consumer
+    // reached the new theme — no mid-transition ambiguity. 5s timeout absorbs
+    // parallel-worker contention on a shared origin.
+    await expect.poll(
+      async () => page.evaluate(() => getComputedStyle(document.body).color),
+      { timeout: 5000, message: 'body color must settle to the light-theme value' },
+    ).toBe('rgb(26, 26, 46)')
   })
 
   test('no pageerror console errors on Home after purge', async ({ page }) => {
