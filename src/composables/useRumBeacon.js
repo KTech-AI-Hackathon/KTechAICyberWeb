@@ -183,14 +183,23 @@ export function ratingOf(name, value) {
  * Resolve the merged config from defaults + import.meta.env + caller overrides.
  * Kept PURE so it is unit-testable. `overrides` is the optional second arg to
  * useRumBeacon (used by tests + by App.vue to inject the store-backed value).
+ *
+ * NOTE on `??` vs booleans: the env flag checks yield strict booleans, but
+ * `??` only falls through on null/undefined — so `false ?? X` returns `false`,
+ * which would short-circuit the DEV fallback. We therefore branch explicitly
+ * (override-provided wins; else env flag; else the documented default).
  */
 function resolveConfig(overrides = {}) {
   const env = (typeof import.meta !== 'undefined' && import.meta.env) ? import.meta.env : {}
+  const has = (k) => overrides[k] !== undefined
   return {
-    endpoint: overrides.endpoint ?? env.VITE_RUM_ENDPOINT ?? null,
-    sampleRate: overrides.sampleRate ?? env.VITE_RUM_SAMPLE_RATE ?? 1.0,
-    enabled: overrides.enabled ?? env.VITE_RUM_ENABLED === 'true' ?? false,
-    testHook: overrides.__testHook ?? env.VITE_RUM_TEST_HOOK === '1' ?? env.DEV === true,
+    endpoint: has('endpoint') ? overrides.endpoint : (env.VITE_RUM_ENDPOINT ?? null),
+    sampleRate: has('sampleRate') ? overrides.sampleRate : (env.VITE_RUM_SAMPLE_RATE ?? 1.0),
+    // enabled: explicit override > env flag > default false.
+    enabled: has('enabled') ? !!overrides.enabled : (env.VITE_RUM_ENABLED === 'true'),
+    // testHook: explicit override > env flag > DEV mode (true under vite dev).
+    testHook: has('__testHook') ? !!overrides.__testHook
+      : (env.VITE_RUM_TEST_HOOK === '1' || env.DEV === true),
   }
 }
 
