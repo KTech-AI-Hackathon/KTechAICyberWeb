@@ -1817,5 +1817,44 @@
       "inputGroup": "Audio input source",
       "liveLevel": "Current output level: {db} dB"
     }
+  },
+  "rum": {
+    "toggle": {
+      "label": "Toggle performance monitoring (Core Web Vitals)",
+      "enabled": "Performance monitoring on",
+      "disabled": "Performance monitoring off"
+    },
+    "dashboard": {
+      "title": "Performance monitor",
+      "description": "Real-user Core Web Vitals for this page. Metrics are collected locally and sent only if an endpoint is configured.",
+      "metric": {
+        "LCP": "Largest Contentful Paint",
+        "CLS": "Cumulative Layout Shift",
+        "INP": "Interaction to Next Paint",
+        "FCP": "First Contentful Paint",
+        "TTFB": "Time to First Byte"
+      },
+      "column": {
+        "metric": "Metric",
+        "value": "Value",
+        "rating": "Rating",
+        "time": "Time"
+      }
+    },
+    "rating": {
+      "good": "Good",
+      "needs-improvement": "Needs improvement",
+      "poor": "Poor"
+    },
+    "status": {
+      "collecting": "Collecting Core Web Vitals…",
+      "disabled": "Performance monitoring is off."
+    },
+    "clear": {
+      "label": "Clear history"
+    },
+    "a11y": {
+      "liveStatus": "Performance monitoring status"
+    }
   }
 }

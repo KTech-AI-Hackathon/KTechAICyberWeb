@@ -1817,5 +1817,44 @@
       "inputGroup": "音频输入源",
       "liveLevel": "当前输出电平：{db} dB"
     }
+  },
+  "rum": {
+    "toggle": {
+      "label": "切换性能监控（核心网页指标）",
+      "enabled": "性能监控已开启",
+      "disabled": "性能监控已关闭"
+    },
+    "dashboard": {
+      "title": "性能监控",
+      "description": "本页面的真实用户核心网页指标。指标在本地收集，仅在配置了上报端点时才会发送。",
+      "metric": {
+        "LCP": "最大内容绘制",
+        "CLS": "累计布局偏移",
+        "INP": "交互到下一次绘制",
+        "FCP": "首次内容绘制",
+        "TTFB": "首字节时间"
+      },
+      "column": {
+        "metric": "指标",
+        "value": "数值",
+        "rating": "评级",
+        "time": "时间"
+      }
+    },
+    "rating": {
+      "good": "良好",
+      "needs-improvement": "需要改进",
+      "poor": "较差"
+    },
+    "status": {
+      "collecting": "正在收集核心网页指标…",
+      "disabled": "性能监控已关闭。"
+    },
+    "clear": {
+      "label": "清除历史记录"
+    },
+    "a11y": {
+      "liveStatus": "性能监控状态"
+    }
   }
 }
