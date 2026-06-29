@@ -343,13 +343,19 @@ onUnmounted(() => {
   margin-left: auto;
 }
 
-/* Mobile hamburger toggle: hidden on desktop, flex on mobile. */
+/* Mobile hamburger toggle: hidden on desktop, flex on mobile.
+ * #190 R1: height raised from 22px to 24px to satisfy WCAG 2.5.8 "Target Size
+ * (Minimum)" — Lighthouse measured the rendered hit target at 22.6 x 22px,
+ * below the 24 x 24px minimum. The 3 aria-hidden bars use flex
+ * space-between (3px each = 9px total), so a 24px height still yields a
+ * ~7.5px gap between bars — visually unchanged on mobile (this rule is
+ * display:none on desktop). */
 .nav-toggle {
   display: none;
   flex-direction: column;
   justify-content: space-between;
   width: 28px;
-  height: 22px;
+  height: 24px;
   padding: 0;
   background: transparent;
   border: none;
