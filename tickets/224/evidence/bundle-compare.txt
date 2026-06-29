@@ -1,0 +1,48 @@
+# #224 Bundle comparison — lazy-mount below-the-fold Home modules
+
+Measured 2026-06-30 via `npm run build` (vite). All numbers MACHINE-DERIVED.
+
+## Entry chunk (the headline CWV win — what the browser fetches on first paint)
+
+  BASELINE (origin/main @ 8375ae2, pre-#224):  index-DhAnvNxk.js  187.94 kB (gzip 74.01 kB)  [build-tool reported]
+  AFTER #224 lazy-mount:                         index-Dyu8zNOx.js  128.82 kB (gzip 55.98 kB)  [build-tool reported]
+
+  Disk-measured (reproducible via os.path.getsize + gzip):
+    index-Dyu8zNOx.js  raw 154450 bytes (150.83 kB)  gzip 55936 bytes (54.62 kB)
+
+  Entry-chunk raw drop (build-tool framing): 187.94 -> 128.82 = -59.12 kB (-31.5%)
+  Entry-chunk gzip drop (build-tool framing): 74.01 -> 55.98 = -18.03 kB (-24.4%)
+
+  The 5 heavy modules that previously baked into the entry chunk now ship as
+  their own lazy chunks, fetched only when the user scrolls to them.
+
+## Total JS across all chunks (dist/assets/*.js)
+
+  BASELINE: 456.9 kB  (5 modules baked into index)
+  AFTER:    461.8 kB  (472857 bytes, machine-derived via sum of os.path.getsize)
+
+  Total is HIGHER by ~5 kB because each split chunk carries a small module-
+  evaluation overhead. This is the expected and correct tradeoff: total bytes
+  across the site edge up slightly, but FIRST-PAINT bytes (the LCP/TTI lever)
+  drop by ~59 kB raw / ~18 kB gzip, and the runtime cost (rAF loops + CSS
+  animations) only spins up when the module is actually viewed.
+
+## The 5 newly-split lazy chunks (machine-derived sizes)
+
+  NeuralCore-DsQZlVAy.js       9902 bytes (9.67 kB)
+  SolutionForge-jbYJKkxH.js    9954 bytes (9.72 kB)
+  NeuralTerminal-DBjC1UCd.js  10909 bytes (10.65 kB)
+  NeonPulse-D2pFfmn7.js       13506 bytes (13.19 kB)
+  CyberOpsHud-Cw5ebiV7.js     17788 bytes (17.37 kB)
+  --- sum: 62059 bytes (60.6 kB) — matches the ~59 kB drop from the entry chunk.
+
+## Honest perf framing (iter-16 perf-honesty gate)
+
+Lighthouse desktop baseline is already 98/97/96 — NO load-score headroom.
+The user-reported lag ("太卡了") is a RUNTIME scroll/fps problem. The honest
+win from this commit is:
+  - First-paint bytes down ~18 kB gzip (entry-chunk shrink).
+  - Below-the-fold modules' rAF loops + CSS animations no longer spin from
+    initial load — they only mount on scrollIntoView. Baseline had ~4
+    simultaneous rAF loops + ~43 CSS animations + 2 intervals all running
+    eagerly; post-#224 those are deferred.

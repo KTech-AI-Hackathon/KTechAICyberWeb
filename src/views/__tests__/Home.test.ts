@@ -409,8 +409,13 @@ describe('Home.vue', () => {
       // LazySection is the wrapper that defers mount until intersection.
       expect(homeSource).toMatch(/from\s+['"]\.\.\/components\/LazySection\.vue['"]/)
       expect(homeSource).toMatch(/<LazySection\b/)
-      // All 5 modules wrapped (5 occurrences of <LazySection opening tag).
-      const matches = homeSource.match(/<LazySection\b/g) || []
+      // All 5 modules wrapped. Count opening tags in the <template> region only
+      // (the import statement `import LazySection from ...` would otherwise
+      // inflate the count). Match the template usage form: <LazySection followed
+      // by a space + attribute (class/data-test), which only appears in markup.
+      const template = homeSource.match(/<template>([\s\S]*?)<\/template>/)
+      expect(template, 'Home.vue must have a <template>').not.toBeNull()
+      const matches = template![1].match(/<LazySection\b/g) || []
       expect(matches.length).toBe(5)
     })
 

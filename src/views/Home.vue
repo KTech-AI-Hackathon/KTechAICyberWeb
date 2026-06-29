@@ -54,43 +54,52 @@
         </router-link>
       </div>
 
-      <!-- AI Neural Terminal command console (#161) -->
-      <section class="neural-terminal-section">
+      <!-- AI Neural Terminal command console (#161) — lazy-mounted (#224) -->
+      <LazySection class="neural-terminal-section" data-test="lazy-neural-terminal">
         <NeuralTerminal />
-      </section>
+      </LazySection>
 
-      <!-- AI Core neural-network visualizer (#179) -->
-      <section class="neural-core-section">
+      <!-- AI Core neural-network visualizer (#179) — lazy-mounted (#224) -->
+      <LazySection class="neural-core-section" data-test="lazy-neural-core">
         <NeuralCore />
-      </section>
+      </LazySection>
 
-      <!-- AI Solution Forge configurator (#180) -->
-      <section class="solution-forge-section">
+      <!-- AI Solution Forge configurator (#180) — lazy-mounted (#224) -->
+      <LazySection class="solution-forge-section" data-test="lazy-solution-forge">
         <SolutionForge />
-      </section>
+      </LazySection>
 
-      <!-- Cyber Ops HUD interactive mission-control dashboard (#182) -->
-      <section class="cyber-ops-hud-section">
+      <!-- Cyber Ops HUD interactive mission-control dashboard (#182) — lazy (#224) -->
+      <LazySection class="cyber-ops-hud-section" data-test="lazy-cyber-ops-hud">
         <CyberOpsHud data-test="cyber-ops-hud" />
-      </section>
+      </LazySection>
 
-      <!-- Neon Pulse audio-reactive visualizer (#186) -->
-      <section class="neon-pulse-section">
+      <!-- Neon Pulse audio-reactive visualizer (#186) — lazy-mounted (#224) -->
+      <LazySection class="neon-pulse-section" data-test="lazy-neon-pulse">
         <NeonPulse data-test="neon-pulse" />
-      </section>
+      </LazySection>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, defineAsyncComponent } from 'vue'
 import { useLanguage } from '../composables/useLanguage'
 import { useParallax } from '../composables/useParallax'
-import NeuralTerminal from '../components/NeuralTerminal.vue'
-import NeuralCore from '../components/NeuralCore.vue'
-import SolutionForge from '../components/SolutionForge.vue'
-import CyberOpsHud from '../components/CyberOpsHud.vue'
-import NeonPulse from '../components/NeonPulse.vue'
+import LazySection from '../components/LazySection.vue'
+
+// #224 perf: lazy-mount the 5 heavy below-the-fold modules. Previously these
+// were statically imported and mounted eagerly on initial paint, spinning up
+// ~4 simultaneous rAF loops + ~43 CSS animations + 2 intervals despite being
+// below the fold — the runtime lag source ("太卡了"). defineAsyncComponent
+// yields a code-split chunk AND defers module evaluation until first render;
+// wrapping each in <LazySection> further defers the mount until the section
+// scrolls into view (IntersectionObserver, rootMargin 200px for early mount).
+const NeuralTerminal = defineAsyncComponent(() => import('../components/NeuralTerminal.vue'))
+const NeuralCore = defineAsyncComponent(() => import('../components/NeuralCore.vue'))
+const SolutionForge = defineAsyncComponent(() => import('../components/SolutionForge.vue'))
+const CyberOpsHud = defineAsyncComponent(() => import('../components/CyberOpsHud.vue'))
+const NeonPulse = defineAsyncComponent(() => import('../components/NeonPulse.vue'))
 
 const { t } = useLanguage()
 
