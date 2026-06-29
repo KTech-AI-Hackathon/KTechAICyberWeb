@@ -236,7 +236,7 @@
   "188": {
     "title": "CWV: remove unused CSS / purge",
     "status": "InProgress",
-    "stage": "coding",
+    "stage": "security",
     "iteration": 25,
     "github_state": "OPEN",
     "baseline": "origin/main @ c672d06",
@@ -266,6 +266,30 @@
       "font_var_bug": "--font-display:'Clash Display'/--font-body:'Satoshi' NEVER loaded (no @font-face, only Orbitron+Rajdhani via Google Fonts); ~37 components using these vars currently render system-ui (latent bug). Plan corrects vars to Orbitron/Rajdhani = visible improvement on those components, documented.",
       "font_hardcodes": "117 Orbitron + 142 Rajdhani + 4 Courier New (terminal, KEEP) — exact grep counts verified"
     },
-    "deferred_ac_followup": "scoped-style dead-selector archaeology (12,664 lines / 57 files) -> follow-up issue to be filed by coder, AC marked [~]"
+    "deferred_ac_followup": "scoped-style dead-selector archaeology (12,664 lines / 57 files) -> follow-up issue to be filed by coder, AC marked [~]",
+    "coding_result": {
+      "commits": [
+        "5cb5b68",
+        "fb60531",
+        "ed110cf",
+        "6621cfa",
+        "68a6f34",
+        "9245f12",
+        "597d76c",
+        "a757b20"
+      ],
+      "files_changed": "47 (+856/-366)",
+      "vitest": "2453/2453 pass (87 files), 0 fail",
+      "coverage": "96.46% lines / 85.97% branches (coordinator re-derived from coder report; gate >=80%/60% met)",
+      "build": "vite build green",
+      "entry_css_after": "74,859 B raw / 12,837 B gzip (baseline 75,369/12,892; -510 B raw / -55 B gzip)",
+      "real_win": "index.html inline <style> block 8,182 -> 397 B (-95.2%) — bytes browser parses pre-mount, the actual CWV/LCP win; entry chunk barely moved because dead CSS was in HTML not the chunk (coder caught this honestly, did not fake the chunk-size threshold)",
+      "font_consolidation": "259 Orbitron/Rajdhani hardcodes -> 0 in .vue (coordinator grep-verified); var(--font-display) 141 usages, var(--font-body) 155 usages; Courier New 5 preserved (coder cited 4, actual 5 — minor undercount, all intentional terminal styling)",
+      "var_value_correction": "--font-display 'Clash Display' -> 'Orbitron', --font-body 'Satoshi' -> 'Rajdhani' (Clash/Satoshi never loaded; ~37 components render system-ui bug -> now render intended cyber font). Visible IMPROVEMENT, documented as bug fix. E2E getComputedStyle proves Orbitron now resolves on Home/About/ServiceBigData headings.",
+      "deferred_ac": "scoped-style dead-selector audit -> follow-up #219 (filed, OPEN)",
+      "evidence": "tickets/188/{IMPLEMENTATION_SUMMARY.md} + evidence/{before,after}-{home,about}-desktop-dark.png",
+      "shipped_app_gate": "CSS changes apply to rendered elements (proven by E2E getComputedStyle on live DOM, not just unit mounts)",
+      "honesty": "coder caught unachievable plan threshold (entry chunk), rewrote test to measure real artifact, did not fake"
+    }
   }
 }
