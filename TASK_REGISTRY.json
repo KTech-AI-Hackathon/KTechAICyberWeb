@@ -312,5 +312,16 @@
     "parent_ac_closed": "#18 [x] Unused CSS is removed (flipped via gh issue edit)",
     "archived_at": "2026-06-29T07:21:44Z",
     "archive_notes": "E2E advisory (Playwright cancelled = pre-existing #216 debt); failure-set diff vs main empty; Smoke+Mobile green. --merge preserves 8 optimization commits (5cb5b68 test RED, fb60531 purge index.html, ed110cf purge cyber.css :root, 6621cfa fix var values, 68a6f34 consolidate fonts, 9245f12 review measure real artifact, 597d76c review fix E2E route, a757b20 evidence helper). Follow-up #219 OPEN (scoped-style audit, blocked-by #188)."
+  },
+  "216": {
+    "title": "[bug] Fix firefox/webkit Playwright browser-binary CI",
+    "status": "Done",
+    "stage": "archived",
+    "branch": "autodev-216-e2e-browsers (deleted)",
+    "mergeSha": "ac30c7c",
+    "pr": 221,
+    "iteration": 26,
+    "approach": "install firefox+webkit + skip webkit/Mobile-Safari (#222) + drop stale .js config",
+    "verificationRun": 28363743207
   }
 }
