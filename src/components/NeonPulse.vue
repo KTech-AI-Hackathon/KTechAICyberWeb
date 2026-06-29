@@ -207,13 +207,12 @@ watch(status, (s) => {
       />
     </div>
 
-    <!-- Visualizer canvas -->
+    <!-- Visualizer canvas (decorative; live data is in the ARIA live region below) -->
     <canvas
       ref="canvasRef"
       class="pulse-canvas"
       data-test="pulse-canvas"
-      :aria-label="t('pulse.aria.description')"
-      role="img"
+      aria-hidden="true"
     ></canvas>
 
     <!-- dB readout (monospace) -->
@@ -234,6 +233,9 @@ watch(status, (s) => {
     <p v-if="prefersReducedMotion" class="pulse-reduced-note" data-test="pulse-reduced-note">
       {{ t('pulse.notice.iosAudio') }}
     </p>
+
+    <!-- Visually-hidden description for assistive tech (canvas is decorative) -->
+    <p class="visually-hidden">{{ t('pulse.aria.description') }}</p>
 
     <!-- ARIA live region announcing the current dB level politely -->
     <p class="visually-hidden" role="status" aria-live="polite" data-test="pulse-live">
