@@ -13,6 +13,11 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import NeonPulse from '../NeonPulse.vue'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // matchMedia / rAF mocks so mount + engage are deterministic.
 let originalMatchMedia
@@ -342,6 +347,64 @@ describe('NeonPulse.vue — component DOM', () => {
       // And the mic-live indicator must NOT show under denial.
       expect(w.find('[data-test="pulse-mic-live"]').exists()).toBe(false)
       w.unmount()
+    })
+  })
+
+  // ==========================================================================
+  // #190 a11y: aria-meter-name — role="meter" needs an accessible name.
+  // Lighthouse flagged the .pulse-bass-track span (role="meter") for having no
+  // aria-label / aria-labelledby. Fix: bind :aria-label to a localized string
+  // that names the meter + interpolates the live value.
+  // ==========================================================================
+  describe('#190 a11y: bass meter has an accessible name', () => {
+    it('.pulse-bass-track exposes a non-empty aria-label', async () => {
+      const w = mount(NeonPulse, { attachTo: document.body })
+      try {
+        await nextTick()
+        const meter = w.find('.pulse-bass-track')
+        expect(meter.exists()).toBe(true)
+        const label = meter.attributes('aria-label')
+        expect(label, 'aria-label must be present + non-empty').toBeTruthy()
+        expect(label.length).toBeGreaterThan(0)
+      } finally {
+        w.unmount()
+      }
+    })
+
+    it('.pulse-bass-track aria-label contains the localized bass word (English catalog)', async () => {
+      const w = mount(NeonPulse, { attachTo: document.body })
+      try {
+        await nextTick()
+        const meter = w.find('.pulse-bass-track')
+        // The English pulse.aria.bassLevel copy names "Bass".
+        expect(meter.attributes('aria-label')).toMatch(/bass/i)
+      } finally {
+        w.unmount()
+      }
+    })
+
+    it('.pulse-bass-track keeps role="meter" + aria-valuenow (regression)', async () => {
+      const w = mount(NeonPulse, { attachTo: document.body })
+      try {
+        await nextTick()
+        const meter = w.find('.pulse-bass-track')
+        expect(meter.attributes('role')).toBe('meter')
+        expect(meter.attributes('aria-valuenow')).toBeDefined()
+        expect(meter.attributes('aria-valuemin')).toBe('0')
+        expect(meter.attributes('aria-valuemax')).toBe('100')
+      } finally {
+        w.unmount()
+      }
+    })
+
+    it('pulse.aria.bassLevel key exists in BOTH en.json and zh.json (i18n parity)', () => {
+      const en = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../locales/en.json'), 'utf-8'))
+      const zh = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../locales/zh.json'), 'utf-8'))
+      expect(en.pulse?.aria?.bassLevel, 'en.pulse.aria.bassLevel must exist').toBeTruthy()
+      expect(zh.pulse?.aria?.bassLevel, 'zh.pulse.aria.bassLevel must exist').toBeTruthy()
+      // The copy must interpolate the live value via {value}.
+      expect(en.pulse.aria.bassLevel).toContain('{value}')
+      expect(zh.pulse.aria.bassLevel).toContain('{value}')
     })
   })
 })

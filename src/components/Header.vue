@@ -18,13 +18,23 @@
       <span class="nav-toggle-bar" aria-hidden="true"></span>
     </button>
 
-    <ul class="nav-links"
-        :class="{ 'mobile-open': mobileOpen }"
-        ref="panelRef"
-        role="dialog"
-        aria-modal="true"
-        :aria-label="t('nav.menu.label')"
-        @keydown="onPanelKeydown">
+    <!-- #190: role="dialog" moved OFF the <ul> onto this wrapper. Keeping the
+         dialog role on the <ul> triggered aria-allowed-role (dialog not allowed
+         on ul) AND listitem (the dialog role overrode the ul's implicit list
+         role, so child <li> lost their list parent). The wrapper owns the
+         dialog semantics; the <ul> keeps native list semantics; the focusables
+         still live inside the wrapper so the focus trap (panelRef now points
+         here) still works. -->
+    <div
+      class="nav-mobile-dialog"
+      :class="{ 'mobile-open': mobileOpen }"
+      ref="panelRef"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="t('nav.menu.label')"
+      @keydown="onPanelKeydown"
+    >
+      <ul class="nav-links">
       <li>
         <router-link to="/" @click="closeMobile">{{ t('nav.home') }}</router-link>
       </li>
@@ -47,6 +57,7 @@
         <router-link to="/contact" @click="closeMobile">{{ t('nav.contact') }}</router-link>
       </li>
     </ul>
+    </div>
 
     <!-- Optional toolbar slot: App.vue injects the language + theme toggles
          here so they live on the right edge of the nav (always visible,
@@ -277,6 +288,14 @@ onUnmounted(() => {
   padding: 0;
 }
 
+/* #190: the dialog wrapper is layout-invisible on desktop (display:contents)
+   so the <ul> participates in the nav's flex row exactly as before. On mobile
+   the media query below repurposes this wrapper as the positioned slide-in
+   panel (the off-canvas transform + background move here from .nav-links). */
+.nav-mobile-dialog {
+  display: contents;
+}
+
 .nav-links a {
   color: var(--text-secondary);
   text-decoration: none;
@@ -324,13 +343,26 @@ onUnmounted(() => {
   margin-left: auto;
 }
 
-/* Mobile hamburger toggle: hidden on desktop, flex on mobile. */
+/* Mobile hamburger toggle: hidden on desktop, flex on mobile.
+ * #190 R1: height raised from 22px to 24px to satisfy WCAG 2.5.8 "Target Size
+ * (Minimum)" — Lighthouse measured the rendered hit target at 22.6 x 22px,
+ * below the 24 x 24px minimum. The 3 aria-hidden bars use flex
+ * space-between (3px each = 9px total), so a 24px height still yields a
+ * ~7.5px gap between bars — visually unchanged on mobile (this rule is
+ * display:none on desktop).
+ * #190 R4: flex-shrink: 0 added — .nav is display:flex (justify-content:
+ * space-between), so .nav-toggle is a flex child. Flex items default to
+ * flex-shrink:1, which let the container squeeze the declared 28px width
+ * down to a RENDERED 22.6px (coordinator Lighthouse re-measurement), still
+ * failing the 24x24 target-size minimum on the WIDTH axis despite the
+ * declaration. flex-shrink:0 makes the parent honor the declared width. */
 .nav-toggle {
   display: none;
   flex-direction: column;
   justify-content: space-between;
+  flex-shrink: 0;
   width: 28px;
-  height: 22px;
+  height: 24px;
   padding: 0;
   background: transparent;
   border: none;
@@ -360,15 +392,14 @@ onUnmounted(() => {
     padding-right: 1rem;
   }
 
-  /* Off-canvas nav: replaced the previous display:none with a slide-in panel. */
-  .nav-links {
+  /* Off-canvas nav (#190): the slide-in panel is now the .nav-mobile-dialog
+     wrapper (which owns role=dialog). It carries the absolute positioning +
+     transform + background; the <ul> inside keeps a plain column layout. */
+  .nav-mobile-dialog {
     position: absolute;
     top: 100%;
     right: 0;
     left: 0;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
     padding: 1.5rem;
     background: rgba(10, 15, 28, 0.98);
     border-bottom: 1px solid rgba(0, 255, 204, 0.2);
@@ -377,8 +408,14 @@ onUnmounted(() => {
     backdrop-filter: blur(20px);
   }
 
-  .nav-links.mobile-open {
+  .nav-mobile-dialog.mobile-open {
     transform: translateX(0);
+  }
+
+  .nav-links {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
   }
 
   .nav-toggle {

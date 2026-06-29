@@ -60,7 +60,10 @@
           text-anchor="middle"
         >{{ layer.label }}</text>
 
-        <!-- Synapses first so nodes render on top. -->
+        <!-- Synapses first so nodes render on top. Decorative: the parent <svg>
+             already exposes role="img" + aria-label, so the synapse lines are
+             hidden from AT (aria-label on SVG <line> without a role triggers
+             aria-prohibited-attr — #190). -->
         <line
           v-for="s in synapses"
           :key="s.id"
@@ -71,7 +74,7 @@
           :y1="s.geometry.y1"
           :x2="s.geometry.x2"
           :y2="s.geometry.y2"
-          :aria-label="t('neural.aria.synapseHighlighted', { count: highlightedCount })"
+          aria-hidden="true"
         />
 
         <!-- Inference pulse packets: a circle traveling along its path. The
@@ -141,7 +144,6 @@
         type="button"
         class="neural-run-button cyber-button neon-text"
         data-test="neural-run-inference"
-        :aria-label="t('neural.aria.runInferenceButton')"
         :disabled="inferenceState === 'running'"
         @click="runInference"
         @keydown="onButtonKeydown"
@@ -245,9 +247,6 @@ function isSynapseHighlighted(s) {
   if (!hoveredNodeId.value) return false
   return s.from === hoveredNodeId.value || s.to === hoveredNodeId.value
 }
-const highlightedCount = computed(
-  () => synapses.value.filter(isSynapseHighlighted).length,
-)
 
 // --- keyboard on nodes -----------------------------------------------------
 // Enter/Space on a node toggles its highlight (focus already does this via

@@ -160,14 +160,16 @@ describe('NeuralCore.vue (#179)', () => {
     mobile.unmount()
   })
 
-  it('renders the Run Inference button with a localized aria-label', async () => {
+  it('renders the Run Inference button with a localized accessible name', async () => {
     const w = await mountCore()
     const btn = w.find('[data-test="neural-run-inference"]')
     expect(btn.exists()).toBe(true)
-    const label = btn.attributes('aria-label')
-    expect(label).toBeTruthy()
-    // Not a raw i18n key.
-    expect(label).not.toContain('neural.')
+    // #190 label-content-name-mismatch: the aria-label was dropped so the
+    // visible text "Run Inference" IS the accessible name (no mismatch). The
+    // name must be the localized visible text, not a raw i18n key.
+    const text = btn.text()
+    expect(text).toBeTruthy()
+    expect(text).not.toContain('neural.')
   })
 
   // --- run inference -> readout -------------------------------------------
@@ -516,6 +518,80 @@ describe('NeuralCore.vue (#179)', () => {
       // The neural-core lives inside the home tree, not teleported to a sibling.
       expect(home.find('.home [data-test="neural-core"]').exists()).toBe(true)
       home.unmount()
+    })
+  })
+
+  // ==========================================================================
+  // #190 a11y: aria-prohibited-attr — SVG <line> cannot carry aria-label
+  // without a role. The parent <svg> already has role="img" + aria-label, so
+  // the synapse lines are decorative. Fix: remove :aria-label from each <line>
+  // and add aria-hidden="true"; delete the now-unused neural.aria.synapse-
+  // Highlighted key from BOTH locale catalogs (it was only used on the <line>).
+  // These tests FAIL on the old <line :aria-label=...> markup.
+  // ==========================================================================
+  describe('#190 a11y: synapse lines hidden, SVG labeled once', () => {
+    it('no <line class="neural-synapse"> carries an aria-label attribute', async () => {
+      await mountCore()
+      const lines = wrapper.findAll('line.neural-synapse')
+      expect(lines.length).toBeGreaterThan(0)
+      lines.forEach((ln) => {
+        expect(ln.attributes('aria-label')).toBeUndefined()
+      })
+    })
+
+    it('every <line class="neural-synapse"> has aria-hidden="true"', async () => {
+      await mountCore()
+      const lines = wrapper.findAll('line.neural-synapse')
+      expect(lines.length).toBeGreaterThan(0)
+      lines.forEach((ln) => {
+        expect(ln.attributes('aria-hidden')).toBe('true')
+      })
+    })
+
+    it('the parent <svg> still has role="img" + a non-empty aria-label (regression)', async () => {
+      await mountCore()
+      const svg = wrapper.find('svg.neural-svg')
+      expect(svg.exists()).toBe(true)
+      expect(svg.attributes('role')).toBe('img')
+      expect(svg.attributes('aria-label')).toBeTruthy()
+    })
+
+    it('every <line class="neural-synapse"> keeps data-test="neural-synapse" (test hook preserved)', async () => {
+      await mountCore()
+      const lines = wrapper.findAll('[data-test="neural-synapse"]')
+      expect(lines.length).toBeGreaterThan(0)
+      lines.forEach((ln) => {
+        expect(ln.element.tagName.toLowerCase()).toBe('line')
+      })
+    })
+
+    // #190 label-content-name-mismatch (run button): the Run Inference button
+    // had aria-label "Run neural inference" but visible text "Run Inference" —
+    // the visible text was NOT a substring of the accessible name. Fix: drop
+    // the aria-label so the visible text IS the name (no mismatch possible).
+    it('Run Inference button: visible text is the accessible name (aria-label dropped, no mismatch)', async () => {
+      await mountCore()
+      const btn = wrapper.find('[data-test="neural-run-inference"]')
+      expect(btn.exists()).toBe(true)
+      // No aria-label overriding the visible text.
+      expect(btn.attributes('aria-label')).toBeUndefined()
+      // The accessible name == visible text, which is the localized runInference
+      // copy (non-empty, not a raw key).
+      const text = btn.text()
+      expect(text).toBeTruthy()
+      expect(text).not.toContain('neural.')
+    })
+
+    // The neural.aria.synapseHighlighted key was ONLY used on the <line>; with
+    // the label removed it is dead. Assert it is gone from BOTH catalogs so the
+    // i18n parity invariant holds.
+    it('neural.aria.synapseHighlighted key is absent from BOTH en.json and zh.json (dead key removed)', () => {
+      const enPath = path.resolve(__dirname, '../../locales/en.json')
+      const zhPath = path.resolve(__dirname, '../../locales/zh.json')
+      const en = JSON.parse(fs.readFileSync(enPath, 'utf-8'))
+      const zh = JSON.parse(fs.readFileSync(zhPath, 'utf-8'))
+      expect(en.neural?.aria?.synapseHighlighted, 'en.json must not carry the dead key').toBeUndefined()
+      expect(zh.neural?.aria?.synapseHighlighted, 'zh.json must not carry the dead key').toBeUndefined()
     })
   })
 })

@@ -203,3 +203,86 @@ describe('PacketRoute.vue — component DOM', () => {
     w.unmount()
   })
 })
+
+// ============================================================================
+// #190 a11y: aria-required-children — grid must own row > gridcell structure.
+// Lighthouse flagged role="grid" directly containing <button> + endpoint divs
+// (grid role requires role="row" children wrapping role="gridcell" cells).
+// These tests assert the corrected ARIA pattern. They FAIL on the old flat
+// structure (no row wrappers) and PASS once rows + gridcells wrap every cell.
+// ============================================================================
+describe('#190 a11y: grid ARIA pattern (aria-required-children)', () => {
+  const mountRoute190 = () => mount(PacketRoute, { attachTo: document.body })
+
+  it('.packet-grid carries role="grid"', () => {
+    const w = mountRoute190()
+    try {
+      const grid = w.find('[data-test="packet-grid"]')
+      expect(grid.exists()).toBe(true)
+      expect(grid.attributes('role')).toBe('grid')
+    } finally {
+      w.unmount()
+    }
+  })
+
+  it('every direct child of .packet-grid has role="row" (no bare cell/button)', () => {
+    const w = mountRoute190()
+    try {
+      const grid = w.find('[data-test="packet-grid"]').element
+      // packet-orb (aria-hidden) may be a direct child but is decorative; we
+      // only assert ARIA-cell children are wrapped. Filter to element children
+      // that are NOT the decorative orb.
+      const children = Array.from(grid.children).filter((el) => {
+        return !el.classList.contains('packet-orb')
+      })
+      expect(children.length).toBeGreaterThan(0)
+      children.forEach((el) => {
+        expect(el.getAttribute('role')).toBe('row')
+      })
+    } finally {
+      w.unmount()
+    }
+  })
+
+  it('every <button class="packet-tile"> has a closest [role="gridcell"] ancestor', () => {
+    const w = mountRoute190()
+    try {
+      const tiles = w.findAll('button.packet-tile')
+      expect(tiles.length).toBeGreaterThan(0)
+      tiles.forEach((tile) => {
+        const cell = tile.element.closest('[role="gridcell"]')
+        expect(cell, 'tile must be wrapped in a role=gridcell').not.toBeNull()
+      })
+    } finally {
+      w.unmount()
+    }
+  })
+
+  it('no <button> is a direct child of [role="grid"] (flat button-in-grid regression)', () => {
+    const w = mountRoute190()
+    try {
+      const grid = w.find('[data-test="packet-grid"]').element
+      const directButtons = Array.from(grid.children).filter(
+        (el) => el.tagName.toLowerCase() === 'button',
+      )
+      expect(directButtons).toHaveLength(0)
+    } finally {
+      w.unmount()
+    }
+  })
+
+  it('every endpoint div (.packet-endpoint) is wrapped in role="gridcell"', () => {
+    const w = mountRoute190()
+    try {
+      const endpoints = w.findAll('.packet-endpoint')
+      // Level 1 has no endpoint, but at least verify the pattern holds for any
+      // endpoint present (advance to a level that has source/target if needed).
+      endpoints.forEach((ep) => {
+        const cell = ep.element.closest('[role="gridcell"]')
+        expect(cell, 'endpoint must be wrapped in a role=gridcell').not.toBeNull()
+      })
+    } finally {
+      w.unmount()
+    }
+  })
+})

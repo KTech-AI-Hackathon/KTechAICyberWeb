@@ -1,6 +1,7 @@
 {
   "theme": {
     "toggle": "切换主题",
+    "toggleWithState": "切换主题：{state}",
     "dark": "深色主题",
     "light": "浅色主题",
     "darkLabel": "深色",
@@ -87,7 +88,9 @@
     "contact": "联系",
     "dropdown": {
       "open": "打开菜单",
-      "close": "关闭菜单"
+      "close": "关闭菜单",
+      "openLabel": "打开{label}菜单",
+      "closeLabel": "关闭{label}菜单"
     },
     "aboutUs": "关于我们",
     "ourSolutions": "解决方案",
@@ -259,6 +262,7 @@
   },
   "language": {
     "switch": "切换语言",
+    "switchTo": "切换语言（当前：{lang}）",
     "en": "English",
     "zh": "中文"
   },
@@ -1550,8 +1554,6 @@
       "regionLabel": "KTech 神经核心神经网络可视化",
       "description": "一个可交互的神经网络。悬停或聚焦节点以查看其层级与功能。激活“运行推理”以观看数据包传播至解码决策。",
       "nodeLabel": "层级 {layer}，功能 {function}",
-      "synapseHighlighted": "{count} 条突触已高亮",
-      "runInferenceButton": "运行神经推理",
       "inferenceRunning": "推理传播中",
       "inferenceDone": "推理完成",
       "readout": "解码后的推理读数"
@@ -1815,12 +1817,12 @@
       "modeGroup": "可视化模式",
       "sensitivitySlider": "可视化灵敏度",
       "inputGroup": "音频输入源",
-      "liveLevel": "当前输出电平：{db} dB"
+      "liveLevel": "当前输出电平：{db} dB",
+      "bassLevel": "低音频率等级：{value} 百分比"
     }
   },
   "rum": {
     "toggle": {
-      "label": "切换性能监控（核心网页指标）",
       "enabled": "性能监控已开启",
       "disabled": "性能监控已关闭"
     },

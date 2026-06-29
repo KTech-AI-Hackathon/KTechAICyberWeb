@@ -44,14 +44,22 @@ const {
 const rows = computed(() => currentLevel.value.rows)
 const cols = computed(() => currentLevel.value.cols)
 
-/** Build the (r,c) iteration order for the CSS grid (row-major). */
-const cells = computed(() => {
+/**
+ * Build the (r,c) iteration order for the CSS grid (row-major), grouped into
+ * per-visual-row arrays. Each visual row becomes a role="row" wrapper holding
+ * one role="gridcell" per column — the ARIA grid pattern (aria-required-
+ * children, #190). The cells inside each row are addressed by (r,c) the same
+ * way the old flat list was.
+ */
+const rowsOfCells = computed(() => {
   const out = []
   for (let r = 0; r < rows.value; r++) {
+    const row = []
     for (let c = 0; c < cols.value; c++) {
       const cell = grid.value.get(`${r},${c}`) || { r, c, type: 'empty', rotation: 0 }
-      out.push(cell)
+      row.push(cell)
     }
+    out.push(row)
   }
   return out
 })
@@ -187,49 +195,63 @@ onBeforeUnmount(() => {
       :style="{ '--cols': cols, '--rows': rows }"
       @keydown="onKeydown"
     >
-      <template v-for="cell in cells" :key="`${cell.r},${cell.c}`">
-        <div
-          v-if="isSource(cell.r, cell.c) || isTarget(cell.r, cell.c)"
-          class="packet-cell packet-endpoint"
-          :class="isSource(cell.r, cell.c) ? 'is-source' : 'is-target'"
-          :data-test="isSource(cell.r, cell.c) ? 'packet-source' : 'packet-target'"
-        >
-          <span class="endpoint-label">
-            {{ isSource(cell.r, cell.c) ? t('packetRoute.tiles.source') : t('packetRoute.tiles.target') }}
-          </span>
-        </div>
-        <button
-          v-else
-          type="button"
-          class="packet-cell packet-tile"
-          :class="[
-            `tile-${cell.type}`,
-            `rot-${cell.rotation}`,
-            {
-              'is-cursor': cursor.r === cell.r && cursor.c === cell.c,
-              'is-hint': hintCell && hintCell.r === cell.r && hintCell.c === cell.c,
-              'is-firewall': cell.type === 'firewall',
-            },
-          ]"
-          :data-test="`packet-tile-${cell.r}-${cell.c}`"
-          :data-type="cell.type"
-          :aria-label="t('packetRoute.aria.tileLabel', {
-            type: t(tileLabelKey(cell.type)),
-            row: cell.r + 1,
-            column: cell.c + 1,
-            rotation: cell.rotation,
-          })"
-          @click="onCellClick(cell)"
-        >
-          <!-- Conduit shape: 4 directional segments, lit if open. -->
-          <span class="conduit conduit-n" :class="{ lit: openSides(cell).includes('N') }"></span>
-          <span class="conduit conduit-e" :class="{ lit: openSides(cell).includes('E') }"></span>
-          <span class="conduit conduit-s" :class="{ lit: openSides(cell).includes('S') }"></span>
-          <span class="conduit conduit-w" :class="{ lit: openSides(cell).includes('W') }"></span>
-          <span class="hub"></span>
-          <span v-if="cell.type === 'firewall'" class="firewall-mark" aria-hidden="true">▓</span>
-        </button>
-      </template>
+      <!-- ARIA grid pattern (#190 aria-required-children): each visual row is a
+           role="row" wrapper, and every cell (endpoint div + tile button) sits
+           inside its own role="gridcell". The old flat <button>-directly-in-grid
+           structure failed Lighthouse; this row>gridcell layering satisfies it
+           while preserving the responsive CSS grid layout. -->
+      <div
+        v-for="(row, rIdx) in rowsOfCells"
+        :key="`row-${rIdx}`"
+        class="packet-row"
+        role="row"
+      >
+        <template v-for="cell in row" :key="`${cell.r},${cell.c}`">
+          <div class="packet-gridcell" role="gridcell">
+            <div
+              v-if="isSource(cell.r, cell.c) || isTarget(cell.r, cell.c)"
+              class="packet-cell packet-endpoint"
+              :class="isSource(cell.r, cell.c) ? 'is-source' : 'is-target'"
+              :data-test="isSource(cell.r, cell.c) ? 'packet-source' : 'packet-target'"
+            >
+              <span class="endpoint-label">
+                {{ isSource(cell.r, cell.c) ? t('packetRoute.tiles.source') : t('packetRoute.tiles.target') }}
+              </span>
+            </div>
+            <button
+              v-else
+              type="button"
+              class="packet-cell packet-tile"
+              :class="[
+                `tile-${cell.type}`,
+                `rot-${cell.rotation}`,
+                {
+                  'is-cursor': cursor.r === cell.r && cursor.c === cell.c,
+                  'is-hint': hintCell && hintCell.r === cell.r && hintCell.c === cell.c,
+                  'is-firewall': cell.type === 'firewall',
+                },
+              ]"
+              :data-test="`packet-tile-${cell.r}-${cell.c}`"
+              :data-type="cell.type"
+              :aria-label="t('packetRoute.aria.tileLabel', {
+                type: t(tileLabelKey(cell.type)),
+                row: cell.r + 1,
+                column: cell.c + 1,
+                rotation: cell.rotation,
+              })"
+              @click="onCellClick(cell)"
+            >
+              <!-- Conduit shape: 4 directional segments, lit if open. -->
+              <span class="conduit conduit-n" :class="{ lit: openSides(cell).includes('N') }"></span>
+              <span class="conduit conduit-e" :class="{ lit: openSides(cell).includes('E') }"></span>
+              <span class="conduit conduit-s" :class="{ lit: openSides(cell).includes('S') }"></span>
+              <span class="conduit conduit-w" :class="{ lit: openSides(cell).includes('W') }"></span>
+              <span class="hub"></span>
+              <span v-if="cell.type === 'firewall'" class="firewall-mark" aria-hidden="true">▓</span>
+            </button>
+          </div>
+        </template>
+      </div>
 
       <!-- Packet orb (only during transmitting / won) -->
       <div
@@ -404,14 +426,15 @@ onBeforeUnmount(() => {
   letter-spacing: 0.08em;
 }
 
-/* Puzzle grid */
+/* Puzzle grid (#190): the grid container is now display:block stacking
+   role="row" children. Each .packet-row is itself a CSS grid that lays out its
+   role="gridcell" children across the columns. The container retains the
+   width / aspect-ratio / neon background / orb-positioning context so the
+   visual + responsive behavior is unchanged. */
 .packet-grid {
   position: relative;
   z-index: 1;
-  display: grid;
-  grid-template-columns: repeat(var(--cols), 1fr);
-  grid-template-rows: repeat(var(--rows), 1fr);
-  gap: 2px;
+  display: block;
   /* Grid scales to viewport via clamp — mobile responsive. */
   width: min(100%, clamp(240px, 60vw, 480px));
   aspect-ratio: var(--cols) / var(--rows);
@@ -422,6 +445,21 @@ onBeforeUnmount(() => {
     rgba(0, 0, 0, 0.5);
   border: 1px solid var(--neon-green);
   box-shadow: 0 0 12px var(--glow-color), inset 0 0 12px rgba(0, 0, 0, 0.6);
+}
+
+/* Each role="row" is one visual grid row. display:grid + flex:1 distributes
+   the container's height evenly across rows (the container's aspect-ratio
+   fixes the total height, and equal-flex rows carve it into --rows slices). */
+.packet-row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 1fr);
+  gap: 2px;
+  height: calc(100% / var(--rows));
+}
+
+.packet-gridcell {
+  position: relative;
+  min-height: 0;
 }
 
 .packet-grid:focus-visible {

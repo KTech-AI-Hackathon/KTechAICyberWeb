@@ -239,7 +239,14 @@ watch(status, (s) => {
     <!-- BASS meter — genuine consumer of bassNow (iter-10 dead-ref gate) -->
     <div class="pulse-bass-meter" data-test="pulse-bass-meter">
       <span class="pulse-bass-label">{{ t('pulse.notice.bassMeter') }}</span>
-      <span class="pulse-bass-track" role="meter" :aria-valuenow="bassPercent.toFixed(0)" aria-valuemin="0" aria-valuemax="100">
+      <span
+        class="pulse-bass-track"
+        role="meter"
+        :aria-valuenow="bassPercent.toFixed(0)"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        :aria-label="t('pulse.aria.bassLevel', { value: bassPercent.toFixed(0) })"
+      >
         <span class="pulse-bass-fill" data-test="pulse-bass-fill" :style="{ width: bassPercent + '%' }"></span>
       </span>
     </div>
