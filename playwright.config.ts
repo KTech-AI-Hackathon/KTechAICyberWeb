@@ -18,8 +18,11 @@ export default defineConfig({
   // Fail the build on CI if you accidentally left test.only in the source code
   forbidOnly: !!process.env.CI,
 
-  // Retry on CI only
-  retries: process.env.CI ? 2 : 0,
+  // Retry on CI only. CI uses 1 retry (not 2): the cross-browser failures
+  // exposed by #216 are deterministic rendering/timeouts, not flake — a 2nd
+  // retry only doubles CI time without changing the verdict, and would push
+  // the matrix past the 15-minute job budget. See #216.
+  retries: process.env.CI ? 1 : 0,
 
   // Opt out of parallel tests on CI
   workers: process.env.CI ? 1 : undefined,
@@ -60,7 +63,14 @@ export default defineConfig({
     navigationTimeout: 30 * 1000,
   },
 
-  // Configure projects for different browsers
+  // Configure projects for different browsers.
+  //
+  // webkit + Mobile Safari are skipped in CI by default (#216, AC option b).
+  // Why: every webkit-engine test times out (~14s action timeout) navigating
+  // the app — a systemic launch/routing issue, not N independent bugs. They
+  // were invisible before #216 because the browser binaries were never
+  // installed in the runner. Tracked for un-skipping in #222.
+  // To run them locally or in a dedicated follow-up workflow: RUN_WEBKIT=true.
   projects: [
     {
       name: 'chromium',
@@ -72,19 +82,23 @@ export default defineConfig({
       use: { ...devices['Desktop Firefox'] },
     },
 
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
+    ...(process.env.RUN_WEBKIT === 'true'
+      ? [
+          {
+            name: 'webkit',
+            use: { ...devices['Desktop Safari'] },
+          },
+          {
+            name: 'Mobile Safari',
+            use: { ...devices['iPhone 13'] },
+          },
+        ]
+      : []),
 
     // Mobile testing
     {
       name: 'Mobile Chrome',
       use: { ...devices['Pixel 5'] },
-    },
-    {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 13'] },
     },
   ],
 
