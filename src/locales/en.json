@@ -1801,7 +1801,11 @@
       "micDenied": "Microphone access denied — falling back to synth.",
       "micPrompting": "Requesting microphone access…",
       "reducedMotion": "Reduced motion: visual effects are disabled.",
-      "iosAudio": "Note: on iOS, audio may require the device ringer to be unmuted before engaging."
+      "iosAudio": "Note: on iOS, audio may require the device ringer to be unmuted before engaging.",
+      "bassMeter": "BASS",
+      "pausedOffscreen": "Paused — offscreen",
+      "mobileMode": "Mobile mode (reduced particles)",
+      "micLive": "Mic live"
     },
     "aria": {
       "regionLabel": "Neon Pulse audio-reactive visualizer",

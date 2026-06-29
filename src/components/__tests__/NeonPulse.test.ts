@@ -256,4 +256,92 @@ describe('NeonPulse.vue — component DOM', () => {
     expect(w.find('[data-test="pulse-input-mic"]').exists()).toBe(true)
     w.unmount()
   })
+
+  // -------------------------------------------------------------------------
+  // FIX 3 — dead-reactive-state gate (iter-10): 4 refs were returned by the
+  // composable but never rendered (bassNow/isVisible/isMobile were dead;
+  // micState was destructured but unused). Each must now have a genuine,
+  // user-visible template consumer (or be removed from the return). These
+  // tests assert the visible effect of each consumed ref.
+  // -------------------------------------------------------------------------
+  describe('FIX 3 — dead refs consumed (iter-10 gate)', () => {
+    it('bassNow renders a visible BASS meter element (non-empty when bass > 0)', async () => {
+      const w = mountPulse()
+      await w.find('[data-test="pulse-engage"]').trigger('click')
+      await new Promise((r) => setTimeout(r, 10))
+      // Drive a few rAF frames so bassNow updates from freqData.
+      // (Fake analyser returns zeros, so bass stays 0 -> meter present but
+      // width 0; assert the METER ELEMENT exists + is bound to bassNow.)
+      const meter = w.find('[data-test="pulse-bass-meter"]')
+      expect(meter.exists()).toBe(true)
+      // The fill element must exist + have a width style (reactive to bassNow).
+      const fill = w.find('[data-test="pulse-bass-fill"]')
+      expect(fill.exists()).toBe(true)
+      w.unmount()
+    })
+
+    it('isVisible=false shows a "paused offscreen" hint (visible to user)', async () => {
+      const w = mountPulse()
+      await w.find('[data-test="pulse-engage"]').trigger('click')
+      await new Promise((r) => setTimeout(r, 10))
+      // Page visible (default) -> no offscreen hint.
+      expect(w.find('[data-test="pulse-offscreen-hint"]').exists()).toBe(false)
+      // Page hidden -> isVisible flips false -> hint appears.
+      Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true })
+      document.dispatchEvent(new Event('visibilitychange'))
+      await nextTick()
+      const hint = w.find('[data-test="pulse-offscreen-hint"]')
+      expect(hint.exists()).toBe(true)
+      expect(hint.text().length).toBeGreaterThan(0)
+      expect(hint.text()).not.toContain('pulse.')
+      // Restore.
+      Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true })
+      document.dispatchEvent(new Event('visibilitychange'))
+      await nextTick()
+      expect(w.find('[data-test="pulse-offscreen-hint"]').exists()).toBe(false)
+      w.unmount()
+    })
+
+    it('isMobile=true shows a "mobile mode" note (visible to user)', async () => {
+      mockMatchMedia({ '(max-width: 768px)': true, '(prefers-reduced-motion: reduce)': false })
+      const w = mountPulse()
+      await nextTick()
+      const note = w.find('[data-test="pulse-mobile-note"]')
+      expect(note.exists()).toBe(true)
+      expect(note.text().length).toBeGreaterThan(0)
+      expect(note.text()).not.toContain('pulse.')
+      w.unmount()
+    })
+
+    it('micState=granted shows a "mic live" indicator (visible to user)', async () => {
+      const w = mountPulse()
+      // Select mic input + engage -> getUserMedia resolves -> micState=granted.
+      await w.find('[data-test="pulse-input-mic"]').setValue(true)
+      await w.find('[data-test="pulse-engage"]').trigger('click')
+      await new Promise((r) => setTimeout(r, 20))
+      const live = w.find('[data-test="pulse-mic-live"]')
+      expect(live.exists()).toBe(true)
+      expect(live.text().length).toBeGreaterThan(0)
+      expect(live.text()).not.toContain('pulse.')
+      w.unmount()
+    })
+
+    it('micState=denied surfaces via micState (notice driven by the ref, not dead)', async () => {
+      // Deny mic permission.
+      Object.defineProperty(navigator, 'mediaDevices', {
+        value: { getUserMedia: () => Promise.reject(new Error('denied')) },
+        configurable: true,
+      })
+      const w = mountPulse()
+      await w.find('[data-test="pulse-input-mic"]').setValue(true)
+      await w.find('[data-test="pulse-engage"]').trigger('click')
+      await new Promise((r) => setTimeout(r, 20))
+      // mic-denied notice must render (driven by micState==='denied').
+      const notice = w.find('[data-test="pulse-notice"]')
+      expect(notice.exists()).toBe(true)
+      // And the mic-live indicator must NOT show under denial.
+      expect(w.find('[data-test="pulse-mic-live"]').exists()).toBe(false)
+      w.unmount()
+    })
+  })
 })

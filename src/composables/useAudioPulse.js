@@ -918,7 +918,21 @@ export function useAudioPulse() {
   })
 
   return {
-    // state (every ref has a template consumer in NeonPulse.vue)
+    // state — every ref here has a genuine template consumer in NeonPulse.vue
+    //   (iter-10 dead-reactive-state gate). Verified consumers:
+    //   status        -> status copy + Stop-button visibility + isPlaying gate
+    //   inputSource   -> synth/mic radio checked state
+    //   mode          -> mode radio checked state
+    //   sensitivity   -> slider value (drives draw reactivity, AC 1c)
+    //   prefersReducedMotion -> low-motion class + reduced-motion note
+    //   isMobile      -> "mobile mode" note (data-test=pulse-mobile-note)
+    //   isVisible     -> "paused offscreen" hint (data-test=pulse-offscreen-hint)
+    //   micState      -> mic-live indicator + drives the denied notice
+    //   notice        -> prompting / iOS / denied notice copy
+    //   level         -> dB readout + ARIA live region
+    //   bassNow       -> BASS meter (data-test=pulse-bass-meter)
+    //   flash         -> beat-flash overlay (.pulse-flash.lit)
+    //   particles     -> transient burst (drawn on the canvas, AC 1d)
     status: readonly(status),
     inputSource,
     mode,

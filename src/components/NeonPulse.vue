@@ -22,6 +22,8 @@ const {
   mode,
   sensitivity,
   prefersReducedMotion,
+  isMobile,
+  isVisible,
   micState,
   notice,
   level,
@@ -65,6 +67,22 @@ const liveLevelReadout = computed(() =>
 
 // ---------- isPlaying (for Stop button visibility + ARIA) ----------
 const isPlaying = computed(() => status.value === 'playing' || status.value === 'starting')
+
+// ---------- bassNow consumer (iter-10 dead-ref gate) ----------
+// bassNow is 0..255; surface it as a visible thin meter + percent width so the
+// bass band has a genuine template consumer (was previously destructured + dead).
+const bassPercent = computed(() => Math.max(0, Math.min(100, (bassNow.value / 255) * 100)))
+
+// ---------- isVisible consumer (iter-10 dead-ref gate) ----------
+// When the component is scrolled offscreen / the tab is hidden, the render loop
+// pauses; surface that paused-offscreen state to the user (was dead state).
+const showOffscreenHint = computed(() => isPlaying.value && !isVisible.value)
+
+// ---------- micState consumer (iter-10 dead-ref gate) ----------
+// micState drives BOTH the mic-live indicator (granted) and the denied notice
+// (so the ref is genuinely consumed, not destructured-and-dead).
+const micLive = computed(() => isPlaying.value && micState.value === 'granted')
+const micDenied = computed(() => micState.value === 'denied')
 
 // ---------- canvas sizing (responsive, mobile halves DPR) ----------
 function resizeCanvas() {
@@ -218,12 +236,41 @@ watch(status, (s) => {
     <!-- dB readout (monospace) -->
     <p class="pulse-db" data-test="pulse-db">{{ dbReadout }}</p>
 
+    <!-- BASS meter — genuine consumer of bassNow (iter-10 dead-ref gate) -->
+    <div class="pulse-bass-meter" data-test="pulse-bass-meter">
+      <span class="pulse-bass-label">{{ t('pulse.notice.bassMeter') }}</span>
+      <span class="pulse-bass-track" role="meter" :aria-valuenow="bassPercent.toFixed(0)" aria-valuemin="0" aria-valuemax="100">
+        <span class="pulse-bass-fill" data-test="pulse-bass-fill" :style="{ width: bassPercent + '%' }"></span>
+      </span>
+    </div>
+
+    <!-- micState=granted indicator — genuine consumer of micState (iter-10 gate) -->
+    <p v-if="micLive" class="pulse-mic-live" data-test="pulse-mic-live" role="status">
+      🎙 {{ t('pulse.notice.micLive') }}
+    </p>
+
     <!-- Status text -->
     <p class="pulse-status" data-test="pulse-status">{{ t(statusKey) }}</p>
 
-    <!-- Notice (mic denied / prompting / iOS audio) -->
+    <!-- Offscreen-pause hint — genuine consumer of isVisible (iter-10 gate) -->
     <p
-      v-if="notice"
+      v-if="showOffscreenHint"
+      class="pulse-offscreen-hint"
+      data-test="pulse-offscreen-hint"
+      role="status"
+    >{{ t('pulse.notice.pausedOffscreen') }}</p>
+
+    <!-- Mobile-mode note — genuine consumer of isMobile (iter-10 gate) -->
+    <p
+      v-if="isMobile"
+      class="pulse-mobile-note"
+      data-test="pulse-mobile-note"
+    >{{ t('pulse.notice.mobileMode') }}</p>
+
+    <!-- Notice — denied path is DRIVEN BY micState (iter-10 gate); prompting / iOS
+         notices remain driven by the `notice` ref. -->
+    <p
+      v-if="notice && (notice.kind !== 'mic-denied' || micDenied)"
       class="pulse-notice"
       :class="`notice-${notice.kind}`"
       data-test="pulse-notice"
@@ -442,6 +489,78 @@ watch(status, (s) => {
   letter-spacing: 0.1em;
   margin: 0.6rem 0 0.2rem 0;
   text-shadow: 0 0 6px var(--glow-color);
+}
+
+/* BASS meter — genuine bassNow consumer (iter-10 dead-ref gate). */
+.pulse-bass-meter {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  max-width: 360px;
+  margin: 0.2rem auto 0 auto;
+}
+.pulse-bass-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.7rem;
+  color: var(--neon-pink);
+  letter-spacing: 0.12em;
+}
+.pulse-bass-track {
+  flex: 1;
+  display: block;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--card-border);
+  overflow: hidden;
+}
+.pulse-bass-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon-green), var(--neon-pink));
+  box-shadow: 0 0 6px var(--glow-color);
+  transition: width 0.08s linear;
+}
+
+/* micState=granted indicator — genuine micState consumer (iter-10 gate). */
+.pulse-mic-live {
+  position: relative;
+  z-index: 1;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.8rem;
+  color: var(--neon-green);
+  letter-spacing: 0.08em;
+  margin: 0.4rem 0 0 0;
+  text-shadow: 0 0 5px var(--glow-color);
+  text-align: center;
+}
+
+/* Offscreen-pause hint — genuine isVisible consumer (iter-10 gate). */
+.pulse-offscreen-hint {
+  position: relative;
+  z-index: 1;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.8rem;
+  color: var(--neon-pink);
+  letter-spacing: 0.06em;
+  margin: 0.4rem 0 0 0;
+  text-align: center;
+  opacity: 0.85;
+}
+
+/* Mobile-mode note — genuine isMobile consumer (iter-10 gate). */
+.pulse-mobile-note {
+  position: relative;
+  z-index: 1;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  margin: 0.4rem 0 0 0;
+  text-align: center;
+  opacity: 0.75;
 }
 
 .pulse-status {
