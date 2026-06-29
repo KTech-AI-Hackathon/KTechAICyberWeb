@@ -201,7 +201,18 @@
     "pr_url": "https://github.com/jasonhou007/KTechAICyberWeb/pull/218",
     "merge_sha": "41d9402",
     "merge_method": "--merge (NOT squash; 10 commits preserved on main)",
-    "commits": ["dbc7a30","bfce162","1960ec1","519ff75","96e2bf7","26f944a","feff024","8e1e26a","4c3561f","1de72fd"],
+    "commits": [
+      "dbc7a30",
+      "bfce162",
+      "1960ec1",
+      "519ff75",
+      "96e2bf7",
+      "26f944a",
+      "feff024",
+      "8e1e26a",
+      "4c3561f",
+      "1de72fd"
+    ],
     "security": "APPROVED: 0 Critical, 0 High, 2 Low, 2 Info (all optional hardenings; PII-stripping verified clean + tested; endpoint env-only no SSRF; XSS-free; WCAG-AA)",
     "evaluator_verdict": "EXCELLENT (GO, no must-fix): 2433 vitest pass; coverage stmt 94.83%/branch 85.97%/line 96.46%; 4/4 E2E chromium; i18n 1084/1084; wired-gate all 3 mechanics verified; dead-reactive-state gate passed (latest wired in review commit 4c3561f)",
     "honest_results": {
@@ -221,5 +232,32 @@
     "phase_5b": "#187 body has no markdown checkboxes (prose deferred-scope description) — nothing to flip; AC mapping lives in PR #218 body ([x]/[~] table with #217 citation).",
     "deferred_followup": "#217 (CWV: remote RUM aggregation dashboard + analytics endpoint) — OPEN in Backlog.",
     "notes": "M-sized feature, TDD red->green, 2 review commits. Privacy-first RUM: opt-in default-inert, endpoint-agnostic (null=no-op), metrics-only payload with tested PII stripping. web-vitals@^5.3.0 dynamic-imported to its own async chunk (perf tool measuring perf must not regress perf). Local dashboard = WCAG-AA in-page viewer; remote dashboard deferred (#217)."
+  },
+  "188": {
+    "title": "CWV: remove unused CSS / purge",
+    "status": "InProgress",
+    "stage": "planning",
+    "iteration": 25,
+    "github_state": "OPEN",
+    "baseline": "origin/main @ c672d06",
+    "branch": "autodev-188-purge-css",
+    "started_at": "2026-06-29",
+    "board_card": "PVTI_lAHOB5DQUc4BboAJzgxDPzM -> In progress (47fc9ee4)",
+    "closes_acs_of": 18,
+    "baseline_css": {
+      "entry_chunk_raw_kb": 75.37,
+      "entry_chunk_gzip_kb": 12.87,
+      "entry_chunk_file": "index-DsMlIg11.css",
+      "total_route_css_raw_kb": 190.82,
+      "note": "75.37 kB entry index.css + ~120 kB across 18 lazy route chunks"
+    },
+    "source_css": {
+      "accessibility.css": "7233 chars / 323 lines",
+      "variables.css": "1068 chars / 47 lines",
+      "main.css": "2541 chars / 128 lines",
+      "cyber.css": "3058 chars / 120 lines",
+      "scoped_vue_styles": "57 .vue files with <style> blocks"
+    },
+    "notes": "Scanner single-flight: #188 sole Ready item, 0 open In-progress, board locked. #216/#217 already in Backlog. Baseline CSS measured."
   }
 }
