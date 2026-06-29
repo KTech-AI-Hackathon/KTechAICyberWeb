@@ -167,7 +167,35 @@ describe('LazySection.vue', () => {
     expect(obs.instances[0].opts.threshold).toBe(0.25)
   })
 
-  it('reserves placeholder height on the wrapper to avoid CLS before mount', async () => {
+  it('mounts the slot when focus enters the wrapper (keyboard/AT path, WCAG 2.1.1)', async () => {
+    // A keyboard-only user Tabbing into a below-the-fold lazy section, or an AT
+    // virtual cursor landing focus inside it, must trigger the mount even when
+    // the viewport never intersects the sentinel. focusin bubbles, so a single
+    // listener on the wrapper covers focus moving to any slotted descendant.
+    const obs = makeObserverMock()
+    global.IntersectionObserver = obs.MockObserver
+    window.IntersectionObserver = obs.MockObserver
+
+    const w = mount(LazySection, {
+      props: { dataTest: 'lazy-focus' },
+      slots: { default: '<button class="focus-target">focus me</button>' },
+    })
+    await flushPromises()
+    // Before any focus event: slot is NOT mounted (intersection never fired).
+    expect(w.find('.focus-target').exists()).toBe(false)
+
+    // Keyboard focus lands on the slotted button (or its wrapper). focusin
+    // bubbles up to the wrapper listener and must flip isVisible -> true.
+    const wrapper = w.find('[data-test="lazy-focus"]')
+    wrapper.trigger('focusin')
+    await flushPromises()
+    await nextTick()
+
+    expect(w.find('.focus-target').exists()).toBe(true)
+    expect(w.text()).toContain('focus me')
+  })
+
+  it('forwards the dataTest attribute to its wrapper element', async () => {
     // CLS guard (iter-16 perf): the wrapper must hold vertical space so the page
     // does not jump when the lazy module mounts. We assert via a non-empty
     // min-height style hook on the wrapper element class.

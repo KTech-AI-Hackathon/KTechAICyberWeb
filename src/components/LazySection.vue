@@ -20,12 +20,25 @@ const props = defineProps({
 
 // ========== STATE ==========
 // Sentinel <div ref> observed by the composable. The slot renders only after
-// the sentinel first intersects the viewport (isVisible -> true).
+// the sentinel first intersects the viewport (isVisible -> true), OR after
+// focus enters the wrapper (keyboard/AT path — see mountSlot below).
 const sentinel = ref(null)
-const { isVisible, observe } = useIntersectionObserver({
+// wrapper: the <component :is="tag"> root. Used to attach the focusin listener
+// that backs the keyboard/AT mount path (WCAG 2.1.1).
+const wrapper = ref(null)
+const { isVisible, observe, unobserve } = useIntersectionObserver({
   rootMargin: props.rootMargin,
   threshold: props.threshold,
 })
+
+// ========== METHODS ==========
+// Mount the slot and stop observing. Shared by the intersection callback and
+// the focusin handler so both paths converge on the same "mount once" outcome.
+const mountSlot = () => {
+  if (isVisible.value) return
+  isVisible.value = true
+  unobserve()
+}
 
 // ========== LIFECYCLE ==========
 onMounted(() => {
@@ -35,12 +48,21 @@ onMounted(() => {
   if (sentinel.value) {
     observe(sentinel.value)
   }
+  // WCAG 2.1.1 (keyboard): a keyboard-only user Tabbing into a below-the-fold
+  // lazy section — or an AT virtual cursor landing focus inside it — must cause
+  // the slot to mount even when the viewport never intersects the sentinel.
+  // focusin bubbles, so one listener on the wrapper covers focus moving to any
+  // slotted descendant. Idempotent with the intersection path via mountSlot().
+  if (wrapper.value) {
+    wrapper.value.addEventListener('focusin', mountSlot)
+  }
 })
 </script>
 
 <template>
   <component
     :is="tag"
+    ref="wrapper"
     class="lazy-section"
     :data-test="dataTest || undefined"
   >
