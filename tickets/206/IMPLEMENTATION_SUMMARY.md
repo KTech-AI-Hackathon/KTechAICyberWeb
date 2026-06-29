@@ -88,18 +88,18 @@ src/views/Home.vue:91:        <SettlementStream data-test="settlement-stream" />
 ```
 Hits the rendered view (Home.vue), not just tests.
 
-### Bundle (perf, iter-16/31)
-- SettlementStream chunk: **7398 B raw / 3014 B gzip** (lazy-split, NOT in entry).
-- Entry chunk (index): 155153 B raw / 56186 B gzip (stream NOT in it — lazy).
-- Vendor chunk: 107509 B raw / 41837 B gzip.
-- Total JS: 480958 B raw / 156416 B gzip.
+### Bundle (perf, iter-16/31 — bytes re-derived via `stat -f %z` + `gzip -c | wc -c`)
+- SettlementStream chunk: **7398 B raw / 3044 B gzip** (lazy-split, NOT in entry).
+- Entry chunk (index): **155153 B raw / 56208 B gzip** (baseline was 154169/55828 → +984 B raw / +380 B gzip, the async-component stub).
+- Total JS: **480958 B raw / 166851 B gzip** (baseline 472576/163421 → +8382 B raw / +3430 B gzip for the new ambient layer).
 
-### Lighthouse desktop (formFactor verified — iter-16)
+### Lighthouse desktop (formFactor verified — iter-16; JSON artifact saved)
+Artifacts: `tickets/206/evidence/lighthouse-desktop-206.report.json` (+ `.html`).
 ```
-Accessibility: 96/100   (≥90 gate met)
-Performance:   54/100   (baseline for this heavy page; stream is a lazy 3KB chunk)
-configSettings.formFactor: desktop
-configSettings.screenEmulation.mobile: False
+Accessibility: 96/100   (≥90 gate met)   [.categories.accessibility.score = 0.96]
+Performance:   85/100                     [.categories.performance.score = 0.85]
+configSettings.formFactor: desktop        [iter-16 device-class honesty gate]
+configSettings.screenEmulation.mobile: false, width: 1350
 ```
 The single color-contrast failure is a pre-existing Contact nav link
 (`data-v-c970699f`, the Footer scoped hash) — NOT from the stream. The stream
@@ -118,6 +118,7 @@ introduces ZERO new a11y failures (`aria-hidden-focus: score=1`,
 - `tickets/206/evidence/before-stream.png` — Home before stream mounts.
 - `tickets/206/evidence/after-stream.png` — stream scrolled into view (rails + readouts visible).
 - `tickets/206/evidence/reduced-motion-stream.png` — reduced-motion static summary.
+- `tickets/206/evidence/lighthouse-desktop-206.report.json` (+ `.html`) — saved Lighthouse desktop run (a11y 96, perf 85, formFactor=desktop).
 
 ## Commits
 - `121df89` #206 Add useSettlementStream composable + unit tests (TDD)
