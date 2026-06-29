@@ -18,13 +18,23 @@
       <span class="nav-toggle-bar" aria-hidden="true"></span>
     </button>
 
-    <ul class="nav-links"
-        :class="{ 'mobile-open': mobileOpen }"
-        ref="panelRef"
-        role="dialog"
-        aria-modal="true"
-        :aria-label="t('nav.menu.label')"
-        @keydown="onPanelKeydown">
+    <!-- #190: role="dialog" moved OFF the <ul> onto this wrapper. Keeping the
+         dialog role on the <ul> triggered aria-allowed-role (dialog not allowed
+         on ul) AND listitem (the dialog role overrode the ul's implicit list
+         role, so child <li> lost their list parent). The wrapper owns the
+         dialog semantics; the <ul> keeps native list semantics; the focusables
+         still live inside the wrapper so the focus trap (panelRef now points
+         here) still works. -->
+    <div
+      class="nav-mobile-dialog"
+      :class="{ 'mobile-open': mobileOpen }"
+      ref="panelRef"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="t('nav.menu.label')"
+      @keydown="onPanelKeydown"
+    >
+      <ul class="nav-links">
       <li>
         <router-link to="/" @click="closeMobile">{{ t('nav.home') }}</router-link>
       </li>
@@ -47,6 +57,7 @@
         <router-link to="/contact" @click="closeMobile">{{ t('nav.contact') }}</router-link>
       </li>
     </ul>
+    </div>
 
     <!-- Optional toolbar slot: App.vue injects the language + theme toggles
          here so they live on the right edge of the nav (always visible,
@@ -277,6 +288,14 @@ onUnmounted(() => {
   padding: 0;
 }
 
+/* #190: the dialog wrapper is layout-invisible on desktop (display:contents)
+   so the <ul> participates in the nav's flex row exactly as before. On mobile
+   the media query below repurposes this wrapper as the positioned slide-in
+   panel (the off-canvas transform + background move here from .nav-links). */
+.nav-mobile-dialog {
+  display: contents;
+}
+
 .nav-links a {
   color: var(--text-secondary);
   text-decoration: none;
@@ -360,15 +379,14 @@ onUnmounted(() => {
     padding-right: 1rem;
   }
 
-  /* Off-canvas nav: replaced the previous display:none with a slide-in panel. */
-  .nav-links {
+  /* Off-canvas nav (#190): the slide-in panel is now the .nav-mobile-dialog
+     wrapper (which owns role=dialog). It carries the absolute positioning +
+     transform + background; the <ul> inside keeps a plain column layout. */
+  .nav-mobile-dialog {
     position: absolute;
     top: 100%;
     right: 0;
     left: 0;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
     padding: 1.5rem;
     background: rgba(10, 15, 28, 0.98);
     border-bottom: 1px solid rgba(0, 255, 204, 0.2);
@@ -377,8 +395,14 @@ onUnmounted(() => {
     backdrop-filter: blur(20px);
   }
 
-  .nav-links.mobile-open {
+  .nav-mobile-dialog.mobile-open {
     transform: translateX(0);
+  }
+
+  .nav-links {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
   }
 
   .nav-toggle {
