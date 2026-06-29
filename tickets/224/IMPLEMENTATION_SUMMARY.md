@@ -62,12 +62,17 @@ The 17 failures were all the right ones:
   failed; "Our Business" rebrand + China-ASEAN mission copy failed (old copy
   still rendered); KBank/Shenzhen hero assertions removed.
 
-**Final GREEN run** (`vitest run --coverage`, after all 5 commits):
+**Final GREEN run** (`vitest run --coverage`, after all 5 commits + F1 leak fix):
 
 ```
 Test Files  87 passed (87)
-     Tests  2412 passed (2412)
+     Tests  2416 passed (2416)
 ```
+
+> Test count reconciled (evaluator F2): the original summary cited an earlier
+> (pre-security/blast-radius) count, but the actual `vitest run` after those
+> test additions was 2415; the F1 focusin-leak fix (commit on 2026-06-30) added
+> 1 more unit test, landing the canonical final count at 2416.
 
 ## Gates (all machine-derived)
 
@@ -75,7 +80,7 @@ Test Files  87 passed (87)
 
 ```
 Test Files  87 passed (87)
-     Tests  2412 passed (2412)
+     Tests  2416 passed (2416)
 Coverage: Statements 95.56% | Branches 85.29% | Functions 95.98% | Lines 96.91%
 ```
 
@@ -94,9 +99,9 @@ npm run build → ✓ built in 1.18s
 
 | Metric | Baseline (origin/main) | After #224 | Delta |
 | --- | --- | --- | --- |
-| Entry chunk (build-tool reported) | 187.94 kB / gzip 74.01 kB | 128.42 kB / gzip 55.73 kB | **-59.52 kB raw / -18.28 kB gzip (-31.7% / -24.7%)** |
-| Entry chunk (disk bytes) | — | 153896 bytes (150.29 kB) / gzip 55.73 kB | — |
-| Total JS across all chunks | 456.9 kB | 461.2 kB (472303 bytes, 29 chunks) | +4.3 kB (expected per-chunk overhead) |
+| Entry chunk (build-tool reported) | 187.94 kB / gzip 74.01 kB | 128.62 kB / gzip 55.80 kB | **-59.32 kB raw / -18.21 kB gzip (-31.6% / -24.6%)** |
+| Entry chunk (disk bytes) | — | 154091 bytes (150.48 kB) / gzip 55745 bytes (54.44 kB) | — |
+| Total JS across all chunks | 456.9 kB | 461.4 kB (472498 bytes, 29 chunks) | +4.5 kB (expected per-chunk overhead) |
 
 The 5 newly-split lazy chunks sum to 60.6 kB (NeuralCore 9.67 + SolutionForge
 9.72 + NeuralTerminal 10.65 + NeonPulse 13.19 + CyberOpsHud 17.37) — matches

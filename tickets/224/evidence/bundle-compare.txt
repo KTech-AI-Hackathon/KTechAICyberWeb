@@ -5,13 +5,24 @@ Measured 2026-06-30 via `npm run build` (vite). All numbers MACHINE-DERIVED.
 ## Entry chunk (the headline CWV win — what the browser fetches on first paint)
 
   BASELINE (origin/main @ 8375ae2, pre-#224):  index-DhAnvNxk.js  187.94 kB (gzip 74.01 kB)  [build-tool reported]
-  AFTER #224 lazy-mount:                         index-Dyu8zNOx.js  128.82 kB (gzip 55.98 kB)  [build-tool reported]
+  AFTER #224 lazy-mount:                         index-P1vOkIwv.js  128.62 kB (gzip 55.80 kB)  [build-tool reported]
 
   Disk-measured (reproducible via os.path.getsize + gzip):
-    index-Dyu8zNOx.js  raw 154450 bytes (150.83 kB)  gzip 55936 bytes (54.62 kB)
+    index-P1vOkIwv.js  raw 154091 bytes (150.48 kB)  gzip 55745 bytes (54.44 kB)
 
-  Entry-chunk raw drop (build-tool framing): 187.94 -> 128.82 = -59.12 kB (-31.5%)
-  Entry-chunk gzip drop (build-tool framing): 74.01 -> 55.98 = -18.03 kB (-24.4%)
+  Entry-chunk raw drop (build-tool framing): 187.94 -> 128.62 = -59.32 kB (-31.6%)
+  Entry-chunk gzip drop (build-tool framing): 74.01 -> 55.80 = -18.21 kB (-24.6%)
+
+  NOTE (evaluator F3 reconciliation, iter-25 bookkeeping): the build-tool
+  reported entry-chunk size varies ±0.4 kB build-to-build due to content-hash
+  minification ordering (the asset hash itself also changes each build:
+  index-Dyu8zNOx.js, index-<other>.js, index-P1vOkIwv.js across three captures).
+  The canonical value cited everywhere in #224 docs is 128.62 kB raw / 55.80 kB
+  gzip (re-derived from a fresh `npm run build` on 2026-06-30). Direction and
+  magnitude are stable across builds: -31.6% raw / -24.6% gzip (the -59.x raw /
+  -18.x gzip delta holds within ±0.4 kB). Earlier captures showed 128.82 kB /
+  128.42 kB for the same source — that drift is the source of the prior
+  cross-doc mismatch, now reconciled to this single canonical number.
 
   The 5 heavy modules that previously baked into the entry chunk now ship as
   their own lazy chunks, fetched only when the user scrolls to them.
@@ -19,7 +30,7 @@ Measured 2026-06-30 via `npm run build` (vite). All numbers MACHINE-DERIVED.
 ## Total JS across all chunks (dist/assets/*.js)
 
   BASELINE: 456.9 kB  (5 modules baked into index)
-  AFTER:    461.8 kB  (472857 bytes, machine-derived via sum of os.path.getsize)
+  AFTER:    461.4 kB  (472498 bytes, machine-derived via sum of os.path.getsize, 29 chunks)
 
   Total is HIGHER by ~5 kB because each split chunk carries a small module-
   evaluation overhead. This is the expected and correct tradeoff: total bytes

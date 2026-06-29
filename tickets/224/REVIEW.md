@@ -12,12 +12,12 @@
 | Home is smooth — Lighthouse Performance improves measurably; ~60fps scroll; reduced CLS/jank. | ✅ | Lighthouse Perf 98 → **99**; LCP 0.75s → 0.4s; SI 0.9s → 0.5s; CLS 0.073 (unchanged). Below-the-fold rAF loops deferred (lazy-mount). |
 | en + zh locale keys for all new copy; no raw keys rendered. | ✅ | en == zh == 1037 keys (parity OK). E2E + `no-raw-i18n-placeholders.spec.js` GREEN. |
 | Responsive (mobile + desktop); accessible; `prefers-reduced-motion` respected. | ✅ | E2E `prefers-reduced-motion: reduce` test: page calm (no glitch pseudos), modules still lazy-mount. Responsive CSS unchanged (768px media query kept). |
-| Build green; tests updated. | ✅ | `npm run build` ✓; vitest 87 files / 2412 tests GREEN. |
+| Build green; tests updated. | ✅ | `npm run build` ✓; vitest 87 files / 2416 tests GREEN. |
 
 ## Hard gates (codified iters)
 
 - **TDD** ✅ — tests written and RED (17 fail) before implementation; GREEN
-  after (2412 pass). RED-then-GREEN proof captured.
+  after (2416 pass). RED-then-GREEN proof captured.
 - **Shipped-app + Wired-not-just-tested (iter 23)** ✅ — the Our Business
   heading + mission line + lazy modules render in the LIVE app (E2E on the
   running preview, 9/9 GREEN). Grep-verified: `defineAsyncComponent` +
@@ -51,9 +51,9 @@
    *improve*. The glitch removal is an a11y *correctness* win (seizure-safety)
    even though the numeric score did not move up.
 
-2. **Total JS across all chunks rose ~4.3 kB** (456.9 → 461.2 kB). This is the
+2. **Total JS across all chunks rose ~4.5 kB** (456.9 → 461.4 kB). This is the
    expected per-chunk overhead of code-splitting 5 modules; the tradeoff is
-   first-paint bytes down ~18 kB gzip and deferred runtime cost. Honest
+   first-paint bytes down ~18.2 kB gzip and deferred runtime cost. Honest
    tradeoff, documented in `bundle-compare.txt`.
 
 3. **Lines coverage 96.91%** is 0.09% under the plan's aspirational 97% target.
@@ -80,3 +80,43 @@
 All 5 commits are on `autodev-224-home-overhaul`, all gates green, evidence
 captured. Commits are kept granular (not squashed) so the optimization path
 under review is traceable.
+
+## Evaluator findings reconciled (2026-06-30)
+
+The adversarial review surfaced four findings; all are addressed here so the
+doc set is internally consistent and the load-bearing numbers are honest.
+
+- **F1 — focusin listener leak (FIXED).** `LazySection.vue` onMounted attached
+  `wrapper.addEventListener('focusin', mountSlot)` for the WCAG 2.1.1
+  keyboard/AT mount path but never removed it — only the IntersectionObserver
+  composable cleaned up after itself, so navigating away from Home in the SPA
+  left a dangling listener + closure on the detached wrapper. Added
+  `onBeforeUnmount(() => wrapper.value?.removeEventListener('focusin',
+  mountSlot))` mirroring the observer's `unobserve()` discipline, plus a unit
+  test in `lazy-section.spec.js` (RED before the fix, GREEN after). Full suite
+  2415 → 2416, 0 regressions.
+  Commit: `#224 review(val): remove focusin listener on unmount (evaluator F1 leak)`.
+
+- **F2 — test-count drift (canonical 2416).** The summary and review cited an
+  earlier (pre-security/blast-radius) count, but the actual `vitest run` after
+  those test additions was 2415; F1's new unit test lands the canonical final
+  count at 2416. Every stale count occurrence in this file and in
+  `IMPLEMENTATION_SUMMARY.md` is updated to 2416.
+
+- **F3 — entry-chunk byte drift (canonical 128.62 kB / gzip 55.80 kB).** The
+  build-tool reported entry-chunk size varied across captures (128.82 kB in
+  `bundle-compare.txt`, 128.42 kB in the two docs) because content-hash
+  minification ordering shifts ±0.4 kB build-to-build (the asset hash itself
+  also changes each build). Re-derived ONE canonical number from a fresh
+  `npm run build` on 2026-06-30 (`index-P1vOkIwv.js`, raw 154091 bytes / gzip
+  55745 bytes) and reconciled `bundle-compare.txt`, `IMPLEMENTATION_SUMMARY.md`,
+  and this file to cite it. Direction and magnitude are stable across builds:
+  -31.6% raw / -24.6% gzip (the -59.x raw / -18.x gzip delta holds within
+  ±0.4 kB). Also reconciled the total-JS-across-chunks figure (461.4 kB /
+  472498 bytes, was 461.2 / 461.8 across the two docs).
+
+- **F4 — lines coverage 96.91% vs aspirational 97% (already self-flagged,
+  passes the gate).** The enforced threshold in `vitest.config.ts` is 85% across
+  all four dimensions; lines at 96.91% clears it with ~12 points of margin. This
+  was already noted in "What did NOT go perfectly honest notes" item 3 above.
+  No test was weakened to chase the aspirational 97%.
