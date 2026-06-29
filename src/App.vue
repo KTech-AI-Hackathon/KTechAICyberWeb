@@ -45,6 +45,11 @@
         <div class="footer-status">
           <span class="status-dot" aria-hidden="true"></span>
           <span>{{ t('footer.status') }}</span>
+          <!-- #187 RUM beacon dashboard toggle. Default collapsed; sits inline
+               next to the footer status dot so it does NOT clutter the hero.
+               provide('rum', ...) is wired in setup() below; the dashboard reads
+               it via inject('rum'). -->
+          <RumDashboard v-if="rumMounted" class="footer-rum" />
         </div>
       </div>
     </footer>
@@ -52,16 +57,18 @@
 </template>
 
 <script>
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, provide, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useHead } from '@vueuse/head'
 import { getRouteMeta, getStructuredData } from './utils/seo'
 import { useLanguage, initLanguage } from './i18n'
 import { usePreferencesStore } from './stores/preferences'
+import { useRumBeacon } from './composables/useRumBeacon'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
 import ThemeToggle from './components/ThemeToggle.vue'
 import SkipLink from './components/SkipLink.vue'
 import Header from './components/Header.vue'
+import RumDashboard from './components/RumDashboard.vue'
 
 export default {
   name: 'App',
@@ -69,11 +76,25 @@ export default {
     LanguageSwitcher,
     ThemeToggle,
     SkipLink,
-    Header
+    Header,
+    RumDashboard
   },
   setup() {
     const route = useRoute()
     const preferences = usePreferencesStore()
+
+    // #187 RUM beacon wiring (iter-23 wired gate). useRumBeacon() is the live
+    // call-site that proves the composable is actually invoked from the shipped
+    // app (NOT just from tests). Seeded from the persisted rumEnabled opt-in so
+    // a returning user who previously enabled monitoring re-enables it on load.
+    // The composable is inert by default (no observers/storage until enabled),
+    // so this is zero-cost when opted out. provide('rum', ...) lets RumDashboard
+    // read the reactive state via inject.
+    const rum = useRumBeacon({ enabled: preferences.rumEnabled })
+    provide('rum', rum)
+    // rumMounted gates the dashboard render; it flips true after mount so the
+    // toggle is only ever shown in a fully-hydrated app shell.
+    const rumMounted = ref(false)
 
     // Apply the persisted theme to <html data-theme="...">. cyber.css only
     // defines dark/light variants, so 'cyber' (the default) is treated as the
@@ -101,6 +122,8 @@ export default {
     // finish loading.)
     onMounted(() => {
       initLanguage()
+      // Hydration complete — the RUM dashboard toggle may now render.
+      rumMounted.value = true
     })
 
     const { t } = useLanguage()
@@ -152,6 +175,7 @@ export default {
 
     return {
       structuredData,
+      rumMounted,
       t
     }
   }
