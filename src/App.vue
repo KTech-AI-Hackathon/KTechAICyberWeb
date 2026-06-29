@@ -208,7 +208,10 @@ export default {
 .footer-link {
   margin-left: 1rem;
   color: #00f0ff;
-  text-decoration: none;
+  /* #190 link-in-text-block: persistent underline is the non-color distinguisher
+     (the link cyan contrasts poorly with the surrounding footer text, so color
+     alone is not an accessible differentiator). */
+  text-decoration: underline;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   border-bottom: 1px solid transparent;
