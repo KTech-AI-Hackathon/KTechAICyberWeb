@@ -518,4 +518,61 @@ describe('NeuralCore.vue (#179)', () => {
       home.unmount()
     })
   })
+
+  // ==========================================================================
+  // #190 a11y: aria-prohibited-attr — SVG <line> cannot carry aria-label
+  // without a role. The parent <svg> already has role="img" + aria-label, so
+  // the synapse lines are decorative. Fix: remove :aria-label from each <line>
+  // and add aria-hidden="true"; delete the now-unused neural.aria.synapse-
+  // Highlighted key from BOTH locale catalogs (it was only used on the <line>).
+  // These tests FAIL on the old <line :aria-label=...> markup.
+  // ==========================================================================
+  describe('#190 a11y: synapse lines hidden, SVG labeled once', () => {
+    it('no <line class="neural-synapse"> carries an aria-label attribute', async () => {
+      await mountCore()
+      const lines = wrapper.findAll('line.neural-synapse')
+      expect(lines.length).toBeGreaterThan(0)
+      lines.forEach((ln) => {
+        expect(ln.attributes('aria-label')).toBeUndefined()
+      })
+    })
+
+    it('every <line class="neural-synapse"> has aria-hidden="true"', async () => {
+      await mountCore()
+      const lines = wrapper.findAll('line.neural-synapse')
+      expect(lines.length).toBeGreaterThan(0)
+      lines.forEach((ln) => {
+        expect(ln.attributes('aria-hidden')).toBe('true')
+      })
+    })
+
+    it('the parent <svg> still has role="img" + a non-empty aria-label (regression)', async () => {
+      await mountCore()
+      const svg = wrapper.find('svg.neural-svg')
+      expect(svg.exists()).toBe(true)
+      expect(svg.attributes('role')).toBe('img')
+      expect(svg.attributes('aria-label')).toBeTruthy()
+    })
+
+    it('every <line class="neural-synapse"> keeps data-test="neural-synapse" (test hook preserved)', async () => {
+      await mountCore()
+      const lines = wrapper.findAll('[data-test="neural-synapse"]')
+      expect(lines.length).toBeGreaterThan(0)
+      lines.forEach((ln) => {
+        expect(ln.element.tagName.toLowerCase()).toBe('line')
+      })
+    })
+
+    // The neural.aria.synapseHighlighted key was ONLY used on the <line>; with
+    // the label removed it is dead. Assert it is gone from BOTH catalogs so the
+    // i18n parity invariant holds.
+    it('neural.aria.synapseHighlighted key is absent from BOTH en.json and zh.json (dead key removed)', () => {
+      const enPath = path.resolve(__dirname, '../../locales/en.json')
+      const zhPath = path.resolve(__dirname, '../../locales/zh.json')
+      const en = JSON.parse(fs.readFileSync(enPath, 'utf-8'))
+      const zh = JSON.parse(fs.readFileSync(zhPath, 'utf-8'))
+      expect(en.neural?.aria?.synapseHighlighted, 'en.json must not carry the dead key').toBeUndefined()
+      expect(zh.neural?.aria?.synapseHighlighted, 'zh.json must not carry the dead key').toBeUndefined()
+    })
+  })
 })

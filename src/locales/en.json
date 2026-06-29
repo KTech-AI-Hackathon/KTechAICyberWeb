@@ -1550,7 +1550,6 @@
       "regionLabel": "KTech AI Core neural network visualizer",
       "description": "An interactive neural network. Hover or focus a node to inspect its layer and function. Activate Run Inference to watch a data packet propagate to a decoded decision.",
       "nodeLabel": "Layer {layer}, function {function}",
-      "synapseHighlighted": "{count} synapses highlighted",
       "runInferenceButton": "Run neural inference",
       "inferenceRunning": "Inference propagating",
       "inferenceDone": "Inference complete",
