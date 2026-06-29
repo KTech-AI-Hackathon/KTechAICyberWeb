@@ -26,8 +26,10 @@
 - [x] **transform/opacity/rAF only** — packets use translateX, liquidity uses
   height (transform-style), FX/block use opacity+translateY. rAF is single-shared.
 - [x] **Capped element count** — MAX_PACKETS_DESKTOP=6, MAX_PACKETS_MOBILE=3.
-- [x] **~60fps desktop** — Lighthouse desktop perf 54 (baseline for this heavy
-  page; stream is a 3KB-gz lazy chunk, not in entry).
+- [x] **~60fps desktop** — Lighthouse desktop perf 85 (categories.performance.score = 0.85,
+  configSettings.formFactor = "desktop"; JSON saved at
+  tickets/206/evidence/lighthouse-desktop-206.report.json). Baseline for this heavy
+  page; stream is a 3KB-gz lazy chunk, not in entry.
 - [x] **Mobile smooth** — `@media (max-width:768px)` collapses readouts to one
   column + composable caps packet count.
 - [x] **Pauses offscreen (IO)** + **tab hidden (visibilitychange)** — both
