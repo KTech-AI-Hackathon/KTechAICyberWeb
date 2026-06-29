@@ -12,6 +12,21 @@ import { test, expect } from './fixtures/test-fixtures';
 // page. Under fullyParallel mode, parallel workers on the same origin raced on
 // localStorage and intermittently failed (persist/transition tests). Running
 // the suite serially removes that shared-state flakiness.
+// Cross-browser E2E #222: firefox and chromium can serialize the same
+// computed background-color differently (e.g. rgba vs rgb, or different
+// whitespace). normalizeColor extracts the "r,g,b" triple from any
+// rgb()/rgba() form so the assertion is engine-agnostic, while still
+// asserting the EXACT intended color. DARK_BG = #0a0a0a, LIGHT_BG = #f5f7fa.
+function normalizeColor(color: string): string {
+  const match = color.match(/rgba?\(([^)]+)\)/);
+  if (!match) return color;
+  const parts = match[1].split(',').map((p) => p.trim());
+  // Drop the alpha channel if present — both themes use fully-opaque bg.
+  return parts.slice(0, 3).join(',');
+}
+const DARK_BG = '10,10,10';
+const LIGHT_BG = '245,247,250';
+
 test.describe.serial('Theme Toggle', { tag: ['@regression', '@theme'] }, () => {
   test.beforeEach(async ({ homePage }) => {
     // Clear localStorage before each test to ensure clean state
@@ -96,13 +111,22 @@ test.describe.serial('Theme Toggle', { tag: ['@regression', '@theme'] }, () => {
     // Verify theme is now dark
     expect(await htmlElement.getAttribute('data-theme')).toBe('dark');
 
+    // cyber.css applies a 300ms background-color transition on every element.
+    // On firefox the transition is still interpolating when getComputedStyle is
+    // sampled immediately after the toggle click, so the mid-flight value
+    // (e.g. rgb(110,111,112)) fails the exact-color assertion. Wait out the
+    // 300ms transition before sampling. Cross-browser E2E #222.
+    await homePage.page.waitForTimeout(400);
+
     // Check that the page is styled (dark theme should have dark background)
     const bodyBgColor = await homePage.page.evaluate(() => {
       return getComputedStyle(document.body).backgroundColor;
     });
 
-    // Dark theme should have a very dark background (close to #0a0a0a)
-    expect(bodyBgColor).toBe('rgb(10, 10, 10)');
+    // Dark theme should have a very dark background (close to #0a0a0a).
+    // normalizeColor makes the assertion engine-agnostic (firefox vs chromium
+    // serialization) while still asserting the exact intended color.
+    expect(normalizeColor(bodyBgColor)).toBe(DARK_BG);
   });
 
   test('should apply correct CSS variables for light theme', async ({ homePage }) => {
@@ -119,13 +143,17 @@ test.describe.serial('Theme Toggle', { tag: ['@regression', '@theme'] }, () => {
     // Verify theme is now light
     expect(await htmlElement.getAttribute('data-theme')).toBe('light');
 
+    // Wait out the 300ms background-color transition before sampling
+    // (see dark-theme test above for rationale). Cross-browser E2E #222.
+    await homePage.page.waitForTimeout(400);
+
     // Check that the page is styled (light theme should have light background)
     const bodyBgColor = await homePage.page.evaluate(() => {
       return getComputedStyle(document.body).backgroundColor;
     });
 
-    // Light theme should have a light background (close to #f5f7fa)
-    expect(bodyBgColor).toBe('rgb(245, 247, 250)');
+    // Light theme should have a light background (close to #f5f7fa).
+    expect(normalizeColor(bodyBgColor)).toBe(LIGHT_BG);
   });
 
   test('should transition smoothly between themes', async ({ homePage }) => {
