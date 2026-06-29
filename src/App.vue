@@ -221,7 +221,15 @@ export default {
   border-color: rgba(0, 240, 255, 0.5);
   box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
 }
-.footer-status { display: flex; align-items: center; gap: 0.5rem; }
+.footer-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  /* #190 color-contrast: explicit high-contrast color so the status text does
+     not rely on inheritance (which computed to #1a1a2e on #39393e = 1.48:1,
+     failing WCAG AA). #e0e0e0 on the footer bg (#0a0a0f) = 14.96:1. */
+  color: #e0e0e0;
+}
 .status-dot {
   width: 8px; height: 8px; background: #00f0ff; border-radius: 50%;
   animation: blink 2s ease-in-out infinite;
