@@ -10,7 +10,7 @@
  *
  * @ticket #186
  */
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, onUnmounted, watch } from 'vue'
 import { useAudioPulse } from '../composables/useAudioPulse'
 import { useLanguage } from '../composables/useLanguage'
 
@@ -82,6 +82,12 @@ function resizeCanvas() {
 onMounted(() => {
   resizeCanvas()
   window.addEventListener('resize', resizeCanvas)
+})
+
+// Remove the component-level resize listener on unmount (the composable owns
+// its own AudioContext/rAF/observer teardown separately).
+onUnmounted(() => {
+  window.removeEventListener('resize', resizeCanvas)
 })
 
 watch(status, (s) => {
