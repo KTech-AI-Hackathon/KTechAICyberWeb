@@ -249,4 +249,59 @@ describe('LazySection.vue', () => {
     expect(propWarnings).toHaveLength(0)
     warnSpy.mockRestore()
   })
+
+  it('removes the focusin listener on unmount (no listener leak, evaluator F1)', async () => {
+    // The keyboard/AT mount path (WCAG 2.1.1) attaches
+    // `wrapper.addEventListener('focusin', mountSlot)` in onMounted. The
+    // IntersectionObserver composable cleans up its observer, but the focusin
+    // listener had no matching removeEventListener — so navigating away from
+    // Home in the SPA left a dangling listener + closure on the detached wrapper
+    // (a real leak flagged by the evaluator).
+    //
+    // Discriminating signal: onMounted's addEventListener call lands with a
+    // handler whose JS name is `mountSlot` (the component's own function). After
+    // unmount, a `removeEventListener('focusin', mountSlot)` MUST appear in the
+    // spy log — i.e. a focusin remove whose handler.name === 'mountSlot'.
+    //
+    // Why not assert "removeEventListener was called at all"? jsdom's own
+    // element teardown emits a generic `removeEventListener('focusin',
+    // eventListener)` (handler.name === 'eventListener') on detach regardless of
+    // my code — so a bare "called" assertion passes spuriously. Asserting the
+    // `mountSlot`-named remove is what proves MY cleanup ran. Before the
+    // onBeforeUnmount fix this test FAILS (no mountSlot-named remove exists).
+    const obs = makeObserverMock()
+    global.IntersectionObserver = obs.MockObserver
+    window.IntersectionObserver = obs.MockObserver
+
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const removeSpy = vi.spyOn(Element.prototype, 'removeEventListener')
+
+    const w = mount(LazySection, {
+      props: { dataTest: 'lazy-unmount-leak' },
+      slots: { default: '<button class="focus-target">focus me</button>' },
+      attachTo: host,
+    })
+    await flushPromises()
+    // Clear any noise captured during mount so the post-unmount read is clean.
+    removeSpy.mockClear()
+
+    // Unmount the LazySection (simulates navigating away from Home in the SPA).
+    w.unmount()
+    await flushPromises()
+
+    // Look for the discriminating call: a focusin remove whose handler is the
+    // component's own mountSlot (by function name). handler.name is stable
+    // across Vue/jsdom wrapping because the component author named the function
+    // `mountSlot` and Vue does not rename user functions passed to bare
+    // addEventListener.
+    const mountSlotRemoves = removeSpy.mock.calls.filter(
+      ([type, handler]) =>
+        type === 'focusin' && handler && handler.name === 'mountSlot'
+    )
+    expect(mountSlotRemoves.length).toBe(1)
+
+    removeSpy.mockRestore()
+    host.remove()
+  })
 })

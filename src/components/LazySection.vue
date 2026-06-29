@@ -1,6 +1,6 @@
 <script setup>
 // ========== IMPORTS ==========
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useIntersectionObserver } from '../composables/useIntersectionObserver'
 
 // ========== PROPS ==========
@@ -66,6 +66,16 @@ onMounted(() => {
   if (wrapper.value) {
     wrapper.value.addEventListener('focusin', mountSlot)
   }
+})
+
+// WCAG 2.1.1 listener cleanup (evaluator F1): the focusin listener attached in
+// onMounted must be removed on unmount, mirroring the observer's unobserve()
+// discipline above. Without this, navigating away from Home in the SPA leaves a
+// dangling focusin listener + closure on the (now-detached) wrapper element —
+// a real listener leak. The same mountSlot reference is passed so the browser
+// matches and detaches the exact listener that was added.
+onBeforeUnmount(() => {
+  wrapper.value?.removeEventListener('focusin', mountSlot)
 })
 </script>
 
