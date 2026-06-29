@@ -171,7 +171,7 @@
  "186": {
   "title": "[CYBER] Add opt-in Neon Pulse audio-reactive visualizer (Web Audio + neon spectrum)",
   "status": "InProgress",
-  "stage": "coding-retry",
+  "stage": "pr",
   "iteration": 23,
   "github_state": "OPEN",
   "baseline": "origin/main @ 7fdec18",
@@ -179,6 +179,6 @@
   "type": "feature (interactive audio visualizer)",
   "board_card": "PVTI_lAHOB5DQUc4BboAJzgxDN10 -> In progress (47fc9ee4)",
   "security": "APPROVED: 0 Critical, 0 High, 1 Medium, 2 Low, 3 Info (all 3 actionable findings fixed in review commits d1ffef7/2f81ca8/d04bbea)",
-  "evaluator_verdict": "ACCEPTABLE (conditional) — 3 must-fix: spawnParticles no-op (AC 1d), sensitivity decorative (AC 1c), 4 dead refs (iter-10 gate fail). Retrying coder."
+  "evaluator_verdict": "APPROVED (post-retry): 3 must-fix resolved (particle burst, sensitivity wiring, 4 dead refs); coverage 96.52% line/86.71% branch; 2379 vitest + 6/6 E2E pass; i18n 1061/1061"
  }
 }
