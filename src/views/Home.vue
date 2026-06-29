@@ -6,9 +6,10 @@
 
     <!-- Main content -->
     <div class="content">
-      <!-- Header with neon glow -->
+      <!-- Header with neon glow (#224: glitch-text + :data-text removed —
+           the neon flicker animation is gone, the calm neonPulse glow stays) -->
       <header class="cyber-header">
-        <h1 class="neon-text glitch-text" :data-text="t('home.title')">
+        <h1 class="neon-text">
           {{ t('home.title') }}
         </h1>
         <p class="subtitle">{{ t('home.subtitle') }}</p>
@@ -253,42 +254,9 @@ h1 {
   text-shadow: 0 0 10px rgba(0, 255, 204, 0.6);
 }
 
-/* Glitch effect */
-.glitch-text {
-  position: relative;
-}
-
-.glitch-text::before,
-.glitch-text::after {
-  content: attr(data-text);
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0.8;
-}
-
-.glitch-text::before {
-  color: #ff00ff;
-  animation: glitch 0.3s infinite;
-  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
-}
-
-.glitch-text::after {
-  color: #00ffff;
-  animation: glitch 0.3s infinite reverse;
-  clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
-}
-
-@keyframes glitch {
-  0% { transform: translate(0); }
-  20% { transform: translate(-2px, 2px); }
-  40% { transform: translate(-2px, -2px); }
-  60% { transform: translate(2px, 2px); }
-  80% { transform: translate(2px, -2px); }
-  100% { transform: translate(0); }
-}
+/* #224: glitch-text + @keyframes glitch REMOVED (the neon flicker / strobe).
+   The calm neonPulse text-glow (2s alternate = 0.5Hz, well under the 3Hz
+   seizure threshold) stays. The cyber palette is unchanged. */
 
 /* Neon pulse animation */
 @keyframes neonPulse {
