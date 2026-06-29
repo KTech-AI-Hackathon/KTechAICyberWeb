@@ -109,6 +109,14 @@ test.describe('#188 CSS purge — visual no-regression', () => {
     const htmlAfter = await page.locator('html').getAttribute('data-theme')
     expect(htmlAfter, 'data-theme must change after toggle click').not.toBe(htmlBefore)
 
+    // cyber.css applies a 0.3s (300ms) \`color\` transition on every element
+    // (\`* { transition: color 0.3s ease, ... }\`, lines 47-54). On firefox the
+    // transition is still interpolating when getComputedStyle is read
+    // immediately after the click, so body.color reports the mid-flight value
+    // which can equal colorBefore and fail the assertion. Wait out the 300ms
+    // transition before sampling. Cross-browser E2E #222.
+    await page.waitForTimeout(400)
+
     // Color-driven-by-theme must also change.
     const colorAfter = await page.evaluate(
       () => getComputedStyle(document.body).color
