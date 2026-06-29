@@ -49,14 +49,20 @@
 - [x] **Parity** — en = zh = 1047 leaves.
 
 ## Honest risks / known gaps
-1. **Branch coverage gate (84.38%)** is below the configured 85% threshold — but
-   this is a PRE-EXISTING baseline condition (memory: vitest 85% BRANCH threshold
-   fails at baseline ~80.65%). My new files are 89.1% branches (above gate).
-   The suite does NOT fail on this (vitest reports it but exits 0); the AC is
-   ≥80% lines (met at 96.82%).
-2. **Performance 54/100** is the heavy-page baseline, not introduced by the
-   stream. The stream is a 3014-B-gzip lazy chunk that does not affect the
-   initial entry load. The rAF/interval are IO+visibility throttled.
+1. **Branch coverage gate (84.52% global)** is below the configured 85% threshold —
+   but this is a PRE-EXISTING baseline condition (the repo fails the 85% branch
+   threshold at origin/main too; vitest reports it and exits 0). **Per-file, the
+   new files split:** `SettlementStream.vue` is 100% branches (8/8), but
+   `useSettlementStream.js` is 71.4% branches (85/119) — the uncovered arms are
+   defensive SSR `typeof`/fallback guards + reduced-motion `else` branches, not
+   core logic. The AC is ≥80% LINES (met at 96.8%). Optional follow-up: test the
+   SSR/fallback arms to lift the composable's branch coverage.
+2. **Performance 85/100 desktop** (Lighthouse `--preset=desktop`, formFactor
+   verified, JSON saved at `tickets/206/evidence/lighthouse-desktop-206.report.json`).
+   The stream is a 3104-B-gzip lazy chunk that does not affect the initial entry
+   load (entry grew only +379 B gzip, the async-component stub). rAF/interval are
+   IO+visibility throttled. (An earlier draft cited 54/100 — that was a stale
+   inline figure, corrected to the saved-desktop 85.)
 3. **Webkit E2E not run** — playwright.config skips webkit by default (#216,
    RUN_WEBKIT=true to enable). The 6 chromium tests pass; the stream uses only
    standard APIs (rAF, IntersectionObserver, matchMedia, sin).

@@ -38,7 +38,7 @@ Every mechanic has all three sites verified by grep:
 | (c) blocks append + hash chain | `nextBlock()` | `appendBlock()` interval L281 | `.ss-block-height`/`.ss-block-hash` |
 | (d) FX drifts | `tickFx()` | `driftFx()` interval L289-290 | `.ss-fx-rate` readout |
 | (e) liquidity breathes | `liquidityPulse()` | `tick()` rAF loop L341 | `.ss-liquidity-fill :style=height` |
-| (f) throttle offscreen (IO) | `IntersectionObserver` | `onMounted` observes body | `isVisible` ref |
+| (f) throttle offscreen (IO) | `intersectionObs.observe(rootRef.value)` | `onMounted` L468 (accepts `{rootRef}`, mirrors useParallax) | `isVisible→updateRunning→stopRAF/stopInterval` (red-test `useSettlementStream.test.ts:381`) |
 | (g) throttle tab-hidden | `onVisibilityChange()` | `visibilitychange` listener | `isVisible` ref |
 | (h) reduced-motion static | `snapshotReducedSummary()` | `updateRunning()` reduced branch | `reducedSummary` ref + `@media animation:none` |
 
@@ -51,15 +51,16 @@ Every returned ref (`packets`, `latestBlock`, `recentBlocks`, `settledCount`,
 ### Unit + component tests (vitest)
 ```
 Test Files  91 passed (91)
-Tests       2453 passed (2453)
-Statements  95.29% (3910/4103)
-Branches    84.38% (1843/2184)
+Tests       2454 passed (2454)
+Statements  95.27% (3913/4107)
+Branches    84.52% (1852/2191)   [global; pre-existing baseline miss — fails at origin/main too]
 Functions   95.65% (705/737)
-Lines       96.82% (3664/3784)
+Lines       96.8%  (3667/3788)
 ```
-Per-file coverage (new files):
-- `components/SettlementStream.vue`: statements 31/31 (100.0%), branches 4/4 (100.0%)
-- `composables/useSettlementStream.js`: statements 186/204 (91.2%), branches 49/55 (89.1%)
+Per-file coverage (new files, recomputed from `coverage/coverage-final.json` because the istanbul text table truncates long filenames):
+- `components/SettlementStream.vue`: statements 32/32 (100.0%), branches 8/8 (100.0%), functions 9/9 (100.0%)
+- `composables/useSettlementStream.js`: statements 189/207 (91.3%), branches 85/119 (71.4%), functions 25/27 (92.6%)
+  - The composable's uncovered arms are defensive SSR `typeof`/fallback guards and reduced-motion `else` branches — not core logic. The global 85% branch threshold is a pre-existing baseline miss (the repo is at ~84.5% at origin/main); #206 did not cause it. Optional follow-up: test the SSR/fallback arms to lift this.
 
 ### Build (vite)
 ```
@@ -88,10 +89,10 @@ src/views/Home.vue:91:        <SettlementStream data-test="settlement-stream" />
 ```
 Hits the rendered view (Home.vue), not just tests.
 
-### Bundle (perf, iter-16/31 — bytes re-derived via `stat -f %z` + `gzip -c | wc -c`)
-- SettlementStream chunk: **7398 B raw / 3044 B gzip** (lazy-split, NOT in entry).
-- Entry chunk (index): **155153 B raw / 56208 B gzip** (baseline was 154169/55828 → +984 B raw / +380 B gzip, the async-component stub).
-- Total JS: **480958 B raw / 166851 B gzip** (baseline 472576/163421 → +8382 B raw / +3430 B gzip for the new ambient layer).
+### Bundle (perf, iter-16/31 — bytes re-derived via `stat -f %z` + `gzip -c | wc -c`, apples-to-apples vs an origin/main worktree build with the same node_modules)
+- SettlementStream chunk: **7490 B raw / 3104 B gzip** (lazy-split, NOT in entry).
+- Entry chunk (index): **155153 B raw / 56207 B gzip** (baseline 154169/55828 → +984 B raw / +379 B gzip, the async-component stub).
+- Total JS: **481050 B raw / 166892 B gzip** (baseline 472576/163421 → +8474 B raw / +3471 B gzip for the new ambient layer).
 
 ### Lighthouse desktop (formFactor verified — iter-16; JSON artifact saved)
 Artifacts: `tickets/206/evidence/lighthouse-desktop-206.report.json` (+ `.html`).
@@ -125,3 +126,6 @@ introduces ZERO new a11y failures (`aria-hidden-focus: score=1`,
 - `f61c474` #206 i18n en+zh for settlement stream copy
 - `d6f930f` #206 Add SettlementStream.vue component + visual-AC tests
 - `52872fd` #206 Wire SettlementStream into Home as ambient background
+- `d6644fd` #206 Add Playwright E2E + evidence
+- `5f5c195` #206 docs: save Lighthouse desktop artifact + reconcile perf (85 not 54) + total-gzip bytes
+- `191f7e2` #206 fix(perf): observe stream root (not body) so offscreen throttle actually fires (AC 3.2, iter-23 gate)
