@@ -8,7 +8,11 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  // CI retries: 1 (not 2). The failing cross-browser tests are deterministic
+  // rendering/timeouts, not flake — a 2nd retry only doubles CI time without
+  // changing the verdict. Keeps the chromium+firefox+Mobile-Chrome matrix
+  // inside the 15-minute job budget. See #216.
+  retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: [
     ['html'],
