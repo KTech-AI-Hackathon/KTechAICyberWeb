@@ -24,7 +24,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, nextTick } from 'vue'
+import { defineComponent, h, nextTick, ref } from 'vue'
 import {
   useSettlementStream,
   tickPacket,
@@ -85,14 +85,54 @@ function countingRAF() {
   }
 }
 
-/** Host component that mounts the composable so onMounted runs. */
-function makeHost(matchesMap: Record<string, boolean> = {}) {
+/** A CONTROLLABLE IntersectionObserver mock (does NOT auto-fire on observe).
+ * Mirrors tests/unit/lazy-section.spec.js makeObserverMock — the test drives the
+ * callback manually so we can simulate the stream root scrolling offscreen. */
+function makeControllableObserver() {
+  let cb: ((entries: any[], obs: any) => void) | null = null
+  const instances: any[] = []
+  class MockObserver {
+    opts: any
+    observed: any[]
+    constructor(callback: any, opts: any) {
+      cb = callback
+      this.opts = opts
+      this.observed = []
+      instances.push(this)
+    }
+    observe(el: any) {
+      this.observed.push(el)
+    }
+    unobserve() {}
+    disconnect() {}
+    takeRecords() {
+      return []
+    }
+  }
+  return {
+    MockObserver,
+    instances,
+    /** Fire the callback for the first observed target. */
+    fire({ intersecting }: { intersecting: boolean }) {
+      const tgt = instances[0] && instances[0].observed[0]
+      if (cb && tgt) cb([{ isIntersecting: intersecting, target: tgt }], instances[0])
+    },
+  }
+}
+
+/** Host component that mounts the composable so onMounted runs. Pass rootRef to
+ * bind the composable's IO observe target to the host's root element. */
+function makeHost(matchesMap: Record<string, boolean> = {}, rootRef?: any) {
   return defineComponent({
     name: 'SettlementStreamHost',
     setup() {
-      const api: any = useSettlementStream()
+      const api: any = useSettlementStream(rootRef ? { rootRef } : undefined)
       return () =>
-        h('div', { 'data-host': true }, [
+        // When rootRef is provided, bind it to the host's root div so Vue
+        // populates rootRef.value during mount (before the composable's
+        // onMounted observes it) — same contract as SettlementStream.vue's
+        // template `ref="rootRef"`.
+        h('div', { ref: rootRef, 'data-host': true }, [
           h('span', { 'data-test': 'ss-block-height' }, String(api.latestBlock.value?.height ?? 0)),
           h('span', { 'data-test': 'ss-block-hash' }, String(api.latestBlock.value?.hash ?? '')),
           h('span', { 'data-test': 'ss-packets' }, String(api.packets.value.length)),
@@ -300,6 +340,79 @@ describe('useSettlementStream — composable', () => {
     document.dispatchEvent(new Event('visibilitychange'))
     await nextTick()
     wrapper.unmount()
+  })
+
+  it('throttles: IO offscreen (root scrolled out of view) cancels BOTH rAF + interval; resume on return (AC 3.2)', async () => {
+    // AC 3.2: "Pauses/throttles when offscreen (IntersectionObserver)". The old
+    // code observed document.body, which is ALWAYS intersecting the viewport
+    // while the page is rendered — so the offscreen half of AC 3.2 never fired
+    // in production. This test mounts the composable against its REAL root ref,
+    // drives a controllable IO that does NOT auto-fire, and asserts that firing
+    // isIntersecting=false flips isVisible=false AND cancels both the rAF loop
+    // + the idle interval. Re-entering view resumes both.
+    //
+    // RED-proof: against the document.body code the composable never observes
+    // the host's root, so fire() against the controllable observer either finds
+    // no observed target (because observe() targeted document.body, not the
+    // root) OR — if the global polyfill is left in place — the polyfill's
+    // microtask auto-fire re-asserts isVisible=true immediately. Either way the
+    // isVisible=false assertion fails. With the rootRef fix the composable
+    // observes the bound root and the controllable observer drives it.
+    const savedGlobalIO = globalThis.IntersectionObserver
+    const savedWindowIO = window.IntersectionObserver
+    const obs = makeControllableObserver()
+    globalThis.IntersectionObserver = obs.MockObserver as any
+    window.IntersectionObserver = obs.MockObserver as any
+    try {
+      mockMatchMedia({ '(prefers-reduced-motion: reduce)': false })
+      const raf = countingRAF()
+      // rootRef is bound to the host's root div via the render function (same
+      // contract as SettlementStream.vue's template ref="rootRef"), so Vue
+      // populates it during mount and the composable's onMounted observes it.
+      const rootRef = ref(null)
+      const Host = makeHost({ '(prefers-reduced-motion: reduce)': false }, rootRef)
+      const wrapper = mount(Host, {
+        attachTo: document.createElement('div'),
+      })
+      await nextTick()
+
+      // Sanity: the composable actually observed the root element (NOT body).
+      expect(obs.instances.length).toBeGreaterThanOrEqual(1)
+      expect(obs.instances[0].observed[0]).toBe(rootRef.value)
+
+      // Fire the IO callback as OFFSCREEN. isVisible must flip to false.
+      obs.fire({ intersecting: false })
+      await nextTick()
+      expect(wrapper.find('[data-test="ss-isvisible"]').text()).toBe('false')
+
+      // rAF loop is cancelled — firing frames must NOT re-schedule new ones.
+      const callsAtHide = raf.callCount
+      raf.fireFrame(1000)
+      raf.fireFrame(2000)
+      expect(raf.callCount).toBe(callsAtHide) // no new rAF scheduled while hidden
+
+      // Idle interval is cancelled — advancing timers must NOT append a block.
+      const heightAtHide = Number(wrapper.find('[data-test="ss-block-height"]').text())
+      vi.advanceTimersByTime(10000)
+      await nextTick()
+      expect(Number(wrapper.find('[data-test="ss-block-height"]').text())).toBe(heightAtHide)
+
+      // Re-enter view: IO fires isIntersecting=true -> loop + interval resume.
+      obs.fire({ intersecting: true })
+      await nextTick()
+      expect(wrapper.find('[data-test="ss-isvisible"]').text()).toBe('true')
+      // rAF resumed: at least one new frame gets scheduled on resume.
+      expect(raf.callCount).toBeGreaterThan(callsAtHide)
+      // Interval resumed: a block appends after the cadence elapses.
+      vi.advanceTimersByTime(6000)
+      await nextTick()
+      expect(Number(wrapper.find('[data-test="ss-block-height"]').text())).toBeGreaterThan(heightAtHide)
+
+      wrapper.unmount()
+    } finally {
+      globalThis.IntersectionObserver = savedGlobalIO
+      window.IntersectionObserver = savedWindowIO
+    }
   })
 
   it('renders every returned ref in the template (no dead reactive state)', async () => {

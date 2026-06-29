@@ -1,6 +1,6 @@
 <script setup>
 // ========== IMPORTS ==========
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useLanguage } from '../composables/useLanguage'
 import { useSettlementStream } from '../composables/useSettlementStream'
 import Scanlines from './Scanlines.vue'
@@ -8,6 +8,13 @@ import Scanlines from './Scanlines.vue'
 // ========== I18N ==========
 // REAL useLanguage (NOT mocked — iter-28 rule). Resolves en by default.
 const { t } = useLanguage()
+
+// ========== STREAM ROOT REF ==========
+// AC 3.2: the composable observes THIS root element so its rAF loop + idle
+// interval actually throttle when the stream scrolls offscreen. Without this
+// binding the composable would have no element to observe (the iter-23 gap was
+// observing document.body, which is always intersecting).
+const rootRef = ref(null)
 
 // ========== STREAM BRAIN ==========
 // Thin presentation layer over useSettlementStream (#206). Every returned ref
@@ -32,7 +39,7 @@ const {
   isVisible,
   isMobile,
   rails,
-} = useSettlementStream()
+} = useSettlementStream({ rootRef })
 
 // ========== COMPUTED ==========
 // Resolve a rail's node labels via i18n (rails carry i18n keys).
@@ -59,6 +66,7 @@ const liquidityLabel = computed(() =>
 
 <template>
   <div
+    ref="rootRef"
     class="settlement-stream"
     data-test="settlement-stream"
     :aria-label="t('settlementStream.ariaLabel')"

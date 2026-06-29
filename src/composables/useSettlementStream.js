@@ -215,7 +215,17 @@ export const RAIL_IDS = [
 // Composable
 // ---------------------------------------------------------------------------
 
-export function useSettlementStream() {
+export function useSettlementStream(opts = {}) {
+  // --- observe target -----------------------------------------------------
+  // AC 3.2 offscreen throttle: observe the stream's ROOT element (passed by
+  // SettlementStream.vue), NOT document.body. document.body is always
+  // intersecting the viewport while the page is rendered, so observing it made
+  // the IO offscreen half of AC 3.2 a no-op in production (iter-23
+  // wired-not-just-tested gap). Mirrors the useParallax({ rootRef }) pattern.
+  // If rootRef is absent OR null at mount time (SSR / test / not yet bound),
+  // we fall back to isVisible=true (never disappear forever) — same defensive
+  // pattern as useIntersectionObserver.js.
+  const rootRef = opts && opts.rootRef ? opts.rootRef : null
   // --- live state ---------------------------------------------------------
   const packets = ref([]) // Packet[]
   const latestBlock = ref(
@@ -461,8 +471,14 @@ export function useSettlementStream() {
           }
           updateRunning()
         })
-        if (typeof document !== 'undefined' && document.body) {
-          intersectionObs.observe(document.body)
+        // AC 3.2: observe the stream ROOT element (not document.body). If the
+        // root ref is not yet bound, fall back to isVisible=true so the stream
+        // never disappears forever (SSR / not-yet-mounted safety).
+        const observeTarget = rootRef && rootRef.value ? rootRef.value : null
+        if (observeTarget) {
+          intersectionObs.observe(observeTarget)
+        } else {
+          isVisible.value = true
         }
       }
 
