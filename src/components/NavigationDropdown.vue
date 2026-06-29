@@ -4,7 +4,7 @@
        @mouseleave="handleMouseLeave">
     <button class="dropdown-trigger"
             @click="toggle"
-            :aria-label="isOpen ? t('nav.dropdown.close') : t('nav.dropdown.open')"
+            :aria-label="isOpen ? t('nav.dropdown.closeLabel', { label }) : t('nav.dropdown.openLabel', { label })"
             :aria-expanded="isOpen"
             aria-haspopup="menu"
             :aria-controls="menuId"

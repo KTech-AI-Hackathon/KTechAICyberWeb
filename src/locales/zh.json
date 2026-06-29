@@ -88,7 +88,9 @@
     "contact": "联系",
     "dropdown": {
       "open": "打开菜单",
-      "close": "关闭菜单"
+      "close": "关闭菜单",
+      "openLabel": "打开{label}菜单",
+      "closeLabel": "关闭{label}菜单"
     },
     "aboutUs": "关于我们",
     "ourSolutions": "解决方案",

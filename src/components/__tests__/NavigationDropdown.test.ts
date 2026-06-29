@@ -417,15 +417,19 @@ describe('NavigationDropdown.vue', () => {
     })
 
     it('uses the close-label aria-label when open', async () => {
+      // #190 R2: aria-label now interpolates the visible label, so the open
+      // state's accessible name is e.g. "Close About Us menu" (contains the
+      // visible text, satisfying label-content-name-mismatch).
       await wrapper.find('.dropdown-trigger').trigger('click')
       expect(wrapper.find('.dropdown-trigger').attributes('aria-label')).toBe(
-        'Close menu',
+        wrapper.vm.t('nav.dropdown.closeLabel', { label: 'About Us' }),
       )
     })
 
     it('uses the open-label aria-label when closed', () => {
+      // #190 R2: aria-label now interpolates the visible label.
       expect(wrapper.find('.dropdown-trigger').attributes('aria-label')).toBe(
-        'Open menu',
+        wrapper.vm.t('nav.dropdown.openLabel', { label: 'About Us' }),
       )
     })
 
@@ -433,6 +437,62 @@ describe('NavigationDropdown.vue', () => {
       expect(
         wrapper.find('.dropdown-trigger').element.tagName.toLowerCase(),
       ).toBe('button')
+    })
+  })
+
+  // ============================================
+  // #190 R2: label-content-name-mismatch — the accessible name (aria-label)
+  // MUST contain the visible trigger text. The visible text is the section
+  // label (e.g. "Services"); the OLD generic "Open menu"/"Close menu"
+  // aria-label did NOT contain it, so Lighthouse flagged a mismatch. The fix
+  // interpolates the visible label into the aria-label via the
+  // nav.dropdown.openLabel / closeLabel keys ("Open {label} menu" /
+  // "Close {label} menu"). These tests mount with a generic visible label and
+  // assert the accessible name is a superstring of it, in BOTH states.
+  // RED-TEST PROOF: reverting the binding to the generic
+  // nav.dropdown.open / nav.dropdown.close keys fails BOTH assertions because
+  // "Open menu" does not contain "Services".
+  // ============================================
+  describe('Accessibility — #190 R2: accessible name contains visible label', () => {
+    const VISIBLE = 'Services'
+
+    it('closed: aria-label contains the visible trigger label', () => {
+      const w = createWrapper({ label: VISIBLE })
+      const trigger = w.find('.dropdown-trigger')
+      const aria = trigger.attributes('aria-label') ?? ''
+      const visible = trigger.text().replace('▼', '').trim()
+      expect(visible).toBe(VISIBLE)
+      expect(
+        aria.includes(VISIBLE),
+        `closed aria-label "${aria}" must contain visible "${VISIBLE}"`,
+      ).toBe(true)
+      w.unmount()
+    })
+
+    it('open: aria-label contains the visible trigger label', async () => {
+      const w = createWrapper({ label: VISIBLE })
+      const trigger = w.find('.dropdown-trigger')
+      await trigger.trigger('click')
+      const aria = trigger.attributes('aria-label') ?? ''
+      const visible = trigger.text().replace('▼', '').trim()
+      expect(visible).toBe(VISIBLE)
+      expect(
+        aria.includes(VISIBLE),
+        `open aria-label "${aria}" must contain visible "${VISIBLE}"`,
+      ).toBe(true)
+      w.unmount()
+    })
+
+    it('aria-label does NOT leak a literal {label} placeholder (interpolation wired)', async () => {
+      // Regression guard: if the t(key, params) contract regresses (see R3),
+      // the aria-label would render the literal "{label}" placeholder.
+      const w = createWrapper({ label: VISIBLE })
+      const closed = w.find('.dropdown-trigger').attributes('aria-label') ?? ''
+      await w.find('.dropdown-trigger').trigger('click')
+      const open = w.find('.dropdown-trigger').attributes('aria-label') ?? ''
+      expect(closed).not.toContain('{label}')
+      expect(open).not.toContain('{label}')
+      w.unmount()
     })
   })
 
