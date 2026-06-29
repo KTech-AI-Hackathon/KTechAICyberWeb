@@ -65,12 +65,23 @@ export default defineConfig({
 
   // Configure projects for different browsers.
   //
-  // webkit + Mobile Safari are skipped in CI by default (#216, AC option b).
-  // Why: every webkit-engine test times out (~14s action timeout) navigating
-  // the app — a systemic launch/routing issue, not N independent bugs. They
-  // were invisible before #216 because the browser binaries were never
-  // installed in the runner. Tracked for un-skipping in #222.
-  // To run them locally or in a dedicated follow-up workflow: RUN_WEBKIT=true.
+  // webkit + Mobile Safari are GATED behind RUN_WEBKIT, NOT because webkit is
+  // systemically broken — it is not. The #216 "every webkit test times out"
+  // diagnosis was re-investigated under #229 and traced to TWO per-test
+  // actionability races that any browser could hit, which surfaced on webkit
+  // only because its scroll-into-view/click timing is tighter than chromium's:
+  //   - 87-privacy-policy: a non-strict page.click('.footer-link') against a
+  //     footer that renders TWO .footer-link elements (Privacy + Terms) — the
+  //     ambiguous locator races actionability into a ~13.5s timeout (#229 AC#1).
+  //   - 187-rum-beacon: the rum-toggle sits at the bottom of a long page
+  //     (y≈3847px); Playwright's auto-scroll-then-click raced on webkit so the
+  //     click's hit-test failed and the handler never fired (#229 AC #2).
+  // Both are fixed in this ticket. webkit now runs green locally (chromium +
+  // webkit both 4/4 on 187, 87 green on chromium + webkit). The RUN_WEBKIT gate
+  // stays so LOCAL dev defaults to webkit-free (faster feedback); CI flips it on
+  // via the e2e-tests.yml `test` job env (#229 AC #3). Any future per-test skip
+  // MUST carry a cited reason (see test.skip usage in specs).
+  // To run webkit locally: RUN_WEBKIT=true.
   projects: [
     {
       name: 'chromium',

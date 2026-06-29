@@ -33,6 +33,17 @@ jobs:
 
       - name: Run Playwright tests
         run: npm run test:e2e
+        env:
+          # #229 AC #3: re-enable webkit + Mobile Safari in the main E2E job.
+          # The webkit browser binaries are installed in the step above
+          # (npx playwright install --with-deps chromium firefox webkit); this
+          # flag opts the webkit/Mobile-Safari projects in (see playwright.config.ts).
+          # The two per-test actionability races that gated webkit out (#216) are
+          # resolved by this ticket: 87-privacy-policy (strict footer-link
+          # locator, AC #1) and 187-rum-beacon (scroll-into-view before toggle
+          # click, AC #2). test-smoke + test-mobile remain webkit-free (out of
+          # scope for #229 — noted as follow-up in the PR body).
+          RUN_WEBKIT: 'true'
 
       - name: Upload test results
         if: always()
