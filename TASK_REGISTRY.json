@@ -1,5 +1,5 @@
 {
-  "issue": 165,
+  "issue": 222,
   "205": {
     "title": "[bug] Correct KTech company facts: capital 300M (was 50M), full KASIKORN VISION name, founding date",
     "status": "Done",
@@ -40,18 +40,17 @@
     },
     "notes": "S-sized content/i18n fix. TDD red->green. Inline coordinator execution (proportionate)."
   },
-  "title": "[ASSETS] Extract and Implement About & News Section Images",
-  "branch": "autodev-165-assets",
-  "status": "InProgress",
-  "stage": "validation",
-  "iteration": 18,
-  "startedAt": "2026-06-28",
-  "resumedAt": "2026-06-28",
+  "title": "[bug] Fix latent cross-browser E2E failures exposed by #216",
+  "branch": "autodev-222-cross-browser-e2e (deleted)",
+  "status": "Done",
+  "stage": "archived",
+  "iteration": 29,
+  "startedAt": "2026-06-29",
+  "resumedAt": "2026-06-29",
   "followUpIssues": [
-    198,
-    199
+    229
   ],
-  "notes": "16 official images extracted (all HTTP 200), 3 converted to webp, 11 award PNGs kept as-is. Logo/branded SVGs (n-img*, arrow99) skipped. Follow-ups #198 (icons), #199 (srcset) filed. STALLED-AND-RESUMED run: commits 1-5 done pre-stall, commit-6 (base-path resolution + E2E + evidence) finished on resume. Gates re-derived: vitest 2044/2044, 96.23% lines, build green (+1.75 kB entry), E2E 7/7 live-DOM, visual-AC + red-tests, i18n 880/880, 0 SEC001. Ready for PR.",
+  "notes": "Class B (firefox+chromium) failures fixed + verified: test CI job green (run 28380687882, 0 failures vs main's 9). webkit AC #1/#5 deferred to #229 with corrected premise (webkit NOT systemic — 140-router-base passes on webkit in CI; failures concentrated in 87-privacy footer-link flow + 187-rum-beacon, CI-runner-specific). Security PASS, evaluator EXCELLENT.",
   "180": {
     "title": "[CYBER] Add interactive 'AI Solution Forge' configurator (personalized solution recommender)",
     "status": "Done",
@@ -323,5 +322,28 @@
     "iteration": 26,
     "approach": "install firefox+webkit + skip webkit/Mobile-Safari (#222) + drop stale .js config",
     "verificationRun": 28363743207
+  },
+  "222": {
+    "title": "[bug] Fix latent cross-browser E2E failures exposed by #216 (firefox images/theme + chromium privacy)",
+    "status": "Done",
+    "stage": "archived",
+    "branch": "autodev-222-cross-browser-e2e (deleted)",
+    "mergeSha": "13d20af",
+    "pr": 228,
+    "iteration": 29,
+    "approach": "fix Class B (firefox+chromium) cross-browser E2E: lazy-load scrollIntoView+poll (165), resolved --text-primary var assertion no-transition (188), web-first toHaveCount (87-privacy), normalizeColor+transition-wait (theme.spec). webkit AC deferred to #229 with corrected diagnosis (NOT systemic).",
+    "verificationRun": 28380687882,
+    "failuresBefore": "9 across 5 tests (188:86, 87:66, 165:40, 165:58, theme:85) on chromium/firefox/Mobile Chrome",
+    "failuresAfter": "0",
+    "followUpIssue": 229,
+    "security": "PASS (0 critical/0 high/0 medium; tests-only diff, no secrets)",
+    "evaluator": "EXCELLENT 93%",
+    "commits": [
+      "f71b98b",
+      "5a1d932",
+      "62e603e",
+      "d62567d",
+      "73cb922"
+    ]
   }
 }
