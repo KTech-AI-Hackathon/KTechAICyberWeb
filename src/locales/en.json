@@ -1814,7 +1814,8 @@
       "modeGroup": "Visualizer mode",
       "sensitivitySlider": "Visualizer sensitivity",
       "inputGroup": "Audio input source",
-      "liveLevel": "Current output level: {db} dB"
+      "liveLevel": "Current output level: {db} dB",
+      "bassLevel": "Bass frequency level: {value} percent"
     }
   },
   "rum": {

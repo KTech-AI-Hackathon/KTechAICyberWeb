@@ -1814,7 +1814,8 @@
       "modeGroup": "可视化模式",
       "sensitivitySlider": "可视化灵敏度",
       "inputGroup": "音频输入源",
-      "liveLevel": "当前输出电平：{db} dB"
+      "liveLevel": "当前输出电平：{db} dB",
+      "bassLevel": "低音频率等级：{value} 百分比"
     }
   },
   "rum": {
