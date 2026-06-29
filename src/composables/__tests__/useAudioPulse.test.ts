@@ -492,11 +492,15 @@ describe('useAudioPulse() — composable factory', () => {
     vi.useFakeTimers()
     // Inject a Fake AudioContext constructor BEFORE mount so engage() uses it.
     installFakeAudio()
+    // Stub IntersectionObserver so the composable's offscreen-throttle branch
+    // is drivable synchronously (happy-dom's real observer never fires in jsdom).
+    installFakeIntersectionObserver()
   })
 
   afterEach(() => {
     vi.useRealTimers()
     restoreAudio()
+    restoreIntersectionObserver()
     if (originalMatchMedia) window.matchMedia = originalMatchMedia
     if (originalRAF) window.requestAnimationFrame = originalRAF
     if (originalCancelRAF) window.cancelAnimationFrame = originalCancelRAF
@@ -612,6 +616,167 @@ describe('useAudioPulse() — composable factory', () => {
     expect(api.bassNow.value).toBe(0)
     wrapper.unmount()
   })
+
+  it('#8 mobile matchMedia sets isMobile=true', () => {
+    mockMatchMedia({ '(max-width: 768px)': true })
+    const { getApi, wrapper } = mountHost()
+    const api = getApi()
+    expect(api.isMobile.value).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('#9 document hidden -> visibilitychange cancels rAF; visible restarts it', async () => {
+    const raf = countingRAF()
+    const { getApi, wrapper } = mountHost()
+    const api = getApi()
+    await api.engage()
+    await vi.advanceTimersByTimeAsync(0)
+    expect(api.status.value).toBe('playing')
+
+    // Page goes hidden -> isVisible flips false + rAF stops.
+    Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true })
+    document.dispatchEvent(new Event('visibilitychange'))
+    expect(api.isVisible.value).toBe(false)
+    const callsAtHidden = raf.callCount
+    vi.advanceTimersByTime(1000)
+    expect(raf.callCount).toBe(callsAtHidden) // no new frames while hidden
+
+    // Page visible again -> rAF resumes.
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true })
+    document.dispatchEvent(new Event('visibilitychange'))
+    expect(api.isVisible.value).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('#10 IntersectionObserver offscreen entry cancels the rAF loop', async () => {
+    countingRAF()
+    // Capture the observer callback installed on mount.
+    const { getApi, wrapper } = mountHost()
+    const api = getApi()
+    await api.engage()
+    await vi.advanceTimersByTimeAsync(0)
+    expect(api.status.value).toBe('playing')
+
+    // The composable observes document.body; drive the installed observer with
+    // an offscreen entry to flip isVisible false + cancel rAF.
+    const obs = (window as any).__lastIntersectionObserver as any
+    expect(obs).toBeTruthy()
+    obs.callback([{ isIntersecting: false, target: document.body }])
+    expect(api.isVisible.value).toBe(false)
+
+    // Back onscreen resumes.
+    obs.callback([{ isIntersecting: true, target: document.body }])
+    expect(api.isVisible.value).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('#11 unmount runs onUnmounted cleanup (stop + disconnect observers)', async () => {
+    countingRAF()
+    const { getApi, wrapper } = mountHost()
+    const api = getApi()
+    await api.engage()
+    await vi.advanceTimersByTimeAsync(0)
+    expect(api.status.value).toBe('playing')
+    wrapper.unmount()
+    // After unmount, status is idle (stop() ran in onUnmounted).
+    expect(api.status.value).toBe('idle')
+  })
+
+  it('#12 setInputSource rejects unknown sources', () => {
+    const { getApi, wrapper } = mountHost()
+    const api = getApi()
+    api.setInputSource('mic')
+    expect(api.inputSource.value).toBe('mic')
+    api.setInputSource('bogus' as any)
+    expect(api.inputSource.value).toBe('mic') // unchanged
+    wrapper.unmount()
+  })
+
+  it('#13 legacy MediaQueryList (addListener/removeListener only) is wired + cleaned up', () => {
+    // Some older browsers expose only the deprecated addListener/removeListener
+    // API; the composable must fall back to it (and clean it up on unmount).
+    const listeners: Record<string, ((e: any) => void) | undefined> = {
+      motion: undefined,
+      mobile: undefined,
+    }
+    window.matchMedia = ((query: string) => {
+      const legacy = {
+        matches: query === '(max-width: 768px)',
+        media: query,
+        // NO addEventListener; only the deprecated pair.
+        addListener: (fn: (e: any) => void) => {
+          if (query.includes('reduced')) listeners.motion = fn
+          else listeners.mobile = fn
+        },
+        removeListener: (fn: (e: any) => void) => {
+          if (query.includes('reduced') && listeners.motion === fn) listeners.motion = undefined
+          else if (listeners.mobile === fn) listeners.mobile = undefined
+        },
+      }
+      return legacy as any
+    }) as any
+
+    const { getApi, wrapper } = mountHost()
+    const api = getApi()
+    // isMobile was seeded from the legacy MQL matches.
+    expect(api.isMobile.value).toBe(true)
+    // Firing the motion listener flips prefersReducedMotion.
+    listeners.motion && listeners.motion({ matches: true })
+    expect(api.prefersReducedMotion.value).toBe(true)
+    // Mobile change flips isMobile back.
+    listeners.mobile && listeners.mobile({ matches: false })
+    expect(api.isMobile.value).toBe(false)
+    // Unmount runs the legacy removeListener cleanup paths.
+    wrapper.unmount()
+    expect(listeners.motion).toBeUndefined()
+    expect(listeners.mobile).toBeUndefined()
+  })
+
+  it('#14 rAF tick draws the active mode onto the canvas (covers draw branches)', async () => {
+    const raf = countingRAF()
+    const { getApi, wrapper } = mountHost()
+    const api = getApi()
+    // Inject a fake canvas + 2d context so draw() runs all three modes.
+    const calls: string[] = []
+    const fakeCtx = {
+      clearRect: () => { calls.push('clear') },
+      fillRect: () => { calls.push('fill') },
+      beginPath: () => {},
+      moveTo: () => {},
+      lineTo: () => {},
+      closePath: () => {},
+      stroke: () => { calls.push('stroke') },
+      fill: () => {},
+    }
+    ;(api.canvasRef as any).value = {
+      width: 300,
+      height: 150,
+      getContext: () => fakeCtx,
+    }
+
+    await api.engage()
+    await vi.advanceTimersByTimeAsync(0)
+    expect(api.status.value).toBe('playing')
+
+    // spectrum (default) -> draws fillRect bars.
+    api.setMode('spectrum')
+    raf.step()
+    expect(calls).toContain('fill')
+
+    // radial -> draws a stroked waveform.
+    calls.length = 0
+    api.setMode('radial')
+    raf.step()
+    expect(calls).toContain('stroke')
+
+    // particles -> draws fillRect particles.
+    calls.length = 0
+    api.setMode('particles')
+    raf.step()
+    expect(calls).toContain('fill')
+
+    wrapper.unmount()
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -647,6 +812,33 @@ function installFakeAudio() {
   ;(globalThis as any).AudioContext = FakeAudioContext
   // Default: grant mic (a silent empty MediaStream).
   grantMic()
+}
+
+let savedIntersectionObserver: any
+
+/** Installs a synchronous IntersectionObserver stub that records its callback
+ *  on window.__lastIntersectionObserver so a test can drive offscreen/onscreen
+ *  entries without waiting for a real intersection event. */
+function installFakeIntersectionObserver() {
+  savedIntersectionObserver = (window as any).IntersectionObserver
+  ;(window as any).IntersectionObserver = class {
+    callback: (entries: any[]) => void
+    constructor(cb: (entries: any[]) => void) {
+      this.callback = cb
+      ;(window as any).__lastIntersectionObserver = this
+    }
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+    takeRecords() { return [] }
+  }
+}
+
+function restoreIntersectionObserver() {
+  if (savedIntersectionObserver !== undefined) {
+    ;(window as any).IntersectionObserver = savedIntersectionObserver
+  }
+  delete (window as any).__lastIntersectionObserver
 }
 
 function grantMic() {
