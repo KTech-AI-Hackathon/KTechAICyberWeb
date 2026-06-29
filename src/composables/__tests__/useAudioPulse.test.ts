@@ -945,6 +945,164 @@ describe('useAudioPulse() — composable factory', () => {
       wrapper.unmount()
     })
   })
+
+  // -------------------------------------------------------------------------
+  // FIX 2 (AC 1c — sensitivity slider affects reactivity): computeSensitivity
+  // is PURE + tested but was NEVER called in tick()/draw(), so moving the slider
+  // changed the ref but nothing visual changed. These tests prove the slider now
+  // scales the drawn geometry: for the SAME freqData, a higher sensitivity must
+  // produce taller spectrum bars / longer radial spokes than a lower one.
+  // -------------------------------------------------------------------------
+  describe('#16 FIX 2 — sensitivity wired into draw (AC 1c)', () => {
+    /** A FakeAudioContext whose analyser returns a FIXED mid-level freqData so
+     *  the ONLY variable between frames is `sensitivity.value`. */
+    function fixedLevelAudio(level: number) {
+      class Analyser {
+        fftSize = FFT_SIZE
+        frequencyBinCount = FFT_SIZE / 2
+        connect() { return this }
+        disconnect() {}
+        getByteFrequencyData(arr: Uint8Array) {
+          for (let i = 0; i < arr.length; i++) arr[i] = level
+        }
+      }
+      class Ctx {
+        sampleRate = 44100
+        currentTime = 0
+        state = 'running'
+        destination = { connect() { return this }, disconnect() {} }
+        resume() { return Promise.resolve() }
+        createGain() { return new FakeGainNode() }
+        createOscillator() { return new FakeOscillator() }
+        createBiquadFilter() { return new FakeBiquadFilter() }
+        createAnalyser() { return new Analyser() }
+        close() { return Promise.resolve() }
+      }
+      ;(globalThis as any).AudioContext = Ctx as any
+    }
+
+    /** Captures every fillRect call's geometry so we can sum bar heights. */
+    function capturingCtx(log: { h: number }[]) {
+      return {
+        clearRect() {},
+        fillRect: (_x: number, _y: number, _w: number, h: number) => log.push({ h }),
+        save() {}, restore() {},
+        beginPath() {}, moveTo() {}, lineTo() {}, closePath() {},
+        stroke() {}, fill() {}, arc() {},
+        // radial uses lineTo distances; capture them too.
+      }
+    }
+
+    it('#16a SPECTRUM: high sensitivity -> taller bars than low (same freqData)', async () => {
+      // Mid-level input (e.g. 120/255). Under gain 0.1 this is ~0.047 of full
+      // scale; under gain 3 it clamps to 1.0 => bars are dramatically taller.
+      fixedLevelAudio(120)
+      const raf = countingRAF()
+      const { getApi, wrapper } = mountHost()
+      const api = getApi()
+      const lowLog: { h: number }[] = []
+      const highLog: { h: number }[] = []
+      let activeLog: { h: number }[] = lowLog
+      ;(api.canvasRef as any).value = {
+        width: 300, height: 150,
+        getContext: () => capturingCtx(activeLog),
+      }
+      await api.engage()
+      await vi.advanceTimersByTimeAsync(0)
+      api.setMode('spectrum')
+
+      // LOW sensitivity frame.
+      api.setSensitivity(SENSITIVITY_MIN) // 0.1
+      activeLog = lowLog
+      raf.step()
+
+      // HIGH sensitivity frame, same input.
+      api.setSensitivity(SENSITIVITY_MAX) // 3
+      activeLog = highLog
+      raf.step()
+
+      const lowSum = lowLog.reduce((s, r) => s + r.h, 0)
+      const highSum = highLog.reduce((s, r) => s + r.h, 0)
+      expect(highSum).toBeGreaterThan(lowSum)
+      // And specifically: high must be strictly greater (slider is not a no-op).
+      expect(highSum).toBeGreaterThan(0)
+      wrapper.unmount()
+    })
+
+    it('#16b RADIAL: high sensitivity -> longer radial spokes than low (same freqData)', async () => {
+      fixedLevelAudio(120)
+      const raf = countingRAF()
+      const { getApi, wrapper } = mountHost()
+      const api = getApi()
+      // Capture radial geometry via lineTo x/y distance from centre.
+      const centre = { x: 150, y: 75 }
+      const dist = (x: number, y: number) => Math.hypot(x - centre.x, y - centre.y)
+      let active: number[] = []
+      const mkCtx = () => {
+        const pts: { x: number; y: number }[] = []
+        return {
+          ctx: {
+            clearRect() {},
+            fillRect() {}, save() {}, restore() {},
+            beginPath() {}, moveTo: (x: number, y: number) => pts.push({ x, y }),
+            lineTo: (x: number, y: number) => pts.push({ x, y }),
+            closePath() {}, stroke() {}, fill() {}, arc() {},
+          },
+          points: pts,
+        }
+      }
+      let cap = mkCtx()
+      ;(api.canvasRef as any).value = {
+        width: 300, height: 150,
+        getContext: () => cap.ctx,
+      }
+      await api.engage()
+      await vi.advanceTimersByTimeAsync(0)
+      api.setMode('radial')
+
+      // LOW sensitivity.
+      api.setSensitivity(SENSITIVITY_MIN)
+      cap = mkCtx()
+      ;(api.canvasRef as any).value.getContext = () => cap.ctx
+      raf.step()
+      const lowMax = cap.points.reduce((m, p) => Math.max(m, dist(p.x, p.y)), 0)
+
+      // HIGH sensitivity, same input.
+      api.setSensitivity(SENSITIVITY_MAX)
+      cap = mkCtx()
+      ;(api.canvasRef as any).value.getContext = () => cap.ctx
+      raf.step()
+      const highMax = cap.points.reduce((m, p) => Math.max(m, dist(p.x, p.y)), 0)
+
+      expect(highMax).toBeGreaterThan(lowMax)
+      wrapper.unmount()
+    })
+
+    it('#16c the level readout also scales with sensitivity', async () => {
+      fixedLevelAudio(120)
+      const raf = countingRAF()
+      const { getApi, wrapper } = mountHost()
+      const api = getApi()
+      ;(api.canvasRef as any).value = {
+        width: 300, height: 150,
+        getContext: () => capturingCtx([]),
+      }
+      await api.engage()
+      await vi.advanceTimersByTimeAsync(0)
+
+      api.setSensitivity(SENSITIVITY_MIN)
+      raf.step()
+      const lowLevel = api.level.value
+
+      api.setSensitivity(SENSITIVITY_MAX)
+      raf.step()
+      const highLevel = api.level.value
+
+      // level is mean byte routed through sensitivity; high > low for same input.
+      expect(highLevel).toBeGreaterThan(lowLevel)
+      wrapper.unmount()
+    })
+  })
 })
 
 // ---------------------------------------------------------------------------

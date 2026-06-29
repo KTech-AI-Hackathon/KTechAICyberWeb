@@ -477,7 +477,9 @@ export function useAudioPulse() {
         shouldFlash(beat.isBeat, lastFlashMs, now)
 
       // (6) mean level (drives the static spectrum under reduced motion too).
-      level.value = meanByte(freqData)
+      // AC 1c: route the mean byte through computeSensitivity so the slider
+      // scales the level readout + the reduced-motion static spectrum too.
+      level.value = computeSensitivity(meanByte(freqData), sensitivity.value) * 255
 
       // (6b) age + move the transient burst particles (AC 1d) BEFORE draw so the
       // rendered frame reflects post-step positions; dead particles are filtered.
@@ -560,9 +562,12 @@ export function useAudioPulse() {
     const bars = Math.min(data.length, 64)
     const gap = 2
     const bw = (w - gap * (bars - 1)) / bars
+    const gain = sensitivity.value
     ctx2d.fillStyle = '#00ff88'
     for (let i = 0; i < bars; i++) {
-      const v = data[i] / 255
+      // AC 1c: route each byte through computeSensitivity so the slider scales
+      // bar height. gain=1 is the identity; <1 flattens, >1 amplifies (clamped).
+      const v = computeSensitivity(data[i], gain)
       const bh = v * h
       ctx2d.fillRect(i * (bw + gap), h - bh, bw, bh)
     }
@@ -571,14 +576,16 @@ export function useAudioPulse() {
   function drawRadial(ctx2d, w, h, data, energy) {
     const cx = w / 2
     const cy = h / 2
-    const baseR = Math.min(w, h) * 0.2 + (energy / 255) * Math.min(w, h) * 0.15
+    const gain = sensitivity.value
+    const baseR = Math.min(w, h) * 0.2 + computeSensitivity(energy, gain) * Math.min(w, h) * 0.15
     ctx2d.strokeStyle = '#ff00ff'
     ctx2d.lineWidth = 2
     ctx2d.beginPath()
     const steps = Math.min(data.length, 64)
     for (let i = 0; i <= steps; i++) {
       const angle = (i / steps) * Math.PI * 2
-      const r = baseR + (data[i % steps] / 255) * Math.min(w, h) * 0.2
+      // AC 1c: spoke length scales with sensitivity.
+      const r = baseR + computeSensitivity(data[i % steps], gain) * Math.min(w, h) * 0.2
       const x = cx + Math.cos(angle) * r
       const y = cy + Math.sin(angle) * r
       if (i === 0) ctx2d.moveTo(x, y)
@@ -590,9 +597,11 @@ export function useAudioPulse() {
 
   function drawParticles(ctx2d, w, h, data) {
     const count = Math.min(data.length, 48)
+    const gain = sensitivity.value
     ctx2d.fillStyle = '#00ffff'
     for (let i = 0; i < count; i++) {
-      const v = data[i] / 255
+      // AC 1c: amplitude scales with sensitivity.
+      const v = computeSensitivity(data[i], gain)
       const x = (i / count) * w
       const y = h / 2 + Math.sin(i + v * 6) * v * h * 0.4
       const size = 2 + v * 4
