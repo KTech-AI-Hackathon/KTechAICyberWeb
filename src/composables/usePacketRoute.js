@@ -591,6 +591,10 @@ export function usePacketRoute() {
 
   function animatePacket() {
     const path = packetPath.value
+    /* istanbul ignore if -- defensive: transmit() only reaches animatePacket()
+       after findPath() returned a non-null path, and findPath() never returns
+       an empty array (it returns null OR a >=1-cell path). The arm guards a
+       future findPath() regression; it cannot fire today. */
     if (path.length === 0) {
       finishWin()
       return
@@ -699,8 +703,17 @@ export function usePacketRoute() {
       const solved = buildGrid(currentLevel.value)
       path = findPath(solved, currentLevel.value.source, currentLevel.value.target)
     }
+    /* istanbul ignore else -- defensive: every shipped LEVEL is guaranteed
+       solvable (isLevelSolvable proves it), so the fallback findPath() over the
+       solved grid always returns a non-empty path. The else (no hint) cannot
+       fire for any shipped level. */
     if (path && path.length > 0) {
       // Pick the first non-fixed tile on the path.
+      // The `|| path[0]` fallback only triggers when EVERY path cell is fixed;
+      // every shipped level has at least one rotatable (non-fixed) tile on its
+      // solution path, so find() always matches today.
+      /* istanbul ignore next -- the `|| path[0]` right operand is defensive
+         (see comment above); it cannot be selected for any shipped level. */
       const target = path.find((c) => !c.fixed) || path[0]
       hintCell.value = { r: target.r, c: target.c }
     }
@@ -719,12 +732,21 @@ export function usePacketRoute() {
   }
 
   onMounted(() => {
+    /* istanbul ignore else -- SSR guard: `window` is always defined in the
+       browser and in the happy-dom test environment, so the else (no matchMedia
+       wiring) cannot fire there; the guard exists for true SSR/Node import. */
     if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
       motionMq = window.matchMedia(REDUCED_MOTION_QUERY)
       prefersReducedMotion.value = !!motionMq.matches
       if (motionMq.addEventListener) motionMq.addEventListener('change', onMotionChange)
+      /* istanbul ignore else -- legacy-API fallback: the `else if` runs when the
+         MediaQueryList exposes only the deprecated addListener (old browsers);
+         the implicit else (neither API present) cannot occur for any spec- or
+         legacy-compliant MediaQueryList, including happy-dom's. */
       else if (motionMq.addListener) motionMq.addListener(onMotionChange)
     }
+    /* istanbul ignore else -- SSR guard: `document` is always defined in the
+       browser and happy-dom; the else (no visibility wiring) is for SSR/Node. */
     if (typeof document !== 'undefined') {
       visibilityHandler = () => {
         updateVisibility()
@@ -740,6 +762,9 @@ export function usePacketRoute() {
     }
     // IntersectionObserver on the document body as a fallback root (the host
     // component may pass its own root; this keeps the composable usable bare).
+    /* istanbul ignore else -- SSR guard: `window` + IntersectionObserver are
+       always present in the browser and happy-dom; the else (no observer) is
+       for SSR/Node import. */
     if (typeof window !== 'undefined' && typeof window.IntersectionObserver !== 'undefined') {
       intersectionObs = new window.IntersectionObserver((entries) => {
         for (const entry of entries) {
@@ -747,6 +772,9 @@ export function usePacketRoute() {
             && (typeof document === 'undefined' || document.visibilityState !== 'hidden')
         }
       })
+      /* istanbul ignore else -- SSR + bare-DOM guard: `document` and its body
+         are always present in the browser and happy-dom; the else (skip observe)
+         is for SSR/Node or a not-yet-parsed DOM. */
       if (typeof document !== 'undefined' && document.body) {
         intersectionObs.observe(document.body)
       }
@@ -756,13 +784,25 @@ export function usePacketRoute() {
   onUnmounted(() => {
     stopRAF()
     stopTimer()
+    /* istanbul ignore else -- SSR-coupled: `motionMq` is null only when the
+       onMounted SSR guard above was false (no window.matchMedia), which the
+       browser and happy-dom always satisfy; the else (no cleanup) is for SSR. */
     if (motionMq) {
       if (motionMq.removeEventListener) motionMq.removeEventListener('change', onMotionChange)
+      /* istanbul ignore else -- legacy-API fallback (mirror of onMounted): the
+         implicit else (neither removal API) cannot occur for any spec- or
+         legacy-compliant MediaQueryList, including happy-dom's. */
       else if (motionMq.removeListener) motionMq.removeListener(onMotionChange)
     }
+    /* istanbul ignore else -- SSR guard: `visibilityHandler` is set in onMounted
+       and `document` is always defined in the browser and happy-dom; the else
+       (no removal) is for SSR/Node. */
     if (visibilityHandler && typeof document !== 'undefined') {
       document.removeEventListener('visibilitychange', visibilityHandler)
     }
+    /* istanbul ignore else -- guard: `intersectionObs` is assigned in onMounted
+       when IntersectionObserver exists (always, in browser + happy-dom); the
+       else (nothing to disconnect) only fires if the host never mounted. */
     if (intersectionObs) {
       intersectionObs.disconnect()
       intersectionObs = null
