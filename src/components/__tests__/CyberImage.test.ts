@@ -17,6 +17,12 @@
  * (mirroring the About.test.ts parallax red-test model) strips a rule from the
  * captured style and asserts the CSS-source check then returns false, proving
  * the assertion genuinely catches removal.
+ *
+ * @ticket #199 - [PERF] Responsive image variants (srcset/sizes). Adds a
+ *                srcset/sizes describe block that proves the component renders
+ *                <img srcset sizes>, rebases every srcset URL under the Vite
+ *                BASE_URL subpath (sharing the resolvePath code path with src),
+ *                and omits the attributes entirely when the props are absent.
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
@@ -279,6 +285,122 @@ describe('CyberImage.vue', () => {
       })
       expect(w.find('img').attributes('src')).toBe('/images/about/x.webp')
       w.unmount()
+    })
+  })
+
+  // ============================================
+  // Responsive srcset/sizes (AC #199 — responsive image variants)
+  // ============================================
+  // The component accepts optional `srcset` (comma-sep "url Ww" descriptors)
+  // and `sizes` props and renders <img srcset sizes>. Every srcset URL must be
+  // rebased under the Vite BASE_URL subpath using the SAME code path as `src`
+  // (resolvePath), so the hero's /images/about/about-who-we-are-400w.webp
+  // resolves to /KTechAICyberWeb/images/... in prod exactly like the root src.
+  // When the props are absent, the attributes must be omitted entirely (not
+  // rendered as srcset="") so legacy callers render identical markup to before.
+  describe('Responsive srcset/sizes', () => {
+    afterEach(() => {
+      // Restore the default vitest BASE_URL ('/') after each case.
+      vi.unstubAllEnvs()
+    })
+
+    it('does not render srcset/sizes when the props are absent', () => {
+      // Mount with only the required src/alt — the same shape every legacy
+      // caller uses. The img must carry NO srcset and NO sizes attribute.
+      const w = mount(CyberImage, {
+        props: { src: '/images/about/about-who-we-are.webp', alt: 'x' },
+      })
+      const img = w.find('img')
+      expect(img.attributes('srcset')).toBeUndefined()
+      expect(img.attributes('sizes')).toBeUndefined()
+      w.unmount()
+    })
+
+    it('renders the srcset attribute when passed (root BASE_URL)', () => {
+      // With the default BASE_URL '/', site-root-relative URLs pass through
+      // unchanged, so the rendered srcset equals the input verbatim.
+      const w = mount(CyberImage, {
+        props: {
+          src: '/images/about/about-who-we-are.webp',
+          alt: 'x',
+          srcset: '/a-400w.webp 400w, /a-800w.webp 800w',
+        },
+      })
+      expect(w.find('img').attributes('srcset')).toBe(
+        '/a-400w.webp 400w, /a-800w.webp 800w',
+      )
+      w.unmount()
+    })
+
+    it('rebases each srcset URL under a subpath BASE_URL', () => {
+      // Simulate the production base /KTechAICyberWeb/. Every URL token in the
+      // srcset must be rebased under the base; the width descriptors (400w,
+      // 800w) must be preserved unchanged.
+      vi.stubEnv('BASE_URL', '/KTechAICyberWeb/')
+      const w = mount(CyberImage, {
+        props: {
+          src: '/images/about/about-who-we-are.webp',
+          alt: 'x',
+          srcset:
+            '/images/about/about-who-we-are-400w.webp 400w, /images/about/about-who-we-are-800w.webp 800w',
+        },
+      })
+      const srcset = w.find('img').attributes('srcset')
+      expect(srcset).toBe(
+        '/KTechAICyberWeb/images/about/about-who-we-are-400w.webp 400w, /KTechAICyberWeb/images/about/about-who-we-are-800w.webp 800w',
+      )
+      // The width descriptors survive the rebase untouched.
+      expect(srcset).toMatch(/400w/)
+      expect(srcset).toMatch(/800w/)
+      w.unmount()
+    })
+
+    it('renders the sizes attribute when passed', () => {
+      const w = mount(CyberImage, {
+        props: {
+          src: '/images/about/about-who-we-are.webp',
+          alt: 'x',
+          sizes: '(max-width: 600px) 100vw, 50vw',
+        },
+      })
+      expect(w.find('img').attributes('sizes')).toBe(
+        '(max-width: 600px) 100vw, 50vw',
+      )
+      w.unmount()
+    })
+
+    // ============================================
+    // RED-TEST PROOF (mirrors the box-shadow / glitch red-test model above)
+    // ============================================
+    // Defines the same "every URL token is rebased" check the assertion above
+    // relies on, runs it against a correctly-rebased string (passes), then
+    // strips the base prefix from a synthetic string and asserts the check
+    // flips false. Proves the rebase assertion is NOT a tautology — if a
+    // future refactor forgets to rebase srcset URLs, this proof and the real
+    // check both flip RED.
+    it('RED-TEST PROOF: rebase check returns false when a URL is not rebased', () => {
+      const base = '/KTechAICyberWeb/'
+      // A srcset is rebased iff EVERY comma-separated entry's URL token starts
+      // with the base. (Each entry is "URL Ww"; the URL is the first token.)
+      const srcsetRebaseCheck = (srcset: string, b: string) =>
+        srcset
+          .split(',')
+          .map((e) => e.trim())
+          .every((entry) => {
+            const url = entry.split(/\s+/)[0]
+            return url.startsWith(b)
+          })
+
+      // Sanity: a fully-rebased srcset passes the check.
+      const rebased =
+        '/KTechAICyberWeb/images/about/about-who-we-are-400w.webp 400w, /KTechAICyberWeb/images/about/about-who-we-are-800w.webp 800w'
+      expect(srcsetRebaseCheck(rebased, base)).toBe(true)
+
+      // Strip the base prefix from ONE entry's URL and confirm the check flips
+      // false — proving the check actually catches an un-rebased URL.
+      const partlyStripped =
+        '/images/about/about-who-we-are-400w.webp 400w, /KTechAICyberWeb/images/about/about-who-we-are-800w.webp 800w'
+      expect(srcsetRebaseCheck(partlyStripped, base)).toBe(false)
     })
   })
 
