@@ -740,7 +740,12 @@ onUnmounted(() => {
 /* decode animation toggles the glitch layers via the .decode-anim class ----*/
 .decode-anim::before,
 .decode-anim::after {
-  animation: terminal-glitch 0.35s steps(2) infinite;
+  /* #234: one-shot reveal glitch (forwards), NOT infinite — the .decode-anim
+     class is applied statically on every decoded response, so an `infinite`
+     0.35s (~2.86Hz) animation would strobe continuously. `forwards` fires the
+     tear once on reveal and holds the final frame: non-strobe regardless of
+     any flag, seizure-safe. */
+  animation: terminal-glitch 0.35s steps(2) forwards;
 }
 
 @keyframes terminal-glitch {
@@ -805,12 +810,18 @@ onUnmounted(() => {
 }
 
 .terminal-cursor.blink {
-  animation: terminal-blink 1s steps(2) infinite;
+  /* #234: smooth ease-in-out breathing pulse instead of a hard steps(2) square
+     wave (full-contrast on/off snap). 1.1s period = ~0.91Hz, well under the
+     3Hz seizure-safe threshold. Caret still blinks, just softly. */
+  animation: terminal-blink 1.1s ease-in-out infinite;
 }
 
 @keyframes terminal-blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
+  /* #234: smooth sinusoidal fade so the ease-in-out timing on .terminal-cursor
+     .blink produces a soft breath instead of a square-wave snap. */
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 /* ---- mobile chips ---------------------------------------------------------*/
