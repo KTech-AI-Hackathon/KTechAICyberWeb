@@ -100,6 +100,41 @@ function stripComments(src) {
     .replace(/\/\/[^\n]*/g, '')
 }
 
+/**
+ * Extract a brace-balanced CSS block starting at the opener match.
+ *
+ * iter-43 lesson: a `*?` regex across nested `{ ... { ... } ... }` stops at the
+ * FIRST closing brace, truncating the block and silently passing on a malformed
+ * (unbalanced/truncated) keyframes rule. We instead walk the source counting
+ * `{`/`}` depth starting from the opener's `{`, returning the full balanced
+ * span — so a missing inner frame or a missing close brace produces an empty /
+ * short result the assertion can fail on.
+ *
+ * Returns `{ header, body, close }` (the opener selector, the inner text, and
+ * whether the block actually closed) or `null` if no opener matched / the block
+ * never balanced.
+ */
+function extractBalancedBlock(src, openerRe) {
+  const opener = src.match(openerRe)
+  if (!opener || opener.index === undefined) return null
+  const openBrace = src.indexOf('{', opener.index + opener[0].length)
+  if (openBrace === -1) return { header: opener[0], body: '', close: false }
+  let depth = 1
+  let i = openBrace + 1
+  while (i < src.length && depth > 0) {
+    const ch = src[i]
+    if (ch === '{') depth++
+    else if (ch === '}') depth--
+    i++
+  }
+  if (depth !== 0) return { header: opener[0], body: src.slice(openBrace + 1), close: false }
+  return {
+    header: opener[0],
+    body: src.slice(openBrace + 1, i - 1),
+    close: true,
+  }
+}
+
 describe('NeuralCore.vue (#179)', () => {
   let wrapper
 
@@ -193,6 +228,12 @@ describe('NeuralCore.vue (#179)', () => {
     expect(text).not.toContain('neural.readout')
     // Contains a confidence percentage.
     expect(text).toContain('%')
+    // #204: the readout emits a stable, locale-independent data-verdict attribute
+    // (approve|review|flag) sourced from readout.decisionKey. The E2E relies on
+    // this attribute to assert the verdict under any locale; this unit guard
+    // locks the contract so a regression (dropped attribute) fails here too.
+    const verdict = readoutEl().attributes('data-verdict')
+    expect(['approve', 'review', 'flag']).toContain(verdict)
   })
 
   it('the readout container is an ARIA live region (role=status, aria-live=polite)', async () => {
@@ -412,17 +453,28 @@ describe('NeuralCore.vue (#179)', () => {
       source = stripComments(fs.readFileSync(componentPath, 'utf-8'))
     })
 
-    // RED-TEST PROOF for assertion (a): deleting the @keyframes neural-breathing
-    // rule from NeuralCore.vue makes the regex below fail to find an ACTIVE
-    // (declared AND applied) keyframe. The check requires BOTH the declaration
-    // AND a node-scoped rule that references it, so a bare declaration that is
-    // never applied (dead code) also fails.
-    it('assertion (a): an ACTIVE @keyframes neural-breathing rule exists and is applied to a node rule', () => {
+    // RED-TEST PROOF for assertion (a): the gate now BRACE-COUNTS the
+    // @keyframes neural-breathing block (iter-43 lesson — no `*?` regex that
+    // stops at the first inner `}`). A truncated/empty block
+    // `@keyframes neural-breathing {}` or a block missing its closing brace
+    // FAILS this assertion, whereas the old loose `/@keyframes\s+neural-breathing\b/`
+    // opener-only match passed on them (the iter-42 substring-any-match failure
+    // mode). Removing the inner `transform:`/`opacity:` frame, or deleting the
+    // rule entirely, also fails. Mutation-verified (see RED-proof comment below).
+    it('assertion (a): a COMPLETE @keyframes neural-breathing block (opener + inner transform/opacity frame + balanced close) exists and is applied', () => {
       expect(source, 'NeuralCore.vue source must be readable').toBeTruthy()
-      // The keyframe is declared.
-      expect(source).toMatch(/@keyframes\s+neural-breathing\b/)
+      // Brace-count the full block (handles nested per-stop `{ ... }`).
+      const block = extractBalancedBlock(source, /@keyframes\s+neural-breathing\s*/)
+      expect(block, '@keyframes neural-breathing opener must exist').not.toBeNull()
+      expect(block.close, 'the keyframes block must be balanced (closing brace present)').toBe(true)
+      // The body must contain at least one animation-relevant frame property —
+      // an empty or comment-only body fails. (NeuralCore uses opacity + transform.)
+      expect(
+        block.body,
+        'keyframes body must declare a transform: or opacity: frame',
+      ).toMatch(/(transform|opacity)\s*:/)
       // AND it is applied: a rule references animation: neural-breathing (the
-      // animation-name token), proving the keyframe is wired up, not dead.
+      // animation-name token), proving the keyframe is wired up, not dead code.
       expect(source).toMatch(/animation[^;]*neural-breathing/)
     })
 
