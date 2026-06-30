@@ -41,6 +41,29 @@ function stripComments(src: string): string {
     .replace(/\/\/[^\n]*/g, '')
 }
 
+/**
+ * Extract a single CSS rule body (the text between its outer `{` and the
+ * matching `}`), honouring nested braces so a `@media { .x { animation: ... } }`
+ * block cannot leak an `infinite`/`forwards` token from a sibling rule into a
+ * glitch-text rule's body (iter-43 brace-counter pattern).
+ *
+ * Returns '' if the selector start is not found.
+ */
+function extractRuleBody(src: string, startRe: RegExp, open: string, close: string): string {
+  const m = src.match(startRe)
+  if (!m || m.index === undefined) return ''
+  let i = (m.index + m[0].length - 1) // position of the opening `{`
+  let depth = 0
+  let out = ''
+  for (; i < src.length; i++) {
+    const ch = src[i]
+    if (ch === open) { depth++; if (depth === 1) continue }
+    if (ch === close) { depth--; if (depth === 0) break }
+    if (depth >= 1) out += ch
+  }
+  return out
+}
+
 describe('SolutionForge.vue — visual-AC CSS-source gate (#180, iter-13/15)', () => {
   let source: string
 
@@ -80,14 +103,61 @@ describe('SolutionForge.vue — visual-AC CSS-source gate (#180, iter-13/15)', (
 
   // --------------------------------------------------------------------------
   // (c) Glitch-on-reveal: forge-glitch declared AND applied to the
-  // glitch-text pseudo-elements (the data-text tear).
-  // RED-TEST PROOF: delete the `@keyframes forge-glitch { ... }` block and the
-  // first expect() fails; delete the `.glitch-text::before { animation:
-  // forge-glitch ... }` rule and the second expect() fails.
+  // glitch-text pseudo-elements (the data-text tear) — AND seizure-safe (#234).
+  //
+  // #234 SEIZURE-SAFETY GATE: the glitch-text pseudo-elements are mounted on
+  // the SolutionForge component, which is lazy-loaded onto the HOME page. The
+  // original #180 implementation used `animation: forge-glitch 0.3s infinite`
+  // (3.33 Hz — OVER the <3Hz photosensitivity ceiling) and the original #234
+  // (PR #269) missed SolutionForge entirely (it only fixed NeuralTerminal).
+  // This gate closes that gap.
+  //
+  // The glitch reveal must be:
+  //   1. DECLARED  — @keyframes forge-glitch exists (active, comment-stripped).
+  //   2. APPLIED   — an `animation:` rule references forge-glitch on the
+  //                  .glitch-text::before/::after pseudo-elements.
+  //   3. ONE-SHOT  — applied with `forwards` (fire-once-and-hold), matching the
+  //                  #234 NeuralTerminal `terminal-glitch` pattern. The bare
+  //                  word `infinite` must NOT appear on the glitch-text
+  //                  pseudo-element rules (a continuous strobe).
+  //
+  // RED-TEST PROOF (iter-13/15/42/43 — brace-counted, comment-stripped):
+  //   * delete the `@keyframes forge-glitch { ... }` block  -> assert (1) fails.
+  //   * delete the `.glitch-text::before { animation: forge-glitch ... }` rule
+  //     -> assert (2) fails.
+  //   * revert to `animation: forge-glitch 0.3s infinite` (the pre-#234 state)
+  //     -> assert (3)'s `forwards` check fails AND the `infinite`-on-glitch-text
+  //     check fails. This is the exact regression this gate exists to catch.
   // --------------------------------------------------------------------------
-  it('AC5 glitch reveal: an ACTIVE @keyframes forge-glitch is declared and applied to the glitch-text rule', () => {
+  it('AC5 glitch reveal: forge-glitch is declared, applied to glitch-text, AND seizure-safe (one-shot forwards, no infinite) (#234)', () => {
+    // (1) DECLARED — identifier-anchored (next char is whitespace or `{`).
     expect(source).toMatch(/@keyframes\s+forge-glitch(?=\s*\{)/)
-    expect(source).toMatch(/animation[^;]*forge-glitch/)
+
+    // (2) APPLIED to the glitch-text pseudo-elements.
+    expect(source).toMatch(/\.glitch-text::before[^{]*\{[^}]*animation:[^;]*forge-glitch/s)
+    expect(source).toMatch(/\.glitch-text::after[^{]*\{[^}]*animation:[^;]*forge-glitch/s)
+
+    // (3) SEIZURE-SAFE — one-shot forwards, NOT infinite. Brace-counted rule
+    //     bodies so a stray `infinite` token in an unrelated rule cannot
+    //     satisfy/falsify the check (iter-43 brace-counter pattern). The
+    //     selector regex is anchored at a CSS rule boundary (preceded by `}` or
+    //     start-of-string) so it matches the STANDALONE `.glitch-text::after`
+    //     rule, NOT the earlier shared `.glitch-text::before, .glitch-text::after`
+    //     content rule (which carries no animation).
+    const beforeRule = extractRuleBody(source, /(?:^|\})\s*\.glitch-text::before\b\s*\{/, '{', '}')
+    const afterRule = extractRuleBody(source, /(?:^|\})\s*\.glitch-text::after\b\s*\{/, '{', '}')
+    expect(beforeRule, '.glitch-text::before rule body must be extractable').toBeTruthy()
+    expect(afterRule, '.glitch-text::after rule body must be extractable').toBeTruthy()
+
+    // forwards = one-shot reveal that holds the final frame (non-strobe).
+    expect(beforeRule!).toMatch(/forwards/)
+    expect(afterRule!).toMatch(/forwards/)
+
+    // The bare `infinite` keyword must NOT appear in either glitch-text rule.
+    expect(beforeRule!, 'glitch-text::before must NOT be an infinite strobe (#234 <3Hz)')
+      .not.toMatch(/\binfinite\b/)
+    expect(afterRule!, 'glitch-text::after must NOT be an infinite strobe (#234 <3Hz)')
+      .not.toMatch(/\binfinite\b/)
   })
 
   // --------------------------------------------------------------------------
