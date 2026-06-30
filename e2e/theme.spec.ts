@@ -23,7 +23,7 @@ test.describe('Theme and Visual Tests', () => {
 
     const statusDot = page.locator('.status-dot');
     await expect(statusDot).toBeVisible();
-    await expect(statusDot).toHaveCSS('background', /rgb\(0,\s*240,\s*255\)|#00f0ff/i);
+    await expect(statusDot).toHaveCSS('background', /rgb\(0,\s*255,\s*204\)|#00ffcc/i);
   });
 
   test('should display feature cards', async ({ page }) => {
