@@ -570,12 +570,20 @@ onUnmounted(() => {
 }
 .glitch-text::before {
   color: var(--accent-magenta);
-  animation: forge-glitch 0.3s infinite;
+  /* #234: one-shot reveal glitch (forwards), NOT infinite. SolutionForge is
+     lazy-mounted on the Home page; an `infinite` 0.3s (~3.33 Hz) animation
+     would strobe continuously and EXCEED the <3 Hz photosensitivity ceiling.
+     `forwards` fires the chromatic tear once on mount/reveal and holds the
+     final frame: the cyber aesthetic lands without a continuous strobe, and
+     is seizure-safe regardless of any JS flag. (Mirrors the #234 NeuralTerminal
+     terminal-glitch one-shot pattern; residual cleanup the original #234
+     PR #269 missed — see SolutionForge.visual-ac.test.ts AC5(c).) */
+  animation: forge-glitch 0.45s steps(2) forwards;
   clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
 }
 .glitch-text::after {
   color: var(--cyan);
-  animation: forge-glitch 0.3s infinite reverse;
+  animation: forge-glitch 0.45s steps(2) forwards reverse;
   clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
 }
 @keyframes forge-glitch {
