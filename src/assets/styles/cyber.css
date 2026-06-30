@@ -1,30 +1,20 @@
 /* Cyberpunk Styling.
- * NOTE (#188): the previous `:root { /* Default to dark theme *\/ ... }` block
- * was byte-identical to `[data-theme="dark"]` below and has been removed.
- * #239: the site is locked to the dark theme — App.vue unconditionally sets
- * <html data-theme="dark"> on mount, so dark is the ONLY theme variant. The
- * former light-theme variable block + light neon rules were removed. The
- * critical no-FOUC background is handled by the minimal inline <style> in
- * index.html. */
-
-/* Dark Theme (Default — and only theme, per #239) */
-[data-theme="dark"] {
-  --bg-primary: #0a0a0a;
-  --bg-secondary: #1a1a2e;
-  --bg-gradient-start: #0a0a0a;
-  --bg-gradient-mid: #1a1a2e;
-  --bg-gradient-end: #16213e;
-  --text-primary: #e0e0e0;
-  --text-secondary: #00ffff;
-  --neon-green: #00ff88;
-  --neon-blue: #00ffff;
-  --neon-pink: #ff00ff;
-  --card-bg: rgba(26, 26, 46, 0.8);
-  --card-border: rgba(0, 255, 136, 0.3);
-  --nav-bg: rgba(10, 10, 15, 0.8);
-  --glow-color: rgba(0, 255, 136, 0.4);
-  --shadow-color: rgba(0, 0, 0, 0.5);
-}
+ *
+ * #242: the former `[data-theme="dark"] { --bg-primary: #0a0a0a; ... }` block
+ * was REMOVED — it duplicated the design tokens that now live ONLY in
+ * variables.css. variables.css is the single source of truth for every brand
+ * color / surface / font / radius; this file defines NO color custom properties
+ * (the legacy --neon-* / --card-bg / --nav-bg names are aliased to canonical
+ * tokens from variables.css, not redeclared here). The dark-theme LOCK still
+ * holds: App.vue unconditionally sets <html data-theme="dark">, and
+ * variables.css :root resolves the canonical dark palette regardless of the
+ * data-theme attribute value.
+ *
+ * #188: the previous `:root { /* Default to dark theme *\/ ... }` byte-identical
+ * duplicate was removed. #239: the site is locked to dark — the former
+ * light-theme variable block + light neon rules were removed (could never
+ * match). The critical no-FOUC background is handled by the minimal inline
+ * <style> in index.html. */
 
 /* Theme transitions - smooth color changes */
 * {
@@ -58,9 +48,10 @@ body {
   color: var(--text-primary);
   /* Intentional cyber terminal-monospace body font (#188 font consolidation
    * deliberately preserves this — NOT consolidated onto --font-body, which is
-   * the Rajdhani UI font). Mirrors the 'Courier New' terminal blocks in
-   * NeuralCore / NeuralTerminal / SolutionForge. */
-  font-family: 'Courier New', monospace;
+   * the Rajdhani UI font). #242: routed through --font-mono so the terminal
+   * stack is token-driven (single source in variables.css). Mirrors the
+   * terminal blocks in NeuralCore / NeuralTerminal / SolutionForge. */
+  font-family: var(--font-mono);
   line-height: 1.6;
 }
 

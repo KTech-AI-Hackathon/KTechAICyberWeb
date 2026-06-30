@@ -1,52 +1,111 @@
 /**
  * KTech Fintech - Cyberpunk Theme Variables
  * Based on the original index.html styling
+ *
+ * #242: SINGLE SOURCE OF TRUTH for design tokens. This file is the canonical
+ * definition of every brand color, surface, font, and radius the site uses.
+ * cyber.css no longer redeclares any brand color (it keeps only its body-font
+ * rule + neon-text/border effects + transition/reduced-motion guards). The
+ * canonical palette aligns the whole site to the "Our Business" reference:
+ *   - bg dark family: #0a0a0a -> #1a1a2e -> #16213e gradient
+ *   - brand cyan: #00ffcc (was a mix of #00f0ff / #00ff88 / #00ffff)
+ *   - brand magenta: #ff00aa (was #ff00ff)
+ *   - body text: #e0e0e0 (was #e0e8ff), secondary #b0b0b0 (was #8a9acc)
+ *
+ * Legacy neon-* tokens are kept as ALIASES pointing at the canonical tokens
+ * (so existing cyber.css .neon-text rules + any consumer still resolve), not
+ * as hex redefinitions.
  */
 
 :root {
-  /* Colors */
-  --bg-primary: #0a0f1c;
-  --bg-secondary: #0d1a2d;
-  --cyan: #00ffcc;
-  --magenta: #ff00aa;
-  --text-primary: #e0e8ff;
-  --text-secondary: #8a9acc;
+  /* === Canonical brand palette (#242) === */
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #1a1a2e;
 
-  /* Fonts.
-   * 'Clash Display'/'Satoshi' were never @font-face loaded and never <link>-ed,
-   * so every var(--font-display/-body) consumer resolved to the system-ui
-   * fallback — the cyber display font was silently broken across the site.
-   * Corrected to Orbitron/Rajdhani, which ARE loaded via the Google Fonts
-   * <link> in index.html (#188). */
+  /* Background gradient stops (the Our Business dark gradient). */
+  --bg-gradient-start: #0a0a0a;
+  --bg-gradient-mid: #1a1a2e;
+  --bg-gradient-end: #16213e;
+
+  /* Brand accents. --cyan is the canonical cyber cyan; --accent-cyan/-soft
+   * are the named-token forms consumers should prefer. */
+  --cyan: #00ffcc;
+  --accent-cyan: #00ffcc;
+  --accent-cyan-soft: rgba(0, 255, 204, 0.2);
+  --accent-magenta: #ff00aa;
+  /* Legacy --magenta kept as alias (do not redeclare hex). */
+  --magenta: var(--accent-magenta);
+
+  /* === Text === */
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  /* Dimmed/tertiary text (labels, captions). Was the old text-secondary. */
+  --text-muted: #8a9acc;
+
+  /* === Surfaces === */
+  --surface-card: rgba(10, 15, 28, 0.8);
+  --surface-elevated: rgba(26, 26, 46, 0.8);
+
+  /* === Semantic status colors (NOT brand colors — intentional hex literals).
+   * These are warning/error/success signals that must NOT drift toward the
+   * cyan/magenta brand palette; they stay as literal hexes. */
+  --status-error: #ff4444;
+  --status-warning: #ffcc00;
+  --status-success: var(--cyan);
+
+  /* === Fonts.
+   * 'Orbitron'/'Rajdhani' loaded via the Google Fonts <link> in index.html
+   * (#188 corrected these from the never-loaded Clash Display/Satoshi).
+   * --font-mono is the terminal-monospace token (Courier New) used by cyber.css
+   * body + NeuralCore/NeuralTerminal/SolutionForge terminal blocks. */
   --font-display: 'Orbitron', system-ui, sans-serif;
   --font-body: 'Rajdhani', system-ui, sans-serif;
+  --font-mono: 'Courier New', monospace;
 
-  /* Spacing */
+  /* === Spacing === */
   --spacing-xs: 0.5rem;
   --spacing-sm: 1rem;
   --spacing-md: 2rem;
   --spacing-lg: 4rem;
   --spacing-xl: 8rem;
 
-  /* Border Radius */
+  /* === Border Radius === */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
+  --radius-xl: 20px;
 
-  /* Transitions */
+  /* === Transitions === */
   --transition-fast: 0.2s ease;
   --transition-normal: 0.3s ease;
   --transition-slow: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Shadows */
+  /* === Shadows / Glow === */
   --shadow-glow-cyan: 0 0 20px rgba(0, 255, 204, 0.3);
   --shadow-glow-magenta: 0 0 20px rgba(255, 0, 170, 0.3);
+  --glow-color: rgba(0, 255, 204, 0.4);
 
-  /* Z-index */
+  /* === Z-index === */
   --z-nav: 100;
   --z-loading: 9999;
   --z-scanlines: 1000;
 
-  /* Responsive breakpoints (kept in sync with src/constants/breakpoints.js) */
+  /* === Responsive breakpoints (kept in sync with src/constants/breakpoints.js) === */
   --breakpoint-mobile: 768px;
+
+  /* === Legacy neon-* aliases (#242 consolidation).
+   * These point at the canonical tokens — they exist so legacy consumers
+   * (cyber.css .neon-text/.neon-border + any component that read --neon-*)
+   * keep resolving WITHOUT redeclaring a hex. Removing these would break
+   * those consumers; redeclaring them as hex would re-introduce the
+   * duplication #242 eliminates. */
+  --neon-green: var(--cyan);
+  --neon-blue: var(--cyan);
+  --neon-pink: var(--accent-magenta);
+
+  /* === Legacy card-surface aliases (pre-#242 names kept for back-compat). */
+  --card-bg: var(--surface-elevated);
+  --card-border: rgba(0, 255, 204, 0.3);
+  --nav-bg: rgba(10, 10, 15, 0.8);
+  --shadow-color: rgba(0, 0, 0, 0.5);
 }
