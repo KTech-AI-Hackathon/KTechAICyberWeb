@@ -470,10 +470,38 @@ describe('About.vue', () => {
       })
     })
 
-    it('applies neon-border to achievement cards', () => {
+    it('does NOT apply neon-border to achievement cards (#241 layout-overlap fix)', () => {
+      // .neon-border forces width:60px/height:60px/border-radius:50% — a badge
+      // style. Applying it to .achievement-card collapsed each card to a 60x60
+      // circle, overflowing text and causing hover-overlap. Cards must NOT carry it.
       wrapper.findAll('.achievement-card').forEach((card) => {
-        expect(card.classes()).toContain('neon-border')
+        expect(card.classes()).not.toContain('neon-border')
       })
+    })
+
+    it('.achievement-card CSS rule is rectangular, not the circular neon-border shape (#241)', () => {
+      const aboutSource = fs.readFileSync(
+        path.resolve(process.cwd(), 'src', 'views', 'About.vue'),
+        'utf-8',
+      )
+      const cardBlock = aboutSource.match(/\.achievement-card\s*\{([^}]*)\}/)
+      expect(cardBlock).not.toBeNull()
+      const body = cardBlock![1]
+      expect(body).toMatch(/border:\s*1px solid rgba\(0,\s*255,\s*204,\s*0\.2\)/)
+      expect(body).toMatch(/border-radius:\s*10px/)
+      expect(body).not.toMatch(/border-radius:\s*50%/)
+    })
+
+    it('.neon-border rule is preserved unchanged for .card-icon badges (#241 scope guard)', () => {
+      const aboutSource = fs.readFileSync(
+        path.resolve(process.cwd(), 'src', 'views', 'About.vue'),
+        'utf-8',
+      )
+      const nbBlock = aboutSource.match(/\.neon-border\s*\{([^}]*)\}/)
+      expect(nbBlock).not.toBeNull()
+      expect(nbBlock![1]).toMatch(/border-radius:\s*50%/)
+      expect(nbBlock![1]).toMatch(/width:\s*60px/)
+      expect(nbBlock![1]).toMatch(/height:\s*60px/)
     })
 
     it('applies neon-glow to VMC cards', () => {
