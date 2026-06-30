@@ -4,6 +4,8 @@
       :src="resolvedSrc"
       :alt="alt"
       :loading="eager ? 'eager' : 'lazy'"
+      :srcset="resolvedSrcset"
+      :sizes="resolvedSizes"
       class="cyber-image__img"
     />
     <!-- Local scanline overlay (NOT the global Scanlines.vue, which is
@@ -28,6 +30,8 @@
  * <CyberImage src="/x.webp" :alt="t('about.hero.imageAlt')" eager />
  * <!-- With a layout class -->
  * <CyberImage src="/x.webp" :alt="..." className="about-hero__figure" />
+ * <!-- Responsive (#199): srcset + sizes; URLs are rebased under BASE_URL too -->
+ * <CyberImage src="/x.webp" alt="..." :srcset="'/x-400w.webp 400w, /x-800w.webp 800w'" sizes="(max-width: 600px) 100vw, 50vw" />
  */
 
 const props = defineProps({
@@ -47,12 +51,26 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  // Responsive image variants (#199). `srcset` is a comma-separated list of
+  // "url Ww" descriptors (e.g. "/x-400w.webp 400w, /x-800w.webp 800w"). Each
+  // URL is rebased under the Vite BASE_URL via the same resolvePath() used for
+  // `src`. `sizes` is the matching sizes attribute. Both default to '' so
+  // legacy callers render identical markup (the attributes are omitted when
+  // empty — see resolvedSrcset).
+  srcset: {
+    type: String,
+    default: '',
+  },
+  sizes: {
+    type: String,
+    default: '',
+  },
 })
 
 import { computed } from 'vue'
 
 /**
- * Resolve a public-asset image src against the Vite base path.
+ * Resolve a public-asset image path against the Vite base path.
  *
  * The app is deployed at the GitHub Pages subpath /KTechAICyberWeb/ (see `base`
  * in vite.config.js). Public assets live under that subpath, so a literal
@@ -61,18 +79,52 @@ import { computed } from 'vue'
  * prefixing site-relative `/images/...` paths with it yields the correct URL
  * in both dev and prod. Absolute URLs (http(s)://, data:, protocol-relative)
  * and already-prefixed paths are passed through unchanged.
+ *
+ * Shared by `src` and every `srcset` URL so they rebase through ONE code path
+ * (no duplicated base-path logic). #199.
  */
-const resolvedSrc = computed(() => {
-  const src = props.src
-  if (!src) return src
+function resolvePath(p) {
+  if (!p) return p
   // Pass through URLs that already carry a scheme or start with the base.
-  if (/^(https?:)?\/\//i.test(src)) return src
-  if (src.startsWith('data:')) return src
+  if (/^(https?:)?\/\//i.test(p)) return p
+  if (p.startsWith('data:')) return p
   const base = import.meta.env.BASE_URL || '/'
-  if (src.startsWith(base)) return src
+  if (p.startsWith(base)) return p
   // Only rebase site-root-relative public paths (e.g. /images/...).
-  if (src.startsWith('/')) return base.replace(/\/$/, '') + src
-  return src
+  if (p.startsWith('/')) return base.replace(/\/$/, '') + p
+  return p
+}
+
+const resolvedSrc = computed(() => resolvePath(props.src))
+
+/**
+ * Pass the `sizes` prop through, but return undefined when it is empty so Vue
+ * OMITS the attribute entirely (rendering sizes="" would be invalid markup and
+ * would break the "absent props => no attribute" contract). #199.
+ */
+const resolvedSizes = computed(() => (props.sizes ? props.sizes : undefined))
+
+/**
+ * Rebase every URL token in the srcset under BASE_URL, preserving the width
+ * descriptors. Returns undefined when `srcset` is empty so Vue OMITS the
+ * attribute entirely (not rendered as srcset=""). Each entry is "url Ww";
+ * only the URL token is rebased. #199.
+ */
+const resolvedSrcset = computed(() => {
+  if (!props.srcset) return undefined
+  const rebased = props.srcset
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0)
+    .map((entry) => {
+      const [url, ...descriptor] = entry.split(/\s+/)
+      const rebasedUrl = resolvePath(url)
+      return descriptor.length > 0
+        ? `${rebasedUrl} ${descriptor.join(' ')}`
+        : rebasedUrl
+    })
+    .join(', ')
+  return rebased || undefined
 })
 </script>
 
