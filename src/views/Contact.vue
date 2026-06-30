@@ -490,7 +490,7 @@ const handleSubmit = () => {
   padding: 1rem 5%;
   font-family: var(--font-body);
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-muted);
 }
 
 /* Main Content */
@@ -564,7 +564,7 @@ const handleSubmit = () => {
 }
 
 .form-input::placeholder {
-  color: #666;
+  color: var(--text-muted);
 }
 
 /* Select: keep native affordance but match the cyber input look. */
@@ -740,7 +740,7 @@ select.form-input option {
 .social-label {
   font-family: var(--font-body);
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.15em;
 }
