@@ -38,14 +38,14 @@ const handleClick = (event) => {
   top: -100px;
   left: 0;
   padding: 1rem 2rem;
-  background: var(--skip-link-bg, #0a0a0a);
-  color: var(--skip-link-text, #00f0ff);
+  background: var(--skip-link-bg, var(--bg-primary));
+  color: var(--skip-link-text, var(--cyan));
   text-decoration: none;
   font-family: var(--font-body);
   font-size: 1rem;
   font-weight: 600;
   letter-spacing: 0.1em;
-  border: 2px solid var(--skip-link-border, #00f0ff);
+  border: 2px solid var(--skip-link-border, var(--cyan));
   border-radius: 0 0 4px 0;
   z-index: 10000;
   transition: top 0.3s ease, box-shadow 0.3s ease;
@@ -53,21 +53,21 @@ const handleClick = (event) => {
 }
 
 .skip-link:hover {
-  background: var(--skip-link-hover-bg, rgba(0, 240, 255, 0.1));
-  box-shadow: 0 0 20px var(--skip-link-glow, rgba(0, 240, 255, 0.5));
+  background: var(--skip-link-hover-bg, rgba(0, 255, 204, 0.1));
+  box-shadow: 0 0 20px var(--skip-link-glow, rgba(0, 255, 204, 0.5));
 }
 
 .skip-link:focus {
   top: 0;
   outline: none;
-  box-shadow: 0 0 20px var(--skip-link-glow, rgba(0, 240, 255, 0.5));
+  box-shadow: 0 0 20px var(--skip-link-glow, rgba(0, 255, 204, 0.5));
 }
 
 .skip-link:focus-visible {
   top: 0;
-  outline: 2px solid var(--skip-link-outline, #00f0ff);
+  outline: 2px solid var(--skip-link-outline, var(--cyan));
   outline-offset: -2px;
-  box-shadow: 0 0 20px var(--skip-link-glow, rgba(0, 240, 255, 0.5));
+  box-shadow: 0 0 20px var(--skip-link-glow, rgba(0, 255, 204, 0.5));
 }
 
 /* Ensure high contrast for accessibility */

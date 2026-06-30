@@ -60,7 +60,7 @@ const newsItems = [
 .news-section {
   position: relative;
   padding: 5rem 5%;
-  background: rgba(10, 15, 28, 0.95);
+  background: var(--surface-card);
   border-top: 1px solid rgba(0, 255, 204, 0.2);
   border-bottom: 1px solid rgba(0, 255, 204, 0.2);
 }
@@ -88,7 +88,7 @@ const newsItems = [
 .section-icon svg {
   width: 32px;
   height: 32px;
-  color: #00ffcc;
+  color: var(--cyan);
 }
 
 .neon-glow {
@@ -99,7 +99,7 @@ const newsItems = [
   font-family: var(--font-display);
   font-size: 2.5rem;
   font-weight: 700;
-  color: #00ffcc;
+  color: var(--cyan);
   letter-spacing: 0.15em;
   text-transform: uppercase;
   margin: 0;
@@ -120,7 +120,7 @@ const newsItems = [
   text-decoration: none;
   background: rgba(20, 25, 40, 0.8);
   border: 1px solid rgba(0, 255, 204, 0.2);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
   transition: all 0.3s ease;
   cursor: pointer;
@@ -136,7 +136,7 @@ const newsItems = [
 
 .hover-glow:hover {
   border-color: rgba(0, 255, 204, 0.5);
-  box-shadow: 0 0 30px rgba(0, 255, 204, 0.3), 0 0 60px rgba(255, 0, 255, 0.1);
+  box-shadow: 0 0 30px rgba(0, 255, 204, 0.3), 0 0 60px rgba(255, 0, 170, 0.1);
 }
 
 .card-image {
@@ -152,12 +152,12 @@ const newsItems = [
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(0, 255, 204, 0.1) 0%, rgba(255, 0, 255, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(0, 255, 204, 0.1) 0%, rgba(255, 0, 170, 0.05) 100%);
 }
 
 .neon-border {
   border: 1px solid rgba(0, 255, 204, 0.3);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
 }
 
 .placeholder-icon {
@@ -172,7 +172,7 @@ const newsItems = [
   font-family: var(--font-display);
   font-size: 1.3rem;
   font-weight: 600;
-  color: #e0e0e0;
+  color: var(--text-primary);
   margin: 0 0 1rem 0;
   letter-spacing: 0.1em;
 }
@@ -184,38 +184,38 @@ const newsItems = [
   padding: 0.75rem 1.5rem;
   background: rgba(0, 255, 204, 0.1);
   border: 1px solid rgba(0, 255, 204, 0.3);
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   transition: all 0.3s ease;
 }
 
 .news-card:hover .card-cta {
-  background: rgba(255, 0, 255, 0.2);
-  border-color: rgba(255, 0, 255, 0.5);
-  box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+  background: rgba(255, 0, 170, 0.2);
+  border-color: rgba(255, 0, 170, 0.5);
+  box-shadow: 0 0 15px rgba(255, 0, 170, 0.3);
 }
 
 .cta-text {
   font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 600;
-  color: #00ffcc;
+  color: var(--cyan);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
 .news-card:hover .cta-text {
-  color: #ff00ff;
+  color: var(--accent-magenta);
 }
 
 .cta-arrow {
   font-size: 1.2rem;
-  color: #00ffcc;
+  color: var(--cyan);
   transition: transform 0.3s ease;
 }
 
 .news-card:hover .cta-arrow {
   transform: translateX(5px);
-  color: #ff00ff;
+  color: var(--accent-magenta);
 }
 
 @media (max-width: 768px) {

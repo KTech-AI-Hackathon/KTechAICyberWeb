@@ -252,8 +252,8 @@ onMounted(() => {
   min-height: 100vh;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
-  color: #e0e0e0;
+  background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
+  color: var(--text-primary);
   font-family: var(--font-body);
   padding: 2rem;
 }
@@ -265,8 +265,8 @@ onMounted(() => {
   right: 0;
   bottom: 0;
   background-image:
-    linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(0, 255, 204, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 204, 0.03) 1px, transparent 1px);
   background-size: 50px 50px;
   animation: dacGridMove 20s linear infinite;
   pointer-events: none;
@@ -275,8 +275,8 @@ onMounted(() => {
 
 .grid-bg-2 {
   background-image:
-    linear-gradient(rgba(0, 255, 136, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 255, 136, 0.02) 1px, transparent 1px);
+    linear-gradient(rgba(0, 255, 204, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 204, 0.02) 1px, transparent 1px);
   background-size: 100px 100px;
   animation: dacGridMove 30s linear infinite reverse;
 }
@@ -295,9 +295,9 @@ onMounted(() => {
 }
 
 .dac__skeleton-block {
-  background: rgba(26, 26, 46, 0.6);
-  border: 1px solid rgba(0, 240, 255, 0.2);
-  border-radius: 8px;
+  background: var(--surface-elevated);
+  border: 1px solid rgba(0, 255, 204, 0.2);
+  border-radius: var(--radius-md);
   margin-bottom: 1rem;
   animation: dacShimmer 1.5s ease-in-out infinite;
 }
@@ -327,31 +327,31 @@ onMounted(() => {
 }
 
 .dac__breadcrumb-link {
-  color: #b0b0b0;
+  color: var(--text-secondary);
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 .dac__breadcrumb-link:hover,
 .dac__breadcrumb-link:focus {
-  color: #00f0ff;
+  color: var(--cyan);
 }
 
 .dac__breadcrumb-separator {
-  color: rgba(0, 240, 255, 0.5);
+  color: rgba(0, 255, 204, 0.5);
 }
 
 .dac__breadcrumb-current {
-  color: #00f0ff;
+  color: var(--cyan);
   font-weight: 500;
 }
 
 .dac__hero {
   text-align: center;
   padding: 4rem 2rem;
-  background: rgba(26, 26, 46, 0.6);
-  border: 1px solid rgba(0, 240, 255, 0.2);
-  border-radius: 12px;
+  background: var(--surface-elevated);
+  border: 1px solid rgba(0, 255, 204, 0.2);
+  border-radius: var(--radius-lg);
   margin-bottom: 3rem;
   backdrop-filter: blur(10px);
 }
@@ -367,7 +367,7 @@ onMounted(() => {
   line-height: 120px;
   margin: 0 auto;
   border-radius: 50%;
-  background: rgba(0, 240, 255, 0.1);
+  background: rgba(0, 255, 204, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -386,12 +386,12 @@ onMounted(() => {
   margin: 0 0 1rem 0;
   line-height: 1.3;
   letter-spacing: 0.05em;
-  color: #00f0ff;
+  color: var(--cyan);
 }
 
 .dac__hero-subtitle {
   font-size: 1.2rem;
-  color: #b0b0b0;
+  color: var(--text-secondary);
   max-width: 800px;
   margin: 0 auto 2rem;
   line-height: 1.6;
@@ -404,10 +404,10 @@ onMounted(() => {
 .dac__hero-button {
   display: inline-block;
   padding: 1rem 2.5rem;
-  background: rgba(0, 240, 255, 0.1);
-  border: 2px solid rgba(0, 240, 255, 0.4);
-  border-radius: 6px;
-  color: #00f0ff;
+  background: rgba(0, 255, 204, 0.1);
+  border: 2px solid rgba(0, 255, 204, 0.4);
+  border-radius: var(--radius-md);
+  color: var(--cyan);
   text-decoration: none;
   font-family: var(--font-body);
   font-weight: 600;
@@ -418,9 +418,9 @@ onMounted(() => {
 
 .dac__hero-button:hover,
 .dac__hero-button:focus {
-  background: rgba(0, 240, 255, 0.2);
-  border-color: rgba(0, 240, 255, 0.6);
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+  background: rgba(0, 255, 204, 0.2);
+  border-color: rgba(0, 255, 204, 0.6);
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
   transform: translateY(-2px);
 }
 
@@ -428,7 +428,7 @@ onMounted(() => {
   font-family: var(--font-display);
   font-size: 2rem;
   font-weight: 600;
-  color: #e0e0e0;
+  color: var(--text-primary);
   margin: 0 0 2rem 0;
   text-align: center;
   letter-spacing: 0.05em;
@@ -440,7 +440,7 @@ onMounted(() => {
   display: block;
   width: 100px;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #00f0ff, transparent);
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
   margin: 1rem auto 0;
 }
 
@@ -448,15 +448,15 @@ onMounted(() => {
   max-width: 900px;
   margin: 0 auto 4rem;
   padding: 2rem;
-  background: rgba(26, 26, 46, 0.4);
-  border: 1px solid rgba(0, 240, 255, 0.2);
-  border-radius: 10px;
+  background: var(--surface-elevated);
+  border: 1px solid rgba(0, 255, 204, 0.2);
+  border-radius: var(--radius-lg);
 }
 
 .dac__overview-text {
   font-size: 1.1rem;
   line-height: 1.8;
-  color: #b0b0b0;
+  color: var(--text-secondary);
   text-align: center;
 }
 
@@ -473,9 +473,9 @@ onMounted(() => {
 }
 
 .dac__card {
-  background: rgba(26, 26, 46, 0.6);
-  border: 1px solid rgba(0, 240, 255, 0.2);
-  border-radius: 10px;
+  background: var(--surface-elevated);
+  border: 1px solid rgba(0, 255, 204, 0.2);
+  border-radius: var(--radius-lg);
   padding: 2rem;
   text-align: center;
   transition: all 0.3s ease;
@@ -484,9 +484,9 @@ onMounted(() => {
 }
 
 .dac__card:hover {
-  border-color: rgba(0, 240, 255, 0.5);
+  border-color: rgba(0, 255, 204, 0.5);
   transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 240, 255, 0.15);
+  box-shadow: 0 8px 20px rgba(0, 255, 204, 0.15);
 }
 
 @keyframes dacFadeInUp {
@@ -510,22 +510,22 @@ onMounted(() => {
   font-family: var(--font-display);
   font-size: 1.2rem;
   font-weight: 600;
-  color: #00f0ff;
+  color: var(--cyan);
   margin: 0 0 0.75rem 0;
 }
 
 .dac__card-description {
   font-size: 0.95rem;
   line-height: 1.6;
-  color: #b0b0b0;
+  color: var(--text-secondary);
 }
 
 .dac__cta {
   text-align: center;
   padding: 4rem 2rem;
-  background: rgba(26, 26, 46, 0.6);
-  border: 2px solid rgba(0, 240, 255, 0.3);
-  border-radius: 12px;
+  background: var(--surface-elevated);
+  border: 2px solid rgba(0, 255, 204, 0.3);
+  border-radius: var(--radius-lg);
   margin-bottom: 3rem;
 }
 
@@ -533,13 +533,13 @@ onMounted(() => {
   font-family: var(--font-display);
   font-size: 2rem;
   font-weight: 700;
-  color: #00f0ff;
+  color: var(--cyan);
   margin: 0 0 1rem 0;
 }
 
 .dac__cta-description {
   font-size: 1.1rem;
-  color: #b0b0b0;
+  color: var(--text-secondary);
   margin-bottom: 2rem;
   max-width: 600px;
   margin-left: auto;
@@ -549,10 +549,10 @@ onMounted(() => {
 .dac__cta-button {
   display: inline-block;
   padding: 1rem 2.5rem;
-  background: rgba(0, 240, 255, 0.1);
-  border: 2px solid rgba(0, 240, 255, 0.4);
-  border-radius: 6px;
-  color: #00f0ff;
+  background: rgba(0, 255, 204, 0.1);
+  border: 2px solid rgba(0, 255, 204, 0.4);
+  border-radius: var(--radius-md);
+  color: var(--cyan);
   text-decoration: none;
   font-family: var(--font-body);
   font-weight: 600;
@@ -563,9 +563,9 @@ onMounted(() => {
 
 .dac__cta-button:hover,
 .dac__cta-button:focus {
-  background: rgba(0, 240, 255, 0.2);
-  border-color: rgba(0, 240, 255, 0.6);
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+  background: rgba(0, 255, 204, 0.2);
+  border-color: rgba(0, 255, 204, 0.6);
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
   transform: translateY(-2px);
 }
 
@@ -578,7 +578,7 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: #00f0ff;
+  color: var(--cyan);
   text-decoration: none;
   font-family: var(--font-body);
   font-size: 0.95rem;
@@ -590,7 +590,7 @@ onMounted(() => {
 
 .dac__back-link:hover,
 .dac__back-link:focus {
-  color: #e0e0e0;
+  color: var(--text-primary);
 }
 
 .dac__back-icon {
@@ -604,16 +604,16 @@ onMounted(() => {
 
 .neon-border {
   box-shadow:
-    0 0 5px rgba(0, 240, 255, 0.5),
-    0 0 10px rgba(0, 240, 255, 0.3),
-    inset 0 0 5px rgba(0, 240, 255, 0.1);
+    0 0 5px rgba(0, 255, 204, 0.5),
+    0 0 10px rgba(0, 255, 204, 0.3),
+    inset 0 0 5px rgba(0, 255, 204, 0.1);
 }
 
 .neon-text {
   text-shadow:
-    0 0 5px rgba(0, 240, 255, 0.5),
-    0 0 10px rgba(0, 240, 255, 0.3),
-    0 0 15px rgba(0, 240, 255, 0.2);
+    0 0 5px rgba(0, 255, 204, 0.5),
+    0 0 10px rgba(0, 255, 204, 0.3),
+    0 0 15px rgba(0, 255, 204, 0.2);
 }
 
 @media (max-width: 768px) {

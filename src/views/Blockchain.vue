@@ -118,7 +118,7 @@ onMounted(() => {
   min-height: 100vh;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+  background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
 }
 
 /* Animated grid background */
@@ -129,8 +129,8 @@ onMounted(() => {
   right: 0;
   bottom: 0;
   background-image:
-    linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(0, 255, 204, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 204, 0.03) 1px, transparent 1px);
   background-size: 50px 50px;
   animation: gridMove 20s linear infinite;
   pointer-events: none;
@@ -139,8 +139,8 @@ onMounted(() => {
 
 .grid-bg-2 {
   background-image:
-    linear-gradient(rgba(0, 255, 136, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 255, 136, 0.02) 1px, transparent 1px);
+    linear-gradient(rgba(0, 255, 204, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 204, 0.02) 1px, transparent 1px);
   background-size: 100px 100px;
   animation: gridMove 30s linear infinite reverse;
 }
@@ -154,8 +154,8 @@ onMounted(() => {
 .hero {
   position: relative;
   padding: 6rem 5% 4rem;
-  background: rgba(0, 240, 255, 0.03);
-  border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+  background: rgba(0, 255, 204, 0.03);
+  border-bottom: 1px solid rgba(0, 255, 204, 0.2);
   z-index: 1;
 }
 
@@ -175,13 +175,13 @@ onMounted(() => {
 }
 
 .breadcrumb a {
-  color: #00f0ff;
+  color: var(--cyan);
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 .breadcrumb a:hover {
-  color: #00ff88;
+  color: var(--cyan);
 }
 
 .breadcrumb .separator {
@@ -192,18 +192,18 @@ onMounted(() => {
   font-family: var(--font-display);
   font-size: 3.5rem;
   font-weight: 700;
-  color: #e0e0e0;
+  color: var(--text-primary);
   letter-spacing: 0.2em;
   margin-bottom: 1rem;
-  text-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+  text-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
 }
 
 .page-title .accent {
-  color: #00f0ff;
+  color: var(--cyan);
   text-shadow:
-    0 0 10px #00f0ff,
-    0 0 20px #00f0ff,
-    0 0 30px #00f0ff;
+    0 0 10px var(--cyan),
+    0 0 20px var(--cyan),
+    0 0 30px var(--cyan);
 }
 
 .page-subtitle {
@@ -230,11 +230,11 @@ onMounted(() => {
   font-family: var(--font-display);
   font-size: 2.2rem;
   font-weight: 600;
-  color: #00f0ff;
+  color: var(--cyan);
   letter-spacing: 0.15em;
   text-align: center;
   margin-bottom: 3rem;
-  text-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+  text-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
 }
 
 .overview-text {
@@ -251,9 +251,9 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 2rem;
-  background: rgba(26, 26, 46, 0.6);
-  border: 1px solid rgba(0, 240, 255, 0.3);
-  border-radius: 10px;
+  background: var(--surface-elevated);
+  border: 1px solid rgba(0, 255, 204, 0.3);
+  border-radius: var(--radius-lg);
   padding: 2rem;
   max-width: 900px;
   margin: 0 auto;
@@ -267,7 +267,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: rgba(0, 240, 255, 0.1);
+  background: rgba(0, 255, 204, 0.1);
   flex-shrink: 0;
 }
 
@@ -282,7 +282,7 @@ onMounted(() => {
 .features {
   position: relative;
   padding: 5rem 5%;
-  background: rgba(0, 255, 136, 0.02);
+  background: rgba(0, 255, 204, 0.02);
   z-index: 1;
 }
 
@@ -295,9 +295,9 @@ onMounted(() => {
 }
 
 .feature-card {
-  background: rgba(26, 26, 46, 0.6);
-  border: 1px solid rgba(0, 240, 255, 0.2);
-  border-radius: 10px;
+  background: var(--surface-elevated);
+  border: 1px solid rgba(0, 255, 204, 0.2);
+  border-radius: var(--radius-lg);
   padding: 2rem;
   text-align: center;
   transition: all 0.3s ease;
@@ -307,8 +307,8 @@ onMounted(() => {
 
 .feature-card:hover {
   transform: translateY(-5px);
-  border-color: rgba(0, 240, 255, 0.5);
-  box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+  border-color: rgba(0, 255, 204, 0.5);
+  box-shadow: 0 0 30px rgba(0, 255, 204, 0.3);
 }
 
 @keyframes fadeInUp {
@@ -329,13 +329,13 @@ onMounted(() => {
   line-height: 70px;
   margin: 0 auto 1.5rem;
   border-radius: 50%;
-  background: rgba(0, 240, 255, 0.1);
+  background: rgba(0, 255, 204, 0.1);
 }
 
 .feature-card h3 {
   font-family: var(--font-display);
   font-size: 1.3rem;
-  color: #00f0ff;
+  color: var(--cyan);
   margin-bottom: 1rem;
   letter-spacing: 0.1em;
 }
@@ -363,9 +363,9 @@ onMounted(() => {
 }
 
 .benefit-item {
-  background: linear-gradient(135deg, rgba(26, 26, 46, 0.8) 0%, rgba(22, 33, 62, 0.6) 100%);
-  border-left: 3px solid #00f0ff;
-  border-radius: 8px;
+  background: linear-gradient(135deg, var(--surface-elevated) 0%, rgba(22, 33, 62, 0.6) 100%);
+  border-left: 3px solid var(--cyan);
+  border-radius: var(--radius-md);
   padding: 2rem;
   position: relative;
   animation: fadeInUp 0.6s ease forwards;
@@ -373,15 +373,15 @@ onMounted(() => {
 }
 
 .benefit-item:hover {
-  border-left-color: #00ff88;
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+  border-left-color: var(--cyan);
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
 }
 
 .benefit-number {
   font-family: var(--font-display);
   font-size: 2.5rem;
   font-weight: 700;
-  color: #00f0ff;
+  color: var(--cyan);
   margin-bottom: 1rem;
   opacity: 0.5;
 }
@@ -389,7 +389,7 @@ onMounted(() => {
 .benefit-item h3 {
   font-family: var(--font-display);
   font-size: 1.2rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
   margin-bottom: 0.8rem;
   letter-spacing: 0.1em;
 }
@@ -405,9 +405,9 @@ onMounted(() => {
 .cta {
   position: relative;
   padding: 5rem 5%;
-  background: linear-gradient(135deg, rgba(0, 240, 255, 0.05) 0%, rgba(0, 255, 136, 0.03) 100%);
-  border-top: 1px solid rgba(0, 240, 255, 0.2);
-  border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+  background: linear-gradient(135deg, rgba(0, 255, 204, 0.05) 0%, rgba(0, 255, 204, 0.03) 100%);
+  border-top: 1px solid rgba(0, 255, 204, 0.2);
+  border-bottom: 1px solid rgba(0, 255, 204, 0.2);
   z-index: 1;
 }
 
@@ -420,10 +420,10 @@ onMounted(() => {
 .cta h2 {
   font-family: var(--font-display);
   font-size: 2rem;
-  color: #00f0ff;
+  color: var(--cyan);
   margin-bottom: 1.5rem;
   letter-spacing: 0.15em;
-  text-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+  text-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
 }
 
 .cta p {
@@ -435,9 +435,9 @@ onMounted(() => {
 }
 
 .cyber-button {
-  background: rgba(0, 240, 255, 0.1);
-  color: #00f0ff;
-  border: 2px solid #00f0ff;
+  background: rgba(0, 255, 204, 0.1);
+  color: var(--cyan);
+  border: 2px solid var(--cyan);
   padding: 1rem 3rem;
   font-size: 1.1rem;
   font-family: var(--font-body);
@@ -451,17 +451,17 @@ onMounted(() => {
 }
 
 .cyber-button:hover {
-  background: rgba(0, 240, 255, 0.2);
-  box-shadow: 0 0 30px rgba(0, 240, 255, 0.5);
+  background: rgba(0, 255, 204, 0.2);
+  box-shadow: 0 0 30px rgba(0, 255, 204, 0.5);
   transform: scale(1.05);
 }
 
 /* Neon effects */
 .neon-border {
   box-shadow:
-    0 0 5px #00f0ff,
-    0 0 10px rgba(0, 240, 255, 0.5),
-    inset 0 0 5px rgba(0, 240, 255, 0.2);
+    0 0 5px var(--cyan),
+    0 0 10px rgba(0, 255, 204, 0.5),
+    inset 0 0 5px rgba(0, 255, 204, 0.2);
 }
 
 .neon-text {

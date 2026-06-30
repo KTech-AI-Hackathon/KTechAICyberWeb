@@ -258,7 +258,7 @@ const nearStyle = computed(() => depthStyle(34))
       rgba(255, 0, 170, 0.05) 0%,
       transparent 55%
     ),
-    var(--bg-primary, #0a0f1c);
+    var(--bg-primary, var(--bg-primary));
 }
 
 .self-driving-heading {
@@ -314,8 +314,8 @@ const nearStyle = computed(() => depthStyle(34))
   text-align: center;
   font-family: var(--font-display);
   letter-spacing: 0.1em;
-  color: var(--neon-green, #00ff88);
-  text-shadow: 0 0 6px var(--neon-green, #00ff88);
+  color: var(--neon-green, var(--cyan));
+  text-shadow: 0 0 6px var(--neon-green, var(--cyan));
 }
 
 /* ---- AC2 PARALLAX DEPTH ------------------------------------------------
@@ -368,8 +368,8 @@ const nearStyle = computed(() => depthStyle(34))
     ),
     repeating-linear-gradient(
       0deg,
-      rgba(255, 0, 255, 0.04) 0,
-      rgba(0, 255, 136, 0.04) 1px,
+      rgba(255, 0, 170, 0.04) 0,
+      rgba(0, 255, 204, 0.04) 1px,
       transparent 1px,
       transparent 48px
     );

@@ -61,9 +61,9 @@ const statusKey = `selfDriving.phases.${props.phase}.status`
   gap: 0.35rem;
   padding: 0.75rem 0.9rem;
   min-width: 7rem;
-  border: 1px solid rgba(0, 240, 255, 0.15);
-  background: rgba(10, 15, 28, 0.55);
-  border-radius: 6px;
+  border: 1px solid rgba(0, 255, 204, 0.15);
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
   opacity: 0.45;
   transition:
     transform 0.45s cubic-bezier(0.4, 0, 0.2, 1),
@@ -75,13 +75,13 @@ const statusKey = `selfDriving.phases.${props.phase}.status`
 }
 .pipeline-card.done {
   opacity: 0.7;
-  border-color: rgba(0, 255, 136, 0.25);
+  border-color: rgba(0, 255, 204, 0.25);
 }
 .pipeline-card.current {
   opacity: 1;
   transform: translateY(-3px);
   border-color: var(--card-accent);
-  box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+  box-shadow: 0 0 12px rgba(0, 255, 204, 0.25);
 }
 .pipeline-card-marker {
   position: absolute;

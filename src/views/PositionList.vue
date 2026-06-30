@@ -352,7 +352,7 @@ onUnmounted(() => {
 <style scoped>
 .position-list {
   min-height: 100vh;
-  background: linear-gradient(135deg, rgba(0, 240, 255, 0.05) 0%, rgba(139, 0, 255, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(0, 255, 204, 0.05) 0%, rgba(139, 0, 255, 0.05) 100%);
   padding: 2rem 5%;
 }
 
@@ -368,13 +368,13 @@ onUnmounted(() => {
 }
 
 .breadcrumb-link {
-  color: #00f0ff;
+  color: var(--cyan);
   text-decoration: none;
   transition: text-shadow 0.3s ease;
 }
 
 .breadcrumb-link:hover {
-  text-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
+  text-shadow: 0 0 10px rgba(0, 255, 204, 0.8);
 }
 
 .breadcrumb-separator {
@@ -382,7 +382,7 @@ onUnmounted(() => {
 }
 
 .breadcrumb-current {
-  color: #e0e0e0;
+  color: var(--text-primary);
 }
 
 /* Header */
@@ -395,7 +395,7 @@ onUnmounted(() => {
   font-family: var(--font-display);
   font-size: 3rem;
   font-weight: 700;
-  color: #e0e0e0;
+  color: var(--text-primary);
   letter-spacing: 0.2em;
   margin-bottom: 0.5rem;
 }
@@ -403,7 +403,7 @@ onUnmounted(() => {
 .position-list__title-accent {
   font-family: var(--font-body);
   font-size: 1.2rem;
-  color: #00f0ff;
+  color: var(--cyan);
   text-transform: uppercase;
   letter-spacing: 0.3em;
 }
@@ -425,16 +425,16 @@ onUnmounted(() => {
 }
 
 .filter-section {
-  background: rgba(0, 240, 255, 0.05);
-  border: 1px solid rgba(0, 240, 255, 0.2);
+  background: rgba(0, 255, 204, 0.05);
+  border: 1px solid rgba(0, 255, 204, 0.2);
   padding: 2rem;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 .filter-title {
   font-family: var(--font-display);
   font-size: 1.2rem;
-  color: #00f0ff;
+  color: var(--cyan);
   letter-spacing: 0.15em;
   margin-bottom: 1.5rem;
 }
@@ -455,16 +455,16 @@ onUnmounted(() => {
   width: 100%;
   padding: 0.75rem;
   background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(0, 240, 255, 0.3);
-  color: #e0e0e0;
+  border: 1px solid rgba(0, 255, 204, 0.3);
+  color: var(--text-primary);
   font-family: var(--font-body);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .filter-search input:focus {
   outline: none;
-  border-color: #00f0ff;
-  box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+  border-color: var(--cyan);
+  box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
 }
 
 .filter-group {
@@ -483,15 +483,15 @@ onUnmounted(() => {
   width: 100%;
   padding: 0.75rem;
   background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(0, 240, 255, 0.3);
-  color: #e0e0e0;
+  border: 1px solid rgba(0, 255, 204, 0.3);
+  color: var(--text-primary);
   font-family: var(--font-body);
   transition: border-color 0.3s ease;
 }
 
 .filter-group select:focus {
   outline: none;
-  border-color: #00f0ff;
+  border-color: var(--cyan);
 }
 
 .filter-active {
@@ -499,7 +499,7 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   padding-top: 1rem;
-  border-top: 1px solid rgba(0, 240, 255, 0.2);
+  border-top: 1px solid rgba(0, 255, 204, 0.2);
   font-family: var(--font-body);
   font-size: 0.9rem;
   color: #aaa;
@@ -507,17 +507,17 @@ onUnmounted(() => {
 
 .filter-clear {
   padding: 0.5rem 1rem;
-  background: rgba(0, 240, 255, 0.1);
-  border: 1px solid rgba(0, 240, 255, 0.3);
-  color: #00f0ff;
+  background: rgba(0, 255, 204, 0.1);
+  border: 1px solid rgba(0, 255, 204, 0.3);
+  color: var(--cyan);
   font-family: var(--font-body);
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .filter-clear:hover {
-  background: rgba(0, 240, 255, 0.2);
-  box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+  background: rgba(0, 255, 204, 0.2);
+  box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
 }
 
 /* Positions Grid */
@@ -533,24 +533,24 @@ onUnmounted(() => {
 
 /* Position Card */
 .position-card {
-  background: rgba(0, 240, 255, 0.05);
-  border: 1px solid rgba(0, 240, 255, 0.2);
+  background: rgba(0, 255, 204, 0.05);
+  border: 1px solid rgba(0, 255, 204, 0.2);
   padding: 2rem;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   cursor: pointer;
 }
 
 .position-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0, 240, 255, 0.2);
-  border-color: #00f0ff;
+  box-shadow: 0 10px 30px rgba(0, 255, 204, 0.2);
+  border-color: var(--cyan);
 }
 
 .position-card__title {
   font-family: var(--font-display);
   font-size: 1.3rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
   letter-spacing: 0.1em;
   margin-bottom: 1rem;
 }
@@ -593,7 +593,7 @@ onUnmounted(() => {
 .position-card__salary {
   font-family: var(--font-display);
   font-size: 1.1rem;
-  color: #00f0ff;
+  color: var(--cyan);
 }
 
 .position-card__badge {
@@ -611,8 +611,8 @@ onUnmounted(() => {
   width: 100%;
   padding: 0.8rem;
   background: transparent;
-  border: 1px solid rgba(0, 240, 255, 0.4);
-  color: #00f0ff;
+  border: 1px solid rgba(0, 255, 204, 0.4);
+  color: var(--cyan);
   font-family: var(--font-display);
   font-size: 0.9rem;
   letter-spacing: 0.15em;
@@ -621,8 +621,8 @@ onUnmounted(() => {
 }
 
 .position-card__action:hover {
-  background: rgba(0, 240, 255, 0.1);
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+  background: rgba(0, 255, 204, 0.1);
+  box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
 }
 
 /* Empty State */
@@ -639,7 +639,7 @@ onUnmounted(() => {
 .empty-title {
   font-family: var(--font-display);
   font-size: 1.5rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
   letter-spacing: 0.1em;
   margin-bottom: 1rem;
 }
@@ -653,9 +653,9 @@ onUnmounted(() => {
 
 .empty-action {
   padding: 0.8rem 2rem;
-  background: rgba(0, 240, 255, 0.1);
-  border: 1px solid rgba(0, 240, 255, 0.4);
-  color: #00f0ff;
+  background: rgba(0, 255, 204, 0.1);
+  border: 1px solid rgba(0, 255, 204, 0.4);
+  color: var(--cyan);
   font-family: var(--font-display);
   font-size: 0.9rem;
   letter-spacing: 0.15em;
@@ -664,8 +664,8 @@ onUnmounted(() => {
 }
 
 .empty-action:hover {
-  background: rgba(0, 240, 255, 0.2);
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+  background: rgba(0, 255, 204, 0.2);
+  box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
 }
 
 /* Modal */
@@ -697,8 +697,8 @@ onUnmounted(() => {
   max-height: 90vh;
   overflow-y: auto;
   background: rgba(10, 10, 20, 0.95);
-  border: 1px solid rgba(0, 240, 255, 0.3);
-  border-radius: 12px;
+  border: 1px solid rgba(0, 255, 204, 0.3);
+  border-radius: var(--radius-lg);
 }
 
 .position-modal__close {
@@ -707,9 +707,9 @@ onUnmounted(() => {
   right: 1rem;
   width: 40px;
   height: 40px;
-  background: rgba(0, 240, 255, 0.1);
-  border: 1px solid rgba(0, 240, 255, 0.3);
-  color: #00f0ff;
+  background: rgba(0, 255, 204, 0.1);
+  border: 1px solid rgba(0, 255, 204, 0.3);
+  color: var(--cyan);
   font-size: 1.2rem;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -717,8 +717,8 @@ onUnmounted(() => {
 }
 
 .position-modal__close:hover {
-  background: rgba(0, 240, 255, 0.2);
-  box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+  background: rgba(0, 255, 204, 0.2);
+  box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
 }
 
 .position-modal__content {
@@ -728,7 +728,7 @@ onUnmounted(() => {
 .position-modal__title {
   font-family: var(--font-display);
   font-size: 2rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
   letter-spacing: 0.15em;
   margin-bottom: 1rem;
 }
@@ -749,7 +749,7 @@ onUnmounted(() => {
 .position-modal__section h3 {
   font-family: var(--font-display);
   font-size: 1.2rem;
-  color: #00f0ff;
+  color: var(--cyan);
   letter-spacing: 0.1em;
   margin-bottom: 1rem;
 }
@@ -780,7 +780,7 @@ onUnmounted(() => {
   content: '▸';
   position: absolute;
   left: 0;
-  color: #00f0ff;
+  color: var(--cyan);
 }
 
 .position-modal__actions {
@@ -801,14 +801,14 @@ onUnmounted(() => {
 }
 
 .position-modal__apply {
-  background: rgba(0, 240, 255, 0.1);
-  border: 1px solid rgba(0, 240, 255, 0.4);
-  color: #00f0ff;
+  background: rgba(0, 255, 204, 0.1);
+  border: 1px solid rgba(0, 255, 204, 0.4);
+  color: var(--cyan);
 }
 
 .position-modal__apply:hover {
-  background: rgba(0, 240, 255, 0.2);
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+  background: rgba(0, 255, 204, 0.2);
+  box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
 }
 
 .position-modal__share {

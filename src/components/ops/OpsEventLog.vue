@@ -86,7 +86,7 @@ function timeLabel(ts) {
   cursor: pointer;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   transition: all 0.2s ease;
 }
 
@@ -99,7 +99,7 @@ function timeLabel(ts) {
 }
 
 .ops-event-tab.active {
-  background: rgba(0, 255, 136, 0.15);
+  background: rgba(0, 255, 204, 0.15);
   border-color: var(--neon-green);
   color: var(--neon-green);
 }
@@ -119,7 +119,7 @@ function timeLabel(ts) {
   grid-template-columns: auto auto 1fr;
   gap: 0.4rem;
   padding: 0.15rem 0.3rem;
-  border-bottom: 1px solid rgba(0, 255, 136, 0.08);
+  border-bottom: 1px solid rgba(0, 255, 204, 0.08);
   align-items: baseline;
 }
 

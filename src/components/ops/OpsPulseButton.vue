@@ -23,7 +23,7 @@ defineEmits(['pulse'])
 
 <style scoped>
 .ops-pulse-btn {
-  background: rgba(0, 255, 136, 0.1);
+  background: rgba(0, 255, 204, 0.1);
   color: var(--neon-green);
   border: 1px solid var(--neon-green);
   font-family: var(--font-display);
@@ -32,20 +32,20 @@ defineEmits(['pulse'])
   cursor: pointer;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   transition: all 0.2s ease;
   box-shadow: 0 0 6px var(--glow-color);
 }
 
 .ops-pulse-btn:hover,
 .ops-pulse-btn:focus-visible {
-  background: rgba(0, 255, 136, 0.25);
+  background: rgba(0, 255, 204, 0.25);
   box-shadow: 0 0 14px var(--neon-green);
   outline: none;
 }
 
 .ops-pulse-applied {
-  background: rgba(0, 255, 136, 0.3);
+  background: rgba(0, 255, 204, 0.3);
   box-shadow: 0 0 20px var(--neon-green);
 }
 </style>

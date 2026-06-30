@@ -41,8 +41,8 @@ export default {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(0, 240, 255, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 240, 255, 0.06) 1px, transparent 1px);
+    linear-gradient(rgba(0, 255, 204, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 204, 0.06) 1px, transparent 1px);
   background-size: 40px 40px;
   pointer-events: none;
 }
@@ -65,7 +65,7 @@ export default {
 .title {
   font-family: var(--font-display);
   font-size: clamp(1.5rem, 4vw, 2.5rem);
-  color: #e0e0e0;
+  color: var(--text-primary);
   margin: 0 0 1rem 0;
   text-transform: uppercase;
   letter-spacing: 0.15em;
@@ -74,7 +74,7 @@ export default {
 .message {
   font-family: var(--font-body);
   font-size: 1.2rem;
-  color: #b0b0b0;
+  color: var(--text-secondary);
   margin: 0 0 2.5rem 0;
 }
 
@@ -86,17 +86,17 @@ export default {
   text-transform: uppercase;
   letter-spacing: 0.15em;
   text-decoration: none;
-  color: #00f0ff;
+  color: var(--cyan);
   padding: 0.75rem 2rem;
-  border: 1px solid rgba(0, 240, 255, 0.5);
-  background: rgba(0, 240, 255, 0.05);
+  border: 1px solid rgba(0, 255, 204, 0.5);
+  background: rgba(0, 255, 204, 0.05);
   transition: all 0.3s ease;
 }
 
 .home-link:hover,
 .home-link:focus-visible {
-  background: rgba(0, 240, 255, 0.15);
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+  background: rgba(0, 255, 204, 0.15);
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
   outline: none;
 }
 </style>

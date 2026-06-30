@@ -488,7 +488,9 @@ describe('About.vue', () => {
       expect(cardBlock).not.toBeNull()
       const body = cardBlock![1]
       expect(body).toMatch(/border:\s*1px solid rgba\(0,\s*255,\s*204,\s*0\.2\)/)
-      expect(body).toMatch(/border-radius:\s*10px/)
+      // #242: border-radius tokenized to var(--radius-lg) (was 10px). The card
+      // is still rectangular (radius-lg = 12px), NOT circular (50%).
+      expect(body).toMatch(/border-radius:\s*var\(--radius-lg\)/)
       expect(body).not.toMatch(/border-radius:\s*50%/)
     })
 

@@ -25,10 +25,10 @@ initLanguage()
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: rgba(0, 240, 255, 0.1);
-  border: 1px solid rgba(0, 240, 255, 0.3);
-  border-radius: 5px;
-  color: #00f0ff;
+  background: rgba(0, 255, 204, 0.1);
+  border: 1px solid rgba(0, 255, 204, 0.3);
+  border-radius: var(--radius-sm);
+  color: var(--cyan);
   font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 500;
@@ -37,13 +37,13 @@ initLanguage()
 }
 
 .language-switcher:hover {
-  background: rgba(0, 240, 255, 0.2);
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+  background: rgba(0, 255, 204, 0.2);
+  box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
   transform: scale(1.05);
 }
 
 .language-switcher:focus-visible {
-  outline: 2px solid #00f0ff;
+  outline: 2px solid var(--cyan);
   outline-offset: 2px;
 }
 
