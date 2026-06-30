@@ -179,6 +179,27 @@ describe('NeuralTerminal.vue — visual-AC glitch/strobe gate (#234)', () => {
   })
 
   // --------------------------------------------------------------------------
+  // AC1 (cont.): CSS-authoritative reduced-motion guard for the caret BLINK.
+  // #234 review (Stage-6 finding #1): the @media (prefers-reduced-motion:
+  // reduce) block was neutralizing the `.decode-anim` glitch but NOT the
+  // `.terminal-cursor.blink` caret — the blink relied SOLELY on the JS-flag
+  // `.reduced-motion` class (`.neural-console.reduced-motion
+  // .terminal-cursor.blink`). That is the same single-point-of-failure #234
+  // was filed to eliminate. The @media block must be the authoritative guard
+  // so that if the JS flag is ever wrong, the blink still dies under
+  // reduced-motion (defense-in-depth). Mirrors the decode-anim guard above.
+  // RED-TEST PROOF: remove the `.terminal-cursor.blink { animation: none; }`
+  // entry from the @media block and the assertion fails (the block contains no
+  // rule whose selector matches `.terminal-cursor.blink`).
+  // --------------------------------------------------------------------------
+  it('AC1 reduced-motion guard: @media (prefers-reduced-motion: reduce) kills the terminal-cursor blink', () => {
+    const block = extractMediaBlock(source, 'prefers-reduced-motion\\s*:\\s*reduce')
+    expect(block, 'a prefers-reduced-motion media block must exist').toBeTruthy()
+    expect(block).toMatch(/\.terminal-cursor(?:\.blink)?/)
+    expect(block).toMatch(/animation:\s*none/)
+  })
+
+  // --------------------------------------------------------------------------
   // AC1 (cont.): the terminal cursor blink must be SMOOTH, not a hard
   // steps(2) square wave. steps(2) makes the caret snap on/off at full
   // contrast — visually harsh and closer to a strobe edge than a breath. Fix:

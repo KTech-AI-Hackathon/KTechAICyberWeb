@@ -899,6 +899,12 @@ onUnmounted(() => {
   .decode-anim::after {
     animation: none;
   }
+  .terminal-cursor.blink {
+    /* #234 review: CSS-authoritative guard for the caret blink —
+       mirrors the decode-anim guard so reduced-motion does not
+       depend solely on the JS flag. */
+    animation: none;
+  }
 }
 
 /* ---- easter-egg burst overlay ---------------------------------------------*/
