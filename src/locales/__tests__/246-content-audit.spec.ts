@@ -170,4 +170,51 @@ describe('#246 content audit — fabricated identifiers are gone everywhere', ()
     expect(pick(en, 'contact.info.phoneValue')).not.toBe('+86 755 0000 0000')
     expect(pick(zh, 'contact.info.phoneValue')).not.toBe('+86 755 0000 0000')
   })
+
+  it('no fabricated privacy@ktech.fintech inbox survives in privacy.rights.exerciseNote', () => {
+    expect(pick(en, 'privacy.rights.exerciseNote')).not.toContain('privacy@ktech.fintech')
+    expect(pick(zh, 'privacy.rights.exerciseNote')).not.toContain('privacy@ktech.fintech')
+  })
+
+  it('no fabricated 518000 ZIP survives in terms.contact.address', () => {
+    expect(pick(en, 'terms.contact.address')).not.toContain('518000')
+    expect(pick(zh, 'terms.contact.address')).not.toContain('518000')
+  })
+})
+
+describe('#246 content audit — REVISION (sibling-block consistency)', () => {
+  // R1 — terms.contact.address (sibling of M4): the Terms contact address must
+  // match the corrected Privacy address (Runhong Building), not the fabricated
+  // "Luohu District, ... 518000" string.
+  it('R1: terms.contact.address is the Runhong Building address in both locales', () => {
+    expect(pick(en, 'terms.contact.address')).toBe(
+      'Address: 开泰远景信息科技有限公司, 12F, Runhong Building T2, No. 75 Meiyuan Road, Shenzhen, China',
+    )
+    expect(pick(zh, 'terms.contact.address')).toBe(
+      '地址：开泰远景信息科技有限公司，深圳市梅苑路75号润弘大厦T2座12楼',
+    )
+  })
+
+  // R2 — privacy.rights.exerciseNote: the inbox just removed from
+  // privacy.contact.email (M3) must also be gone from the rights note, which is
+  // the other place the fabricated privacy@ktech.fintech mailbox lived.
+  it('R2: privacy.rights.exerciseNote points at the official inbox in both locales', () => {
+    expect(pick(en, 'privacy.rights.exerciseNote')).toBe(
+      'To exercise any of these rights, contact us at KTECH@kaitaitech.cn. We will respond within 30 days.',
+    )
+    expect(pick(zh, 'privacy.rights.exerciseNote')).toBe(
+      '如需行使上述任何权利，请通过 KTECH@kaitaitech.cn 联系我们。我们将在 30 天内回复。',
+    )
+  })
+
+  // R4 — joinUs.contact.description zh: the other surviving 开泰科技 in prose
+  // must be aligned to KTech (en is already correct).
+  it('R4: joinUs.contact.description zh says KTech (no fabricated 开泰科技)', () => {
+    expect(pick(zh, 'joinUs.contact.description')).toBe(
+      '对在 KTech 工作有疑问？我们很乐意为您解答。',
+    )
+    expect(pick(en, 'joinUs.contact.description')).toBe(
+      "Have questions about working at KTech? We'd love to hear from you.",
+    )
+  })
 })
