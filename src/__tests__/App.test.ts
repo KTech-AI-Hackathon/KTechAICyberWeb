@@ -1,17 +1,22 @@
 /**
  * @file App.test.ts
- * @description Theme -> DOM wiring tests for the App shell (#15 - FEAT-005)
+ * @description Dark-theme lock wiring tests for the App shell (#239).
  *
- * The preferences STORE owns the source-of-truth theme value + localStorage
- * persistence. App.vue owns the DOM wiring: it mirrors the active theme onto
- * <html data-theme="..."> and keeps it in sync when the store changes. These
- * tests exercise that contract end-to-end by mounting the REAL App component
- * with a REAL preferences store and asserting the user-visible DOM attribute.
+ * #239 locked the site to the dark theme unconditionally. The preferences
+ * STORE still owns a theme value (+ localStorage persistence), but App.vue
+ * no longer mirrors it onto <html data-theme="..."> — it hardcodes
+ * data-theme="dark" once on mount and never flips it. The dark/light
+ * ThemeToggle component was deleted, so there is no UI affordance that
+ * reaches the store's setTheme/toggleTheme actions.
  *
- * Each AC has a test that would fail if the wiring were missing:
- *   - On mount, data-theme reflects the store's initial theme.
- *   - Setting store.theme = 'light' flips <html data-theme> to "light".
- *   - Any non-light theme ('dark' / 'cyber') maps to the dark variant.
+ * These tests pin that locked-dark contract end-to-end by mounting the REAL
+ * App component with a REAL preferences store and asserting the user-visible
+ * DOM attribute. Each AC has a test that would FAIL if the lock regressed:
+ *   - On mount, data-theme is "dark" regardless of the store's initial theme.
+ *   - data-theme stays "dark" even when store.theme is later set to "light"
+ *     (proves the old watch(preferences.theme) reactive mirror is gone).
+ *   - The store's theme value can still be mutated (the actions are inert,
+ *     not stripped) — only the DOM is locked.
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
@@ -55,13 +60,12 @@ vi.mock('../utils/seo', () => ({
   getStructuredData: () => [],
 }))
 
-// Mock the child components — ThemeToggle itself is covered in its own suite;
-// here we only care about the App-level theme watcher, so stub the children.
+// Mock the child components. #239 deleted ThemeToggle.vue — it is no longer
+// mocked here (the component no longer exists). LanguageSwitcher + SkipLink
+// are stubbed; Header renders its #toolbar slot so the App shell's toolbar
+// wiring still mounts.
 vi.mock('../components/LanguageSwitcher.vue', () => ({
   default: { name: 'LanguageSwitcher', template: '<div class="lang-stub"></div>' },
-}))
-vi.mock('../components/ThemeToggle.vue', () => ({
-  default: { name: 'ThemeToggle', template: '<div class="theme-toggle-stub"></div>' },
 }))
 vi.mock('../components/SkipLink.vue', () => ({
   default: { name: 'SkipLink', template: '<div class="skip-stub"></div>' },
@@ -81,7 +85,7 @@ vi.mock('../components/Header.vue', () => ({
 
 const App = (await import('../App.vue')).default
 
-describe('App.vue theme -> DOM wiring (#15)', () => {
+describe('App.vue dark-theme lock (#239)', () => {
   let pinia: ReturnType<typeof createPinia>
 
   beforeEach(() => {
@@ -102,38 +106,42 @@ describe('App.vue theme -> DOM wiring (#15)', () => {
     return wrapper
   }
 
-  it('mirrors the store theme onto <html data-theme> on initial mount', async () => {
+  it('sets <html data-theme> to "dark" on initial mount regardless of store theme', async () => {
+    // Seed the store to LIGHT before mount. The old code would have mirrored
+    // "light" onto <html>; the #239 lock must force "dark" instead.
     const store = usePreferencesStore()
-    store.setTheme('dark')
+    store.setTheme('light')
     await mountApp()
 
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
   })
 
-  it('flips <html data-theme> to "light" when the store theme becomes light', async () => {
+  it('stays "dark" even when store.theme is set to "light" after mount (watcher is gone)', async () => {
+    const store = usePreferencesStore()
+    store.setTheme('dark')
+    await mountApp()
+
+    // The old watch(preferences.theme) would have flipped <html> to "light"
+    // here. The lock must NOT react to store mutations.
+    store.setTheme('light')
+    await flushPromises()
+    await new Promise((r) => setTimeout(r, 0))
+
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
+  })
+
+  it('the store theme value is still mutable (inert actions, locked DOM)', async () => {
+    // Proves we did not strip the store's theme actions — they still update
+    // state, they just no longer reach the DOM. This guards against a future
+    // "cleanup" that deletes setTheme/toggleTheme and breaks persist/hydrate.
     const store = usePreferencesStore()
     store.setTheme('dark')
     await mountApp()
 
     store.setTheme('light')
     await flushPromises()
-
-    expect(document.documentElement.getAttribute('data-theme')).toBe('light')
-  })
-
-  it('maps the cyber theme (and any non-light theme) to the dark DOM variant', async () => {
-    const store = usePreferencesStore()
-    store.setTheme('dark')
-    await mountApp()
-
-    // 'cyber' is the dark-styled default; the DOM attribute must be "dark".
-    store.setTheme('cyber')
-    await flushPromises()
-    expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
-
-    // And an explicit 'dark' theme maps to "dark" too.
-    store.setTheme('dark')
-    await flushPromises()
+    expect(store.theme).toBe('light')
+    // ...but the DOM stays dark.
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
   })
 })

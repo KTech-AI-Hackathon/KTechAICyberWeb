@@ -12,18 +12,23 @@
  * Header unit test passed while the shipped app showed the pre-overhaul nav.
  *
  * This test closes that gap: it mounts the REAL App.vue with a REAL router
- * and the REAL child components (Header, LanguageSwitcher, ThemeToggle,
- * SkipLink are NOT mocked), then asserts that text which ONLY exists inside
- * Header.vue actually reaches the DOM. If anyone reverts the wiring (removes
+ * and the REAL child components (Header, LanguageSwitcher, SkipLink are NOT
+ * mocked), then asserts that text which ONLY exists inside Header.vue
+ * actually reaches the DOM. If anyone reverts the wiring (removes
  * <Header /> from App.vue), this test fails — the dropdown trigger labels
  * "Our Solutions" / "Join Us" would vanish from the rendered App.
+ *
+ * #239: the dark/light ThemeToggle was removed and the site is locked to
+ * dark. The toolbar slot must still render the language toggle (proves the
+ * EN/中文 switch survived the wiring) AND must NOT render a theme toggle
+ * (proves the toggle was actually deleted, not just visually hidden).
  *
  * Test that would FAIL if Header weren't wired:
  *   - "Our Solutions" and "Join Us" dropdown triggers render (these strings
  *     live exclusively in Header.vue's submenu definitions).
  *   - nav#navbar (Header's root element) is present.
- *   - The toolbar slot renders the language + theme toggles (proves the
- *     hard-won i18n/theme controls survive the wiring).
+ *   - The toolbar slot renders the language toggle (button.language-switcher)
+ *     and does NOT render a theme toggle (#239).
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
@@ -142,17 +147,18 @@ describe('App.vue -> Header nav wiring (#164 shipped-app gate)', () => {
     expect(logo.attributes('href')).toBe('/')
   })
 
-  it('preserves the language + theme toggles in the nav toolbar (hard-won i18n/theme controls)', async () => {
-    // The toggles MUST survive the wiring. App.vue injects them into Header
-    // via the #toolbar slot; if the slot wiring broke, the real
-    // LanguageSwitcher / ThemeToggle components would not render here.
+  it('keeps the language toggle and drops the theme toggle in the nav toolbar (#239 dark lock)', async () => {
+    // #239: ThemeToggle.vue was deleted. The toolbar slot MUST still render
+    // the real LanguageSwitcher (button.language-switcher) AND must NOT render
+    // a theme toggle (button.theme-toggle). If anyone re-adds a
+    // <ThemeToggle /> to the slot, this test fails on the absence assertion.
     const wrapper = await mountApp()
     const toolbar = wrapper.find('nav#navbar .nav-toolbar')
     expect(toolbar.exists()).toBe(true)
     // Real LanguageSwitcher renders button.language-switcher.
     expect(toolbar.find('button.language-switcher').exists()).toBe(true)
-    // Real ThemeToggle renders button.theme-toggle.
-    expect(toolbar.find('button.theme-toggle').exists()).toBe(true)
+    // #239: the theme toggle is gone — it must NOT render.
+    expect(toolbar.find('button.theme-toggle').exists()).toBe(false)
   })
 
   // --------------------------------------------------------------------------

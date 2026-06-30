@@ -304,29 +304,32 @@ describe('useLanguage composable', () => {
     // ============================================
     // #190 R3: t(key, params) — {name} placeholder interpolation.
     // ROOT CAUSE of the prod "{state}" leak: t() was declared `function t(key)`
-    // with no params argument, so callers like t('theme.toggleWithState', {state})
-    // passed {state} into a parameter the function never read. The literal
-    // "{state}" placeholder survived into the rendered aria-label (Lighthouse
-    // evidence). Five source callers depend on this contract today
-    // (ThemeToggle, LanguageSwitcher, NeuralCore, NeonPulse),
-    // so the fix is a general optional-params argument that replaces {name}
-    // placeholders. These tests pin the contract.
+    // with no params argument, so callers like t('key.with.{name}', {name})
+    // passed the params into a parameter the function never read. The literal
+    // "{name}" placeholder survived into the rendered aria-label (Lighthouse
+    // evidence). Multiple source callers depend on this contract today
+    // (LanguageSwitcher, NeuralCore, NeonPulse), so the fix is a general
+    // optional-params argument that replaces {name} placeholders. These tests
+    // pin the contract.
+    // #239: the test data was migrated off theme.toggleWithState (the theme.*
+    // locale block was deleted with ThemeToggle.vue) onto language.switchTo,
+    // which carries a {lang} placeholder in BOTH locales.
     // RED-TEST PROOF: against the original `t(key)` signature, every assertion
     // below fails because the placeholder is never replaced.
     // ============================================
     describe('t(key, params) — {name} placeholder interpolation (#190 R3)', () => {
       it('replaces a single {name} placeholder with the param value', () => {
-        // theme.toggleWithState = "Switch theme: {state}" (en)
-        expect(api.t('theme.toggleWithState', { state: 'Dark' })).toBe(
-          'Switch theme: Dark',
+        // language.switchTo = "Switch language (current: {lang})" (en)
+        expect(api.t('language.switchTo', { lang: 'English' })).toBe(
+          'Switch language (current: English)',
         )
       })
 
       it('replaces a single placeholder with a CJK value (zh active)', () => {
         api.setLanguage('zh')
-        // theme.toggleWithState = "切换主题：{state}" (zh)
-        expect(api.t('theme.toggleWithState', { state: '深色' })).toBe(
-          '切换主题：深色',
+        // language.switchTo = "切换语言（当前：{lang}）" (zh)
+        expect(api.t('language.switchTo', { lang: '中文' })).toBe(
+          '切换语言（当前：中文）',
         )
       })
 
@@ -345,10 +348,10 @@ describe('useLanguage composable', () => {
       })
 
       it('leaves unreferenced placeholders untouched (no over-eager replacement)', () => {
-        // theme.toggleWithState references {state}; passing an extra {foo} must
-        // not error and must not mutate the {state} replacement.
-        const out = api.t('theme.toggleWithState', { state: 'Dark', foo: 'X' })
-        expect(out).toBe('Switch theme: Dark')
+        // language.switchTo references {lang}; passing an extra {foo} must
+        // not error and must not mutate the {lang} replacement.
+        const out = api.t('language.switchTo', { lang: 'English', foo: 'X' })
+        expect(out).toBe('Switch language (current: English)')
       })
 
       it('preserves the no-arg call path (existing t(key) callers unbroken)', () => {
@@ -357,6 +360,46 @@ describe('useLanguage composable', () => {
         expect(api.t('nav.home', undefined)).toBe('Home')
         expect(api.t('nav.home', {})).toBe('Home')
       })
+    })
+  })
+
+  // ============================================
+  // #239 default-language lock: the site defaults to English on first visit
+  // (empty localStorage). It does NOT auto-override from navigator.language
+  // or prefers-color-scheme — the default is a hard-coded 'en'. These tests
+  // pin that no browser-language auto-detection sneaks back in.
+  // ============================================
+  describe('#239 default-language lock', () => {
+    it('initLanguage() defaults to "en" when localStorage is empty', () => {
+      // No ktech-language key in storage.
+      api.initLanguage()
+
+      expect(api.currentLanguage.value).toBe('en')
+    })
+
+    it('initLanguage() does NOT consult navigator.language', () => {
+      // Stub navigator.language to a zh locale to prove initLanguage ignores
+      // it (the default must be the hard-coded 'en', not a browser override).
+      const langGetter = vi.spyOn(navigator, 'language', 'get')
+      langGetter.mockReturnValue('zh-CN')
+
+      api.initLanguage()
+
+      expect(api.currentLanguage.value).toBe('en')
+      expect(langGetter).not.toHaveBeenCalled()
+    })
+
+    it('initLanguage() does NOT consult window.matchMedia', () => {
+      // matchMedia is irrelevant to language, but the old theme code used it
+      // via detectSystemTheme. Assert the language init path never touches it
+      // so a future refactor can't quietly couple language to a media query.
+      const mm = vi.fn(() => ({ matches: false, addEventListener: () => {}, removeEventListener: () => {} }))
+      vi.stubGlobal('matchMedia', mm)
+
+      api.initLanguage()
+
+      expect(api.currentLanguage.value).toBe('en')
+      expect(mm).not.toHaveBeenCalled()
     })
   })
 
