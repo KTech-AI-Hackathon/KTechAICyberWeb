@@ -57,8 +57,8 @@ export function useLanguage() {
   // callers like t('theme.toggleWithState', { state }) passed {state} into a
   // parameter the function never read — the literal "{state}" placeholder
   // survived into the rendered aria-label (Lighthouse evidence). Five source
-  // callers depend on this contract (ThemeToggle, LanguageSwitcher, NeuralCore,
-  // NeonPulse), so the fix is a general optional-params path.
+  // callers depend on this contract (LanguageSwitcher, NeuralCore, NeonPulse),
+  // so the fix is a general optional-params path.
   // Callers that don't pass params are unaffected.
   function t(key, params) {
     const langTranslations = translations.value[currentLanguage.value] || {}

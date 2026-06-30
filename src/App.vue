@@ -15,13 +15,13 @@
     <!-- Site navigation (#164 nav overhaul).
          Header.vue ships the 6 routed items (Home / About Us / News /
          Our Solutions / Join Us / Contact) with dropdowns + mobile hamburger.
-         The language + theme toggles live here in App.vue so the hard-won
-         EN/中文 + dark/light toggles remain visible next to the nav regardless
-         of how Header is wired. -->
+         The language toggle lives here in App.vue so the EN/中文 switch stays
+         visible next to the nav regardless of how Header is wired.
+         #239: the dark/light theme toggle was removed and the site is now
+         locked to the dark theme unconditionally (see setAttribute below). -->
     <Header>
       <template #toolbar>
         <LanguageSwitcher />
-        <ThemeToggle />
       </template>
     </Header>
     <main id="main-content" class="main-content" :aria-label="t('a11y.mainLabel')" role="main">
@@ -52,14 +52,12 @@
 </template>
 
 <script>
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useHead } from '@vueuse/head'
 import { getRouteMeta, getStructuredData } from './utils/seo'
 import { useLanguage, initLanguage } from './i18n'
-import { usePreferencesStore } from './stores/preferences'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
-import ThemeToggle from './components/ThemeToggle.vue'
 import SkipLink from './components/SkipLink.vue'
 import Header from './components/Header.vue'
 
@@ -67,27 +65,19 @@ export default {
   name: 'App',
   components: {
     LanguageSwitcher,
-    ThemeToggle,
     SkipLink,
     Header
   },
   setup() {
     const route = useRoute()
-    const preferences = usePreferencesStore()
 
-    // Apply the persisted theme to <html data-theme="...">. cyber.css only
-    // defines dark/light variants, so 'cyber' (the default) is treated as the
-    // dark theme. The watcher keeps the DOM in sync whenever the preference
-    // changes (e.g. via the ThemeToggle button).
-    const applyTheme = (theme) => {
-      const resolved = theme === 'light' ? 'light' : 'dark'
-      document.documentElement.setAttribute('data-theme', resolved)
-    }
-    applyTheme(preferences.theme)
-    watch(
-      () => preferences.theme,
-      (theme) => applyTheme(theme),
-    )
+    // #239: the site is locked to the dark theme unconditionally. The previous
+    // dark/light toggle (ThemeToggle.vue) and its applyTheme() + watcher were
+    // removed; <html data-theme="dark"> is set once here and never flipped.
+    // The preferences store still exposes setTheme/toggleTheme/detectSystemTheme
+    // for backward-compat with persisted state, but no shipped UI reaches them,
+    // so the DOM is always dark regardless of the stored theme value.
+    document.documentElement.setAttribute('data-theme', 'dark')
 
     // Initialize language on app mount. Translations are bundled at module
     // scope in useLanguage.js (static imports of en.json/zh.json), so they
@@ -161,7 +151,7 @@ export default {
 <style>
 /* Import global accessibility styles */
 @import './styles/accessibility.css';
-/* Cyberpunk theme variables (driven by <html data-theme="dark|light">) */
+/* Cyberpunk theme variables (driven by <html data-theme="dark">) */
 @import './assets/styles/cyber.css';
 </style>
 
