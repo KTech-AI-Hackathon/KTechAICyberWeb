@@ -11,6 +11,15 @@ scored below threshold.
   at the `/KTechAICyberWeb/` subpath (vite.config `base`).
 - Lighthouse binary: project-local `node_modules/.bin/lighthouse`.
 
+> **Scope reconciliation (title vs deliverable):** Issue #226's *title* reads "…
+> on mobile" (the form factor #190 used for Home). This ticket captures **desktop**,
+> per the dispatcher's explicit scope instruction for this iteration. The form factor
+> is never misrepresented — every artifact, file name, and JSON `formFactor` field is
+> honestly labeled `desktop`. The per-route **mobile** capture for the non-Home routes
+> is owed for completeness and is tracked in follow-up **#291**. (#190 already shipped
+> mobile Home = 100 via component-level fixes that apply viewport-agnostically, so
+> mobile scores on the other routes are expected to hold — but were not measured here.)
+
 ## Route → score table
 
 Every score below is **re-derived from the saved JSON** (`categories.accessibility.score` × 100, rounded).
@@ -68,6 +77,11 @@ per-route captures were not saved.
 
 **Deferred: #289** — [a11y] Capture desktop Lighthouse a11y for remaining 7 services sub-routes
 (https://github.com/jasonhou007/KTechAICyberWeb/issues/289).
+
+**Deferred: #291** — [a11y] Capture **mobile** Lighthouse a11y for key routes
+(About/Services/Contact/News) (https://github.com/jasonhou007/KTechAICyberWeb/issues/291).
+(Issue #226's title scopes the work to mobile; this iteration delivered desktop per the
+dispatcher's instruction. Mobile per-route measurement is owed and tracked in #291.)
 
 ## No-regression verification
 
