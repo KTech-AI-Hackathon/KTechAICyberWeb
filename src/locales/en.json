@@ -1,12 +1,4 @@
 {
-  "theme": {
-    "toggle": "Toggle theme",
-    "toggleWithState": "Switch theme: {state}",
-    "dark": "Dark theme",
-    "light": "Light theme",
-    "darkLabel": "Dark",
-    "lightLabel": "Light"
-  },
   "contact": {
     "title": "Contact",
     "titleAccent": "Us",

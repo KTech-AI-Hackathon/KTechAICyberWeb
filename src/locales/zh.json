@@ -1,12 +1,4 @@
 {
-  "theme": {
-    "toggle": "切换主题",
-    "toggleWithState": "切换主题：{state}",
-    "dark": "深色主题",
-    "light": "浅色主题",
-    "darkLabel": "深色",
-    "lightLabel": "浅色"
-  },
   "contact": {
     "title": "联系",
     "titleAccent": "我们",
