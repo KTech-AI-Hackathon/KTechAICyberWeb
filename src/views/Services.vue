@@ -138,8 +138,8 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   padding: 6rem 2rem 4rem;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
-  color: #00ff88;
+  background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
+  color: var(--cyan);
   font-family: var(--font-display);
   position: relative;
   overflow: hidden;
@@ -193,19 +193,19 @@ onMounted(() => {
   letter-spacing: 0.3em;
   margin: 0;
   text-shadow:
-    0 0 10px #00ff88,
-    0 0 20px #00ff88,
-    0 0 30px #00ff88,
-    0 0 40px #00ff88;
+    0 0 10px var(--cyan),
+    0 0 20px var(--cyan),
+    0 0 30px var(--cyan),
+    0 0 40px var(--cyan);
   animation: neonPulse 2s ease-in-out infinite alternate;
 }
 
 .subtitle {
   font-size: 1.5rem;
-  color: #00ffff;
+  color: var(--cyan);
   margin-top: 1.5rem;
   font-family: var(--font-body);
-  text-shadow: 0 0 10px #00ffff;
+  text-shadow: 0 0 10px var(--cyan);
   letter-spacing: 0.15em;
 }
 
@@ -226,13 +226,13 @@ onMounted(() => {
 }
 
 .glitch-text::before {
-  color: #ff00ff;
+  color: var(--accent-magenta);
   animation: glitch 0.3s infinite;
   clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
 }
 
 .glitch-text::after {
-  color: #00ffff;
+  color: var(--cyan);
   animation: glitch 0.3s infinite reverse;
   clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
 }
@@ -250,17 +250,17 @@ onMounted(() => {
 @keyframes neonPulse {
   from {
     text-shadow:
-      0 0 10px #00ff88,
-      0 0 20px #00ff88,
-      0 0 30px #00ff88;
+      0 0 10px var(--cyan),
+      0 0 20px var(--cyan),
+      0 0 30px var(--cyan);
   }
   to {
     text-shadow:
-      0 0 20px #00ff88,
-      0 0 30px #00ff88,
-      0 0 40px #00ff88,
-      0 0 50px #00ff88,
-      0 0 60px #00ff88;
+      0 0 20px var(--cyan),
+      0 0 30px var(--cyan),
+      0 0 40px var(--cyan),
+      0 0 50px var(--cyan),
+      0 0 60px var(--cyan);
   }
 }
 
@@ -274,9 +274,9 @@ onMounted(() => {
 
 /* Service card */
 .service-card {
-  background: rgba(26, 26, 46, 0.6);
+  background: var(--surface-elevated);
   border: 1px solid rgba(0, 255, 136, 0.3);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   padding: 2.5rem 2rem;
   text-align: center;
   transition: all 0.3s ease;
@@ -293,7 +293,7 @@ onMounted(() => {
 .service-card:hover {
   transform: translateY(-10px);
   box-shadow: 0 0 40px rgba(0, 255, 136, 0.4);
-  border-color: #00ff88;
+  border-color: var(--cyan);
 }
 
 @keyframes fadeInUp {
@@ -329,7 +329,7 @@ onMounted(() => {
   font-family: var(--font-display);
   font-size: 1.3rem;
   font-weight: 700;
-  color: #00ff88;
+  color: var(--cyan);
   letter-spacing: 0.15em;
   margin: 0 0 1rem 0;
   text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
@@ -339,7 +339,7 @@ onMounted(() => {
 .service-description {
   font-family: var(--font-body);
   font-size: 1rem;
-  color: #00ffff;
+  color: var(--cyan);
   line-height: 1.6;
   margin-bottom: 1.5rem;
   min-height: 3.2rem;
@@ -356,7 +356,7 @@ onMounted(() => {
 .service-features li {
   font-family: var(--font-body);
   font-size: 0.9rem;
-  color: #a0a0a0;
+  color: var(--text-secondary);
   padding: 0.4rem 0;
   display: flex;
   align-items: center;
@@ -368,7 +368,7 @@ onMounted(() => {
 }
 
 .feature-bullet {
-  color: #00ff88;
+  color: var(--cyan);
   font-weight: bold;
   margin-right: 0.5rem;
   font-size: 1.1rem;
@@ -384,9 +384,9 @@ onMounted(() => {
   letter-spacing: 0.15em;
   text-transform: uppercase;
   text-decoration: none;
-  color: #00ff88;
-  border: 1px solid #00ff88;
-  border-radius: 5px;
+  color: var(--cyan);
+  border: 1px solid var(--cyan);
+  border-radius: var(--radius-sm);
   background: rgba(0, 255, 136, 0.05);
   transition: all 0.3s ease;
 }
@@ -401,8 +401,8 @@ onMounted(() => {
 /* CTA Button */
 .cyber-button {
   background: rgba(0, 255, 136, 0.1);
-  color: #00ff88;
-  border: 2px solid #00ff88;
+  color: var(--cyan);
+  border: 2px solid var(--cyan);
   padding: 1.2rem 3.5rem;
   font-size: 1.2rem;
   font-family: var(--font-display);
@@ -411,7 +411,7 @@ onMounted(() => {
   position: relative;
   overflow: hidden;
   transition: all 0.3s ease;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
 }
 
 .cyber-button:hover {
@@ -427,8 +427,8 @@ onMounted(() => {
 /* Neon border effect */
 .neon-border {
   box-shadow:
-    0 0 5px #00ff88,
-    0 0 10px #00ff88,
+    0 0 5px var(--cyan),
+    0 0 10px var(--cyan),
     inset 0 0 5px rgba(0, 255, 136, 0.2);
 }
 

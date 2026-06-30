@@ -368,7 +368,7 @@ onUnmounted(() => {
 }
 
 .breadcrumb-link {
-  color: #00f0ff;
+  color: var(--cyan);
   text-decoration: none;
   transition: text-shadow 0.3s ease;
 }
@@ -382,7 +382,7 @@ onUnmounted(() => {
 }
 
 .breadcrumb-current {
-  color: #e0e0e0;
+  color: var(--text-primary);
 }
 
 /* Header */
@@ -395,7 +395,7 @@ onUnmounted(() => {
   font-family: var(--font-display);
   font-size: 3rem;
   font-weight: 700;
-  color: #e0e0e0;
+  color: var(--text-primary);
   letter-spacing: 0.2em;
   margin-bottom: 0.5rem;
 }
@@ -403,7 +403,7 @@ onUnmounted(() => {
 .position-list__title-accent {
   font-family: var(--font-body);
   font-size: 1.2rem;
-  color: #00f0ff;
+  color: var(--cyan);
   text-transform: uppercase;
   letter-spacing: 0.3em;
 }
@@ -428,13 +428,13 @@ onUnmounted(() => {
   background: rgba(0, 240, 255, 0.05);
   border: 1px solid rgba(0, 240, 255, 0.2);
   padding: 2rem;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 .filter-title {
   font-family: var(--font-display);
   font-size: 1.2rem;
-  color: #00f0ff;
+  color: var(--cyan);
   letter-spacing: 0.15em;
   margin-bottom: 1.5rem;
 }
@@ -456,14 +456,14 @@ onUnmounted(() => {
   padding: 0.75rem;
   background: rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(0, 240, 255, 0.3);
-  color: #e0e0e0;
+  color: var(--text-primary);
   font-family: var(--font-body);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .filter-search input:focus {
   outline: none;
-  border-color: #00f0ff;
+  border-color: var(--cyan);
   box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
 }
 
@@ -484,14 +484,14 @@ onUnmounted(() => {
   padding: 0.75rem;
   background: rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(0, 240, 255, 0.3);
-  color: #e0e0e0;
+  color: var(--text-primary);
   font-family: var(--font-body);
   transition: border-color 0.3s ease;
 }
 
 .filter-group select:focus {
   outline: none;
-  border-color: #00f0ff;
+  border-color: var(--cyan);
 }
 
 .filter-active {
@@ -509,7 +509,7 @@ onUnmounted(() => {
   padding: 0.5rem 1rem;
   background: rgba(0, 240, 255, 0.1);
   border: 1px solid rgba(0, 240, 255, 0.3);
-  color: #00f0ff;
+  color: var(--cyan);
   font-family: var(--font-body);
   cursor: pointer;
   transition: all 0.3s ease;
@@ -536,7 +536,7 @@ onUnmounted(() => {
   background: rgba(0, 240, 255, 0.05);
   border: 1px solid rgba(0, 240, 255, 0.2);
   padding: 2rem;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   cursor: pointer;
 }
@@ -544,13 +544,13 @@ onUnmounted(() => {
 .position-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 30px rgba(0, 240, 255, 0.2);
-  border-color: #00f0ff;
+  border-color: var(--cyan);
 }
 
 .position-card__title {
   font-family: var(--font-display);
   font-size: 1.3rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
   letter-spacing: 0.1em;
   margin-bottom: 1rem;
 }
@@ -593,7 +593,7 @@ onUnmounted(() => {
 .position-card__salary {
   font-family: var(--font-display);
   font-size: 1.1rem;
-  color: #00f0ff;
+  color: var(--cyan);
 }
 
 .position-card__badge {
@@ -612,7 +612,7 @@ onUnmounted(() => {
   padding: 0.8rem;
   background: transparent;
   border: 1px solid rgba(0, 240, 255, 0.4);
-  color: #00f0ff;
+  color: var(--cyan);
   font-family: var(--font-display);
   font-size: 0.9rem;
   letter-spacing: 0.15em;
@@ -639,7 +639,7 @@ onUnmounted(() => {
 .empty-title {
   font-family: var(--font-display);
   font-size: 1.5rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
   letter-spacing: 0.1em;
   margin-bottom: 1rem;
 }
@@ -655,7 +655,7 @@ onUnmounted(() => {
   padding: 0.8rem 2rem;
   background: rgba(0, 240, 255, 0.1);
   border: 1px solid rgba(0, 240, 255, 0.4);
-  color: #00f0ff;
+  color: var(--cyan);
   font-family: var(--font-display);
   font-size: 0.9rem;
   letter-spacing: 0.15em;
@@ -698,7 +698,7 @@ onUnmounted(() => {
   overflow-y: auto;
   background: rgba(10, 10, 20, 0.95);
   border: 1px solid rgba(0, 240, 255, 0.3);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
 }
 
 .position-modal__close {
@@ -709,7 +709,7 @@ onUnmounted(() => {
   height: 40px;
   background: rgba(0, 240, 255, 0.1);
   border: 1px solid rgba(0, 240, 255, 0.3);
-  color: #00f0ff;
+  color: var(--cyan);
   font-size: 1.2rem;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -728,7 +728,7 @@ onUnmounted(() => {
 .position-modal__title {
   font-family: var(--font-display);
   font-size: 2rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
   letter-spacing: 0.15em;
   margin-bottom: 1rem;
 }
@@ -749,7 +749,7 @@ onUnmounted(() => {
 .position-modal__section h3 {
   font-family: var(--font-display);
   font-size: 1.2rem;
-  color: #00f0ff;
+  color: var(--cyan);
   letter-spacing: 0.1em;
   margin-bottom: 1rem;
 }
@@ -780,7 +780,7 @@ onUnmounted(() => {
   content: '▸';
   position: absolute;
   left: 0;
-  color: #00f0ff;
+  color: var(--cyan);
 }
 
 .position-modal__actions {
@@ -803,7 +803,7 @@ onUnmounted(() => {
 .position-modal__apply {
   background: rgba(0, 240, 255, 0.1);
   border: 1px solid rgba(0, 240, 255, 0.4);
-  color: #00f0ff;
+  color: var(--cyan);
 }
 
 .position-modal__apply:hover {

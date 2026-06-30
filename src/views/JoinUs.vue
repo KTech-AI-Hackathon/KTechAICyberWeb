@@ -155,7 +155,7 @@ onMounted(() => {
 <style scoped>
 .join-us {
   min-height: 100vh;
-  background: linear-gradient(135deg, rgba(10, 15, 28, 0.95) 0%, rgba(20, 25, 40, 0.95) 100%);
+  background: linear-gradient(135deg, var(--surface-card) 0%, rgba(20, 25, 40, 0.95) 100%);
 }
 
 /* Hero Section */
@@ -180,13 +180,13 @@ onMounted(() => {
 }
 
 .accent {
-  color: #00ffcc;
+  color: var(--cyan);
   text-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
 }
 
 .subtitle {
   font-size: 1.25rem;
-  color: #b0b8c4;
+  color: var(--text-secondary);
   margin-bottom: 40px;
   line-height: 1.6;
 }
@@ -194,13 +194,13 @@ onMounted(() => {
 .cta-button {
   display: inline-block;
   padding: 16px 40px;
-  background: linear-gradient(135deg, #00ffcc 0%, #00ccaa 100%);
-  color: #0a0f1c;
+  background: linear-gradient(135deg, var(--cyan) 0%, var(--cyan) 100%);
+  color: var(--bg-primary);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   text-decoration: none;
   box-shadow: 0 4px 20px rgba(0, 255, 204, 0.3);
@@ -238,7 +238,7 @@ onMounted(() => {
 
 .section-description {
   text-align: center;
-  color: #b0b8c4;
+  color: var(--text-secondary);
   font-size: 1.1rem;
   max-width: 700px;
   margin: 0 auto 50px;
@@ -253,28 +253,28 @@ onMounted(() => {
 }
 
 .culture-card {
-  background: rgba(26, 26, 46, 0.8);
+  background: var(--surface-elevated);
   border: 1px solid rgba(0, 255, 204, 0.2);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 30px;
   transition: all 0.3s ease;
 }
 
 .culture-card:hover {
-  border-color: #00ffcc;
+  border-color: var(--cyan);
   box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
   transform: translateY(-5px);
 }
 
 .culture-card h3 {
-  color: #00ffcc;
+  color: var(--cyan);
   font-size: 1.25rem;
   margin-bottom: 15px;
   font-weight: 600;
 }
 
 .culture-card p {
-  color: #b0b8c4;
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
@@ -286,15 +286,15 @@ onMounted(() => {
 }
 
 .benefit-card {
-  background: rgba(26, 26, 46, 0.6);
-  border-left: 3px solid #00ffcc;
-  border-radius: 8px;
+  background: var(--surface-elevated);
+  border-left: 3px solid var(--cyan);
+  border-radius: var(--radius-md);
   padding: 25px;
   transition: all 0.3s ease;
 }
 
 .benefit-card:hover {
-  background: rgba(26, 26, 46, 0.9);
+  background: var(--surface-elevated);
   box-shadow: 0 0 15px rgba(0, 255, 204, 0.15);
 }
 
@@ -306,7 +306,7 @@ onMounted(() => {
 }
 
 .benefit-card p {
-  color: #b0b8c4;
+  color: var(--text-secondary);
   line-height: 1.5;
   font-size: 0.95rem;
 }
@@ -318,9 +318,9 @@ onMounted(() => {
   margin: 0 auto;
   padding: 14px 35px;
   background: transparent;
-  color: #00ffcc;
-  border: 2px solid #00ffcc;
-  border-radius: 4px;
+  color: var(--cyan);
+  border: 2px solid var(--cyan);
+  border-radius: var(--radius-sm);
   font-weight: 600;
   text-transform: uppercase;
   text-decoration: none;
@@ -328,8 +328,8 @@ onMounted(() => {
 }
 
 .view-all-button:hover {
-  background: #00ffcc;
-  color: #0a0f1c;
+  background: var(--cyan);
+  color: var(--bg-primary);
   box-shadow: 0 0 20px rgba(0, 255, 204, 0.4);
 }
 
@@ -348,8 +348,8 @@ onMounted(() => {
 .step-number {
   width: 60px;
   height: 60px;
-  background: linear-gradient(135deg, #00ffcc 0%, #00ccaa 100%);
-  color: #0a0f1c;
+  background: linear-gradient(135deg, var(--cyan) 0%, var(--cyan) 100%);
+  color: var(--bg-primary);
   font-size: 1.5rem;
   font-weight: 700;
   border-radius: 50%;
@@ -368,7 +368,7 @@ onMounted(() => {
 }
 
 .process-step p {
-  color: #b0b8c4;
+  color: var(--text-secondary);
   line-height: 1.5;
   font-size: 0.95rem;
 }
@@ -380,7 +380,7 @@ onMounted(() => {
 }
 
 .email-link {
-  color: #00ffcc;
+  color: var(--cyan);
   font-size: 1.25rem;
   text-decoration: none;
   font-weight: 600;

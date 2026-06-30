@@ -357,7 +357,7 @@ const { enabled } = useParallax({
   margin: 2rem auto;
   max-width: 1200px;
   border: 1px solid rgba(0, 255, 204, 0.15);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
   /* scroll-margin-top: leave head-room for the fixed Header so the demo's
      StatusReadout is NOT occluded by the nav (mobile Chrome E2E gate). */
@@ -371,7 +371,7 @@ const { enabled } = useParallax({
   align-items: center;
   justify-content: center;
   text-align: center;
-  background: rgba(10, 15, 28, 0.9);
+  background: var(--surface-card);
   border-bottom: 1px solid rgba(0, 255, 204, 0.2);
   position: relative;
   overflow: hidden;
@@ -411,14 +411,14 @@ const { enabled } = useParallax({
 }
 
 .page-title .accent {
-  color: #00ffcc;
+  color: var(--cyan);
   text-shadow: 0 0 20px rgba(0, 255, 204, 0.8);
 }
 
 .page-subtitle {
   font-family: var(--font-body);
   font-size: 1.3rem;
-  color: #a0a0a0;
+  color: var(--text-secondary);
   max-width: 600px;
   margin: 0 auto;
 }
@@ -427,7 +427,7 @@ const { enabled } = useParallax({
   font-family: var(--font-display);
   font-size: 2rem;
   font-weight: 700;
-  color: #00ffcc;
+  color: var(--cyan);
   letter-spacing: 0.15em;
   text-align: center;
   margin-bottom: 3rem;
@@ -454,22 +454,22 @@ const { enabled } = useParallax({
 .content-card h3 {
   font-family: var(--font-display);
   font-size: 1.1rem;
-  color: #00ffcc;
+  color: var(--cyan);
   margin-bottom: 0.5rem;
 }
 
 .content-card p {
   font-family: var(--font-body);
   font-size: 0.95rem;
-  color: #a0a0a0;
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
 /* Cyber Card */
 .cyber-card {
-  background: rgba(10, 15, 28, 0.8);
+  background: var(--surface-card);
   border: 1px solid rgba(0, 255, 204, 0.2);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
@@ -522,8 +522,8 @@ const { enabled } = useParallax({
   padding: 1.5rem;
   text-align: center;
   border: 1px solid rgba(0, 255, 204, 0.2);
-  border-radius: 10px;
-  background: rgba(10, 15, 28, 0.8);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
@@ -546,12 +546,12 @@ const { enabled } = useParallax({
 }
 
 .iso-badge {
-  background: linear-gradient(135deg, #00ffcc, #00ccaa);
+  background: linear-gradient(135deg, var(--cyan), var(--cyan));
   color: #000;
 }
 
 .milestone-badge {
-  background: linear-gradient(135deg, #ffcc00, #ffaa00);
+  background: linear-gradient(135deg, var(--status-warning), var(--status-warning));
   font-size: 1.5rem;
 }
 
@@ -563,7 +563,7 @@ const { enabled } = useParallax({
 .achievement-card p {
   font-family: var(--font-body);
   font-size: 0.9rem;
-  color: #a0a0a0;
+  color: var(--text-secondary);
 }
 
 /* VMC Grid */
@@ -577,7 +577,7 @@ const { enabled } = useParallax({
 .vmc-card {
   padding: 2rem;
   text-align: center;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
 }
 
 .vmc-icon {
@@ -588,14 +588,14 @@ const { enabled } = useParallax({
 .vmc-card h3 {
   font-family: var(--font-display);
   font-size: 1.2rem;
-  color: #00ffcc;
+  color: var(--cyan);
   margin-bottom: 0.5rem;
 }
 
 .vmc-card p {
   font-family: var(--font-body);
   font-size: 1rem;
-  color: #a0a0a0;
+  color: var(--text-secondary);
 }
 
 /* Culture Grid */
@@ -618,7 +618,7 @@ const { enabled } = useParallax({
 .culture-item h4 {
   font-family: var(--font-body);
   font-size: 0.9rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
   text-transform: uppercase;
 }
 
@@ -647,7 +647,7 @@ const { enabled } = useParallax({
 .service-card h3 {
   font-family: var(--font-display);
   font-size: 1.1rem;
-  color: #00ffcc;
+  color: var(--cyan);
   margin-bottom: 1rem;
   padding-right: 3rem;
 }
@@ -655,7 +655,7 @@ const { enabled } = useParallax({
 .service-card p {
   font-family: var(--font-body);
   font-size: 0.95rem;
-  color: #a0a0a0;
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
@@ -680,7 +680,7 @@ const { enabled } = useParallax({
   font-family: var(--font-display);
   font-size: 3rem;
   font-weight: 700;
-  color: #00ffcc;
+  color: var(--cyan);
   margin-bottom: 0.5rem;
 }
 

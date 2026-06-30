@@ -194,7 +194,7 @@ const features = [
   align-items: center;
   justify-content: center;
   text-align: center;
-  background: rgba(10, 15, 28, 0.95);
+  background: var(--surface-card);
   border-bottom: 1px solid rgba(0, 255, 204, 0.2);
 }
 
@@ -217,14 +217,14 @@ const features = [
 .service-icon svg {
   width: 40px;
   height: 40px;
-  color: #00ffcc;
+  color: var(--cyan);
 }
 
 .hero-title {
   font-family: var(--font-display);
   font-size: 2.5rem;
   font-weight: 700;
-  color: #00ffcc;
+  color: var(--cyan);
   letter-spacing: 0.15em;
   text-transform: uppercase;
   margin-bottom: 1rem;
@@ -233,7 +233,7 @@ const features = [
 .hero-subtitle {
   font-family: var(--font-body);
   font-size: 1.3rem;
-  color: #a0a0a0;
+  color: var(--text-secondary);
 }
 
 /* Section Titles */
@@ -241,7 +241,7 @@ const features = [
   font-family: var(--font-display);
   font-size: 2rem;
   font-weight: 700;
-  color: #00ffcc;
+  color: var(--cyan);
   letter-spacing: 0.15em;
   text-align: center;
   margin-bottom: 3rem;
@@ -258,14 +258,14 @@ const features = [
 
 /* Overview Section */
 .overview {
-  background: rgba(10, 15, 28, 0.9);
+  background: var(--surface-card);
 }
 
 .overview-text {
   font-family: var(--font-body);
   font-size: 1.2rem;
   line-height: 1.8;
-  color: #a0a0a0;
+  color: var(--text-secondary);
   text-align: center;
   max-width: 800px;
   margin: 0 auto;
@@ -302,20 +302,20 @@ const features = [
 .capability-card h3 {
   font-family: var(--font-display);
   font-size: 1.1rem;
-  color: #00ffcc;
+  color: var(--cyan);
   margin-bottom: 0.5rem;
 }
 
 .capability-card p {
   font-family: var(--font-body);
   font-size: 0.95rem;
-  color: #a0a0a0;
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
 /* Process Section */
 .process {
-  background: rgba(10, 15, 28, 0.9);
+  background: var(--surface-card);
 }
 
 .process-timeline {
@@ -344,21 +344,21 @@ const features = [
   font-family: var(--font-display);
   font-size: 1.2rem;
   font-weight: 700;
-  color: #00ffcc;
+  color: var(--cyan);
   flex-shrink: 0;
 }
 
 .step-content h3 {
   font-family: var(--font-display);
   font-size: 1.1rem;
-  color: #00ffcc;
+  color: var(--cyan);
   margin-bottom: 0.5rem;
 }
 
 .step-content p {
   font-family: var(--font-body);
   font-size: 1rem;
-  color: #a0a0a0;
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
@@ -378,22 +378,22 @@ const features = [
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.5rem;
-  background: rgba(10, 15, 28, 0.8);
+  background: var(--surface-card);
   border: 1px solid rgba(0, 255, 204, 0.2);
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   font-family: var(--font-body);
-  color: #e0e0e0;
+  color: var(--text-primary);
 }
 
 .feature-check {
-  color: #00ffcc;
+  color: var(--cyan);
   font-weight: bold;
   font-size: 1.2rem;
 }
 
 /* CTA Section */
 .cta {
-  background: rgba(10, 15, 28, 0.95);
+  background: var(--surface-card);
 }
 
 .cta-card {
@@ -407,14 +407,14 @@ const features = [
 .cta-card h2 {
   font-family: var(--font-display);
   font-size: 1.8rem;
-  color: #00ffcc;
+  color: var(--cyan);
   margin-bottom: 1rem;
 }
 
 .cta-card p {
   font-family: var(--font-body);
   font-size: 1.1rem;
-  color: #a0a0a0;
+  color: var(--text-secondary);
   margin-bottom: 2rem;
 }
 
@@ -425,7 +425,7 @@ const features = [
   padding: 1rem 2rem;
   background: rgba(0, 255, 204, 0.1);
   border: 1px solid rgba(0, 255, 204, 0.3);
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   text-decoration: none;
   transition: all 0.3s ease;
 }
@@ -440,31 +440,31 @@ const features = [
   font-family: var(--font-body);
   font-size: 1rem;
   font-weight: 600;
-  color: #00ffcc;
+  color: var(--cyan);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
 .cta-button:hover span:first-child {
-  color: #ff00ff;
+  color: var(--accent-magenta);
 }
 
 .cta-arrow {
   font-size: 1.2rem;
-  color: #00ffcc;
+  color: var(--cyan);
   transition: transform 0.3s ease;
 }
 
 .cta-button:hover .cta-arrow {
   transform: translateX(5px);
-  color: #ff00ff;
+  color: var(--accent-magenta);
 }
 
 /* Utility Classes */
 .cyber-card {
   background: rgba(20, 25, 40, 0.8);
   border: 1px solid rgba(0, 255, 204, 0.2);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
