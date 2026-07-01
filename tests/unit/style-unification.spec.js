@@ -225,7 +225,12 @@ describe('hardcoded hex literals collapsed across src (#242 AC2)', () => {
   // .js/.ts are in scope (#242 review): a composable can paint brand neon
   // straight onto a LIVE canvas (useAudioPulse.js did exactly this with
   // PARTICLE_COLORS + ctx2d.fillStyle). A .vue-only gate missed it.
-  const DENYLIST = ['#00f0ff', '#00ff88', '#ff00ff', '#00ffff', '#0a0f1c', '#e0e8ff', '#8a9acc']
+  // #284: gray-text literals (#aaa/#888/#666/#999/#ccc/#c0c0c0) consolidated
+  // onto var(--text-secondary) / var(--text-muted). These were the surviving
+  // raw-gray literals from the #252 view sweep — role-mapped, not
+  // visual-proximity-mapped: prose body → --text-secondary, meta/label/
+  // breadcrumb-separator → --text-muted (see variables.css for canonical values).
+  const DENYLIST = ['#00f0ff', '#00ff88', '#ff00ff', '#00ffff', '#0a0f1c', '#e0e8ff', '#8a9acc', '#aaa', '#888', '#666', '#999', '#ccc', '#c0c0c0']
 
   const srcComponentFiles = (() => {
     const acc = []
