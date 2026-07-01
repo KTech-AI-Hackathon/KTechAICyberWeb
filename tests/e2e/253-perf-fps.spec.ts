@@ -136,15 +136,36 @@ function isMobileProject(): boolean {
   return name.includes('mobile')
 }
 
+/**
+ * Is the current Playwright project a chromium-based engine? The rAF FPS
+ * sampler is only a reliable perf signal on chromium in CI — headless webkit
+ * (Safari) and headless firefox throttle rAF unpredictably and conflate
+ * CI-runner scheduling load with the page's real frame cadence, so a >=55fps
+ * gate flakes red on those engines without indicating any app regression.
+ * Restricting the FPS spec to chromium (desktop chromium + Mobile Chrome, the
+ * engines the evidence harness also targets) keeps the regression gate
+ * meaningful and avoids destabilizing other timing-sensitive tests on the
+ * slow webkit/Mobile-Safari engines (the spec's sustained rAF load was a
+ * plausible contributor to adjacent Mobile-Safari timing flakes). Device-
+ * runtime Safari/Firefox FPS verification is part of the deferred #302 work.
+ */
+function isChromiumProject(): boolean {
+  return test.info().project?.name?.toLowerCase().includes('chromium') ?? false
+}
+
 test.describe.configure({ mode: 'serial' })
 
 test.describe('FPS performance (#253)', () => {
   test('Home + NeuralTerminal + About hero median FPS >= 55 (desktop chromium)', async ({
     page,
   }) => {
+    // rAF FPS is only a stable signal on chromium in CI (headless webkit/
+    // firefox throttle rAF unpredictably and conflate CI-runner load with the
+    // page frame cadence). Device-runtime Safari/Firefox FPS is deferred #302.
+    test.skip(!isChromiumProject(), 'FPS gate runs on chromium only')
     test.skip(
       isMobileProject(),
-      'desktop FPS gate — skip on mobile-form-factor projects (run on chromium/firefox/webkit)',
+      'desktop FPS gate — skip on mobile-form-factor projects (run on desktop chromium)',
     )
     test.setTimeout(60_000)
 
@@ -211,9 +232,10 @@ test.describe('FPS performance (#253)', () => {
   })
 
   test('Home hero median FPS >= 30 (Pixel 5 / Mobile Chrome)', async ({ page }) => {
+    test.skip(!isChromiumProject(), 'FPS gate runs on chromium only')
     test.skip(
       !isMobileProject(),
-      'mobile FPS gate — run only on mobile-form-factor projects (Mobile Chrome / Mobile Safari)',
+      'mobile FPS gate — run only on mobile-form-factor projects (Mobile Chrome)',
     )
     test.setTimeout(60_000)
 
