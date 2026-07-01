@@ -174,11 +174,13 @@
     },
     "mission": {
       "heading": "Our Mission",
-      "description": "Empower customers with cutting-edge technology."
+      "description": "Empower customers with cutting-edge technology.",
+      "iconAlt": "Mission icon"
     },
     "vision": {
       "title": "Our Vision",
-      "description": "To become a regional leading fintech platform."
+      "description": "To become a regional leading fintech platform.",
+      "iconAlt": "Vision icon"
     },
     "culture": {
       "title": "Our Culture",
@@ -186,7 +188,13 @@
       "customer": "Customer First",
       "agile": "Agile Innovation",
       "collaboration": "Open Collaboration",
-      "professional": "Professional Excellence"
+      "professional": "Professional Excellence",
+      "icons": {
+        "customerAlt": "Customer focus icon",
+        "collaborationAlt": "Open collaboration icon",
+        "agileAlt": "Agile innovation icon",
+        "professionalAlt": "Professional excellence icon"
+      }
     },
     "whoWeAre": {
       "title": "Who We Are",
@@ -228,7 +236,9 @@
       "guangdongFintechAlt": "Guangdong FinTech Association member",
       "hightechAlt": "National High-tech Enterprise",
       "innovativeSmeAlt": "Shenzhen Innovative SME",
-      "specializedSmeAlt": "Shenzhen Specialized SME"
+      "specializedSmeAlt": "Shenzhen Specialized SME",
+      "firstMncIconAlt": "First MNC AI risk-engine milestone icon",
+      "firstFintechIconAlt": "First fintech digital-lending milestone icon"
     },
     "serviceProvider": {
       "title": "What We Do",
