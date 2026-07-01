@@ -371,7 +371,7 @@ onMounted(() => {
 }
 
 .service-card:hover .service-features li {
-  color: #c0c0c0;
+  color: var(--text-secondary);
 }
 
 .feature-bullet {

@@ -171,7 +171,7 @@ onMounted(() => {
   margin-bottom: 2rem;
   font-family: var(--font-body);
   font-size: 0.9rem;
-  color: #888;
+  color: var(--text-muted);
 }
 
 .breadcrumb a {
@@ -185,7 +185,7 @@ onMounted(() => {
 }
 
 .breadcrumb .separator {
-  color: #666;
+  color: var(--text-muted);
 }
 
 .page-title {
@@ -209,7 +209,7 @@ onMounted(() => {
 .page-subtitle {
   font-family: var(--font-body);
   font-size: 1.5rem;
-  color: #888;
+  color: var(--text-secondary);
   max-width: 800px;
   line-height: 1.6;
 }
@@ -240,7 +240,7 @@ onMounted(() => {
 .overview-text {
   font-family: var(--font-body);
   font-size: 1.2rem;
-  color: #aaa;
+  color: var(--text-secondary);
   text-align: center;
   max-width: 800px;
   margin: 0 auto 3rem;
@@ -274,7 +274,7 @@ onMounted(() => {
 .overview-card p {
   font-family: var(--font-body);
   font-size: 1.1rem;
-  color: #ccc;
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
@@ -343,7 +343,7 @@ onMounted(() => {
 .feature-card p {
   font-family: var(--font-body);
   font-size: 1rem;
-  color: #999;
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
@@ -397,7 +397,7 @@ onMounted(() => {
 .benefit-item p {
   font-family: var(--font-body);
   font-size: 1rem;
-  color: #999;
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
@@ -429,7 +429,7 @@ onMounted(() => {
 .cta p {
   font-family: var(--font-body);
   font-size: 1.1rem;
-  color: #aaa;
+  color: var(--text-secondary);
   margin-bottom: 2rem;
   line-height: 1.6;
 }
