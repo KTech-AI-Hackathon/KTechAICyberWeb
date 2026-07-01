@@ -280,8 +280,8 @@ onMounted(() => {
 .cyber-header {
   position: relative;
   overflow: hidden;
-  padding: 4rem 1rem 3rem;
-  margin-bottom: 2rem;
+  padding: clamp(1.5rem, 3vh, 2.5rem) 1rem;
+  margin-bottom: clamp(0.5rem, 1.5vh, 1.25rem);
 }
 
 .cyber-header::before {
@@ -319,7 +319,7 @@ h1 {
   position: relative;
   z-index: 1;
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-size: var(--home-h1);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.2em;
@@ -337,9 +337,9 @@ h1 {
   position: relative;
   z-index: 1;
   font-family: var(--font-body);
-  font-size: 1.5rem;
+  font-size: var(--home-subtitle);
   color: var(--cyan);
-  margin-top: 1rem;
+  margin-top: clamp(0.25rem, 0.8vh, 0.75rem);
   text-shadow: 0 0 10px rgba(0, 255, 204, 0.6);
 }
 
@@ -368,18 +368,18 @@ h1 {
 /* Section rhythm (About's .section pattern) */
 .section {
   position: relative;
-  padding: 4rem 5%;
+  padding: clamp(1.5rem, 3vh, 2.5rem) 5%;
   z-index: 1;
 }
 
 .section-title {
   font-family: var(--font-display);
-  font-size: 2rem;
+  font-size: var(--home-section-title);
   font-weight: 700;
   color: var(--cyan);
   letter-spacing: 0.15em;
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: clamp(1rem, 2.5vh, 2rem);
   text-transform: uppercase;
 }
 
@@ -387,7 +387,7 @@ h1 {
 .hero {
   position: relative;
   z-index: 1;
-  padding: 2rem 5%;
+  padding: clamp(0.75rem, 2vh, 1.5rem) 5%;
 }
 
 /* Cyber Card (About's design language) */
@@ -410,16 +410,16 @@ h1 {
 
 /* Hero card sizing */
 .hero .cyber-card {
-  padding: 3rem;
-  margin-bottom: 1rem;
+  padding: clamp(0.6rem, 1.5vh, 2rem);
+  margin-bottom: clamp(0.25rem, 0.6vh, 1rem);
   text-align: left;
 }
 
 .hero .cyber-card p {
   font-family: var(--font-body);
-  font-size: 1.2rem;
+  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
   color: var(--text-secondary);
-  line-height: 1.8;
+  line-height: 1.6;
   margin: 0 0 1rem 0;
 }
 
@@ -428,30 +428,39 @@ h1 {
 }
 
 /* What We Do */
+/* #265 review(AC#1): .whatwedo is eagerly rendered (NOT LazySection), so it IS
+ * part of the above-the-fold flagship stack. Tightened via clamp() so the whole
+ * stack (header -> Self-driving -> hero -> .whatwedo 6 cards -> .cta) fits at
+ * 1920x1080. The cards themselves are short (3-col grid = 2 rows of ~86px), so
+ * the lever is vertical RHYTHM: section padding, group margins, label margins,
+ * grid gaps. clamp() lower bounds are reached on short desktop viewports so the
+ * stack compresses on 1080p and breathes on 4K. The card grid stays 3-col
+ * (tightest 2-row packing of 6 cards). */
 .whatwedo {
   text-align: left;
+  padding: clamp(0.4rem, 0.8vh, 1.25rem) 5%;
 }
 
 .solution-group {
-  margin-bottom: 2rem;
+  margin-bottom: clamp(0.3rem, 0.6vh, 1.25rem);
 }
 
 .group-label {
   font-family: var(--font-display);
   color: var(--cyan);
   text-shadow: 0 0 10px rgba(0, 255, 204, 0.6);
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
+  margin-bottom: clamp(0.25rem, 0.5vh, 0.75rem);
+  font-size: var(--home-group-label);
 }
 
 .solution-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
+  gap: clamp(0.4rem, 0.6vh, 1rem);
 }
 
 .solution-card {
-  padding: 2rem;
+  padding: clamp(0.45rem, 0.7vh, 1.1rem);
   animation: fadeInUp 0.6s ease forwards;
   opacity: 0;
 }
@@ -470,16 +479,16 @@ h1 {
 .solution-card h4 {
   font-family: var(--font-display);
   color: var(--cyan);
-  margin: 0 0 0.5rem 0;
-  font-size: 1.1rem;
+  margin: 0 0 0.25rem 0;
+  font-size: var(--home-card-title);
 }
 
 .solution-card p {
   font-family: var(--font-body);
   color: var(--text-secondary);
-  font-size: 0.95rem;
+  font-size: var(--home-card-body);
   margin: 0;
-  line-height: 1.6;
+  line-height: 1.4;
 }
 
 /* Self-Driving demo flagship section (#203). The demo component owns its own
@@ -489,7 +498,7 @@ h1 {
   position: relative;
   z-index: 1;
   width: 100%;
-  margin: 2rem 0;
+  margin: clamp(0.5rem, 1.5vh, 1.25rem) 0;
   border: 1px solid rgba(0, 255, 204, 0.15);
   border-radius: var(--radius-sm);
   overflow: hidden;
@@ -504,7 +513,7 @@ h1 {
   position: relative;
   z-index: 1;
   text-align: center;
-  padding: 2rem 5%;
+  padding: clamp(0.4rem, 0.8vh, 1.5rem) 5%;
 }
 
 .cyber-button {
@@ -620,7 +629,7 @@ h1 {
 
 /* Responsive */
 @media (max-width: 768px) {
-  h1 { font-size: 2.5rem; }
+  h1 { font-size: var(--home-h1); }
   .solution-grid { grid-template-columns: 1fr; }
   .section { padding: 3rem 5%; }
   /* #258: on mobile the readouts collapse to a single stacked 1fr column. The

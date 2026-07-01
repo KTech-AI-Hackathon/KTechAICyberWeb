@@ -246,9 +246,9 @@ const nearStyle = computed(() => depthStyle(34))
   position: relative;
   z-index: 0;
   overflow: hidden;
-  min-height: 420px;
+  min-height: clamp(280px, 38vh, 360px);
   margin: 0 auto;
-  padding: 3rem 2rem;
+  padding: clamp(1rem, 2.5vh, 2rem) clamp(1rem, 3vw, 2rem);
   background:
     radial-gradient(
       ellipse at 20% 0%,
@@ -266,9 +266,10 @@ const nearStyle = computed(() => depthStyle(34))
 .self-driving-heading {
   position: relative;
   z-index: 2;
-  margin: 0 0 1.5rem;
+  margin: 0 0 clamp(0.5rem, 1.5vh, 1rem);
   text-align: center;
   font-family: var(--font-display);
+  font-size: var(--home-section-title);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -305,7 +306,7 @@ const nearStyle = computed(() => depthStyle(34))
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 1.2rem;
+  gap: clamp(0.5rem, 1.2vh, 1rem);
 }
 .self-driving-header {
   display: flex;
@@ -424,7 +425,7 @@ const nearStyle = computed(() => depthStyle(34))
    were ambient-background artifacts); sizing lives on the section. */
 @media (max-width: 768px) {
   .self-driving-demo {
-    padding: 2rem 1rem;
+    padding: 1.25rem 0.75rem;
   }
   .self-driving-stage {
     gap: 0.9rem;
