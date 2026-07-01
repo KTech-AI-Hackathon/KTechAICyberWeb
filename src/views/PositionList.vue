@@ -600,7 +600,7 @@ onUnmounted(() => {
   padding: 0.3rem 0.8rem;
   background: var(--accent-magenta-alpha-20);
   border: 1px solid var(--accent-magenta-alpha-40);
-  color: var(--accent-magenta);
+  color: var(--text-primary);   /* #310: was magenta-on-magenta ~2.25:1; light text on the magenta tint = ~12.10:1, WCAG AA */
   font-family: var(--font-body);
   font-size: 0.8rem;
   text-transform: uppercase;

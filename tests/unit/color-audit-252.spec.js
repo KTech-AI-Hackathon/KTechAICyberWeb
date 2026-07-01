@@ -129,10 +129,10 @@ function ruleBodiesFor(css, sel) {
 describe('#252 PositionList.vue off-theme purple -> magenta token', () => {
   const css = () => vueStyleSource('PositionList.vue')
 
-  it('.position-card__badge color uses var(--accent-magenta), no #8b00ff', () => {
+  it('.position-card__badge color uses var(--text-primary) for AA contrast (#310)', () => {
     const body = ruleBodyFor(css(), '.position-card__badge')
     expect(body, '.position-card__badge rule must exist').not.toBeNull()
-    expect(body).toMatch(/color:\s*var\(--accent-magenta\)/)
+    expect(body).toMatch(/color:\s*var\(--text-primary\)/)
     expect(body).not.toMatch(/#8b00ff/i)
     expect(body).not.toMatch(/rgba\(\s*139/)
   })

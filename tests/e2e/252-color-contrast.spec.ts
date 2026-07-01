@@ -35,9 +35,15 @@ import { test, expect } from '@playwright/test'
  * authoritatively; #294 replaces it with the causal measure.
  *
  * The /careers .position-card__badge test STILL uses samplePaintedColors
- * because that badge's painted contrast is a known pre-existing #252 defect
- * (~2.25:1, magenta-on-magenta over a 20%-opacity tint) that pixel-sampling
- * surfaces for the report. Switching it is out of scope for #294.
+ * (painted-pixel sampling, NOT getComputedStyle) because that badge's
+ * background is a translucent magenta tint (rgba(255,0,170,0.2)) composited
+ * over the card — getComputedStyle.backgroundColor returns the layer beneath
+ * (the card / transparent), not the painted composite, so a computed-style
+ * ratio would measure the wrong surface. Painted-pixel sampling reads the
+ * actual composited result, which is the correct method for this element.
+ * The pre-existing #252 defect (magenta-on-magenta ~2.25:1, same hue for
+ * text and bg tint) was fixed in #310 by switching the badge text to
+ * --text-primary (light text on the magenta tint = ~12.10:1, WCAG AA).
  *
  * Note on routes: the PositionList view is served at /careers (see
  * src/main.js route table). About is at /about. Both use the Vite base
@@ -259,10 +265,10 @@ test.describe('#252 color contrast — WCAG AA on fixed surfaces', () => {
     expect(fg, 'fg pixel must be sampled').not.toBeNull()
     expect(bg, 'bg pixel must be sampled').not.toBeNull()
     const ratio = contrastRatio(fg!, bg!)
-    const summary = `position-card__badge live contrast fg=${JSON.stringify(fg)} bg=${JSON.stringify(bg)} cssColor=${fgCss} ratio=${ratio.toFixed(2)} — WCAG AA 4.5:1 NOT met (tracked under #252, out of scope for #287 render-bug fix)`
+    const summary = `position-card__badge live contrast fg=${JSON.stringify(fg)} bg=${JSON.stringify(bg)} cssColor=${fgCss} ratio=${ratio.toFixed(2)} — WCAG AA 4.5:1 met (text --text-primary on magenta-tint badge composited over card, fix #310)`
     // Attach the measurement to the HTML report for traceability.
     test.info().annotations.push({ type: 'contrast-ratio', description: summary })
-    expect(ratio, summary).toBeGreaterThan(1)
+    expect(ratio, summary).toBeGreaterThanOrEqual(4.5)
   })
 
   test('/about .projects-badge clears 4.5:1 AA', async ({ page }) => {
