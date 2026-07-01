@@ -141,7 +141,7 @@ export default {
       ],
       link: [
         { rel: 'canonical', href: currentMeta.value.canonical },
-        { rel: 'icon', href: '/favicon.ico' },
+        { rel: 'icon', href: 'favicon.ico' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: true }
       ],
