@@ -60,6 +60,18 @@ const PULSE_SPEED = 0.06 // progress per frame (~1.0s end-to-end at 60fps)
 const IDLE_DELAY_MS = 2500
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
+// Wall-clock fallback that bounds the FSM `done` transition. The rAF pulse
+// chain advances ~0.06 progress/frame (~17 frames => ~1.0s at 60fps), but under
+// webkit-CI throttle the rAF cadence starves and the chain can take >5s — the
+// E2E test timeout. To DECOUPLE completion from the rAF cadence (root-cause fix
+// for the iter-293 rAF-gated FSM pitfall), we ALSO arm a setTimeout fallback
+// that fires finishInference() if the rAF chain hasn't completed in time. The
+// value is comfortably above the nominal ~1.0s animation (so a healthy rAF
+// chain still wins first, preserving the visual) but well under the 5s test
+// timeout. Reduced-motion already sync-commits done, so this only arms on the
+// animated path.
+const INFERENCE_FALLBACK_MS = 1500
+
 // ---------------------------------------------------------------------------
 // Tiny id generator (module-scoped so successive mounts get unique ids)
 // ---------------------------------------------------------------------------
@@ -267,6 +279,7 @@ export function useNeuralNet(opts = {}) {
   const pulses = ref([])
   const readout = ref(null)
   let rafHandle = null
+  let fallbackTimer = null
 
   function pickReadout() {
     // Deterministic pick from the seeded table, keyed off the input-node count
@@ -309,6 +322,13 @@ export function useNeuralNet(opts = {}) {
       window.cancelAnimationFrame(rafHandle)
       rafHandle = null
     }
+    if (fallbackTimer !== null) {
+      clearTimeout(fallbackTimer)
+      fallbackTimer = null
+    }
+    // Idempotent guard: the rAF chain and the wall-clock fallback both call
+    // this; the second arrival is a no-op once the FSM has left 'running'.
+    if (inferenceState.value !== 'running') return
     inferenceState.value = 'done'
     readout.value = pickReadout()
     // The view owns the one-shot glitch flash + readout rendering; we just
@@ -324,6 +344,10 @@ export function useNeuralNet(opts = {}) {
       window.cancelAnimationFrame(rafHandle)
       rafHandle = null
     }
+    if (fallbackTimer !== null) {
+      clearTimeout(fallbackTimer)
+      fallbackTimer = null
+    }
     // Any interaction resets the idle timer.
     resetIdle()
     if (prefersReducedMotion.value) {
@@ -338,12 +362,21 @@ export function useNeuralNet(opts = {}) {
     readout.value = null
     spawnPulses()
     rafHandle = window.requestAnimationFrame(tickPulses)
+    // Wall-clock bound (#293): if the rAF chain starves under throttle (webkit
+    // CI), force the FSM to `done` within INFERENCE_FALLBACK_MS regardless of
+    // rAF cadence — decouples completion from the animation while still letting
+    // a healthy rAF chain finish first.
+    fallbackTimer = window.setTimeout(finishInference, INFERENCE_FALLBACK_MS)
   }
 
   function resetInference() {
     if (rafHandle !== null) {
       window.cancelAnimationFrame(rafHandle)
       rafHandle = null
+    }
+    if (fallbackTimer !== null) {
+      clearTimeout(fallbackTimer)
+      fallbackTimer = null
     }
     inferenceState.value = 'idle'
     pulses.value = []
@@ -431,6 +464,10 @@ export function useNeuralNet(opts = {}) {
     if (rafHandle !== null) {
       window.cancelAnimationFrame(rafHandle)
       rafHandle = null
+    }
+    if (fallbackTimer !== null) {
+      clearTimeout(fallbackTimer)
+      fallbackTimer = null
     }
     if (idleTimer !== null) {
       clearTimeout(idleTimer)
