@@ -405,6 +405,93 @@ describe('CyberImage.vue', () => {
   })
 
   // ============================================
+  // @error fallback (AC #305 — broken/missing image placeholder)
+  // ============================================
+  // When the inner <img> fails to load (404, broken src, network error), the
+  // browser fires a native `error` event. CyberImage must catch it, hide the
+  // broken <img>, and reveal a CSS-only cyberpunk fallback placeholder so the
+  // user never sees the browser's broken-image icon. The placeholder carries
+  // role="img" and the original alt text so screen readers still announce the
+  // image's purpose (WCAG 2.1 AA — non-text content has a text alternative).
+  describe('@error fallback', () => {
+    it('renders a fallback placeholder when the img fires an error event', async () => {
+      const w = mount(CyberImage, {
+        props: { src: '/broken.webp', alt: 'Missing cyberpunk seal' },
+      })
+      // Initially: no fallback, img visible.
+      expect(w.find('.cyber-image__fallback').exists()).toBe(false)
+
+      // Fire a REAL error event on the rendered <img> — this is the user-visible
+      // trigger (browser fails to load the src), not an internal flag flip.
+      await w.find('img').trigger('error')
+
+      // The fallback placeholder must now be in the DOM.
+      expect(w.find('.cyber-image__fallback').exists()).toBe(true)
+      w.unmount()
+    })
+
+    it('hides the broken <img> after an error (no broken-image icon)', async () => {
+      const w = mount(CyberImage, {
+        props: { src: '/broken.webp', alt: 'x' },
+      })
+      const img = w.find('img')
+      // Happy path: img has no inline display:none — it is painted.
+      expect(img.attributes('style') || '').not.toContain('display: none')
+
+      await img.trigger('error')
+
+      // After the error, v-show flips the broken img to display:none so the
+      // browser never paints its broken-image icon. We assert the inline style
+      // (the actual contract v-show enforces) rather than isVisible() because
+      // happy-dom's getComputedStyle does not always reflect inline display:none
+      // for the test-utils visibility walker. The img element still EXISTS in
+      // the DOM (so it can be reshown if src ever changes), but is not painted.
+      expect(w.find('img').attributes('style') || '').toContain('display: none')
+      w.unmount()
+    })
+
+    it('labels the fallback with role=img and the original alt text', async () => {
+      const w = mount(CyberImage, {
+        props: { src: '/broken.webp', alt: 'Official ISO27001 seal' },
+      })
+      await w.find('img').trigger('error')
+
+      const fallback = w.find('.cyber-image__fallback')
+      // role=img so AT treats the placeholder as an image.
+      expect(fallback.attributes('role')).toBe('img')
+      // aria-label carries the alt so the image's purpose is still announced.
+      expect(fallback.attributes('aria-label')).toBe('Official ISO27001 seal')
+      w.unmount()
+    })
+
+    it('does not show the fallback on the happy path (img loads normally)', () => {
+      // No error event fired → fallback must stay absent, img must stay visible.
+      const w = mount(CyberImage, {
+        props: { src: '/images/about/about-who-we-are.webp', alt: 'hero' },
+      })
+      expect(w.find('.cyber-image__fallback').exists()).toBe(false)
+      expect(w.find('img').isVisible()).toBe(true)
+      w.unmount()
+    })
+
+    // RED-TEST PROOF: the fallback is event-driven. If a future refactor removes
+    // the @error listener, the assertion above silently passes (no error fired,
+    // no fallback shown) while the production user still sees a broken-image
+    // icon. This proof confirms the behavior is genuinely event-driven: trigger
+    // the error and assert the state changed — a no-op / unwired listener would
+    // leave the fallback absent.
+    it('RED-TEST PROOF: error event actually flips state (listener is wired)', async () => {
+      const w = mount(CyberImage, {
+        props: { src: '/broken.webp', alt: 'x' },
+      })
+      expect(w.find('.cyber-image__fallback').exists()).toBe(false)
+      await w.find('img').trigger('error')
+      expect(w.find('.cyber-image__fallback').exists()).toBe(true)
+      w.unmount()
+    })
+  })
+
+  // ============================================
   // Edge Cases
   // ============================================
   describe('Edge Cases', () => {
