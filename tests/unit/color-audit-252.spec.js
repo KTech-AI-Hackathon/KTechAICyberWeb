@@ -240,6 +240,71 @@ describe('#252 Contact.vue failing gray #666 -> var(--text-muted)', () => {
   })
 })
 
+// ---------- TOKEN-PAIR WCAG ratio (engine-independent; #294 Mobile Safari fix) ----------
+
+/**
+ * Resolve a CSS custom property from variables.css to its SOURCE value (e.g.
+ * '--accent-magenta' -> '#ff00aa'). Token-alias chains (e.g.
+ * '--magenta: var(--accent-magenta)') are NOT followed — the canonical color
+ * tokens are all defined as hex literals at their first definition.
+ */
+function resolveTokenFromSource(name) {
+  const cssPath = resolve(ROOT, 'src/assets/styles/variables.css')
+  const css = readFileSync(cssPath, 'utf-8')
+  const re = new RegExp(name.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&') + ':\\s*([^;]+);')
+  const m = css.match(re)
+  if (!m) throw new Error(`token ${name} not found in variables.css`)
+  return m[1].trim()
+}
+
+/** Parse a '#rrggbb' hex literal -> {r,g,b}. */
+function hexToRgb(hex) {
+  const m = /^#([0-9a-f]{6})$/i.exec(hex.trim())
+  if (!m) throw new Error(`unparseable hex color: ${hex}`)
+  const n = parseInt(m[1], 16)
+  return { r: (n >> 16) & 0xff, g: (n >> 8) & 0xff, b: n & 0xff }
+}
+
+/** WCAG 2.1 relative luminance of an {r,g,b} color. */
+function relLum({ r, g, b }) {
+  const chan = (c) => {
+    const s = c / 255
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4)
+  }
+  return 0.2126 * chan(r) + 0.7152 * chan(g) + 0.0722 * chan(b)
+}
+
+/** WCAG 2.1 contrast ratio between two {r,g,b} colors (>=1.0). */
+function contrastRatio(fg, bg) {
+  const L1 = relLum(fg)
+  const L2 = relLum(bg)
+  const [hi, lo] = L1 > L2 ? [L1, L2] : [L2, L1]
+  return (hi + 0.05) / (lo + 0.05)
+}
+
+describe('#294 .projects-badge TOKEN PAIR clears WCAG AA 4.5:1 (engine-independent)', () => {
+  // #294: the E2E projects-badge pixel-sampling contrast read 3.88 on Mobile
+  // Safari (a font-smoothing artifact of the mobile-viewport anti-aliasing),
+  // NOT a real WCAG failure. This unit test pins the badge's TOKEN PAIR at the
+  // SOURCE level so the badge's true contrast (independent of any browser
+  // engine's glyph-edge blending) is asserted by a deterministic computation
+  // over the canonical tokens that About.vue routes through.
+  //
+  // The badge text color is var(--bg-primary) (#0a0a0a) and the badge bg is a
+  // single-color linear-gradient with both stops var(--accent-magenta)
+  // (#ff00aa) — see About.vue .projects-badge. The resolved pair computes to
+  // ~5.499:1, comfortably above the WCAG AA 4.5:1 normal-text floor.
+  it('var(--accent-magenta) #ff00aa on var(--bg-primary) #0a0a0a >= 4.5:1', () => {
+    const fg = hexToRgb(resolveTokenFromSource('--accent-magenta'))
+    const bg = hexToRgb(resolveTokenFromSource('--bg-primary'))
+    const ratio = contrastRatio(fg, bg)
+    // RED-PROOF (iter-41 convention): the assertion runs at the REAL ~5.499
+    // value. To prove this test would catch a regression, temporarily flip
+    // the comparator to < 4.5 and re-run — it MUST fail at 5.499.
+    expect(ratio, `projects-badge token contrast fg=${JSON.stringify(fg)} bg=${JSON.stringify(bg)} ratio=${ratio.toFixed(4)}`).toBeGreaterThanOrEqual(4.5)
+  })
+})
+
 // ---------- DENYLIST: zero off-theme literals anywhere in src/views ----------
 
 describe('#252 off-theme-literal denylist across all src/views/*.vue', () => {

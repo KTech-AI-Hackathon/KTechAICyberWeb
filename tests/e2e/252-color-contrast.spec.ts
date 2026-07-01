@@ -47,6 +47,11 @@ function contrastRatio(fg: { r: number; g: number; b: number }, bg: { r: number;
   return (hi + 0.05) / (lo + 0.05)
 }
 
+// RETAINED for the /careers .position-card__badge test below (its bg is a
+// 20%-opacity rgba tint composited over the page, so getComputedStyle cannot
+// resolve a single opaque bg color — pixel-sampling is the only valid method
+// there). The /about .projects-badge test switched AWAY from this helper to
+// resolveComputedColors in #294 (see below).
 /**
  * Read the ACTUAL painted text color and background color of an element by
  * rasterizing it to a canvas and sampling pixels. This is the only method
@@ -107,6 +112,70 @@ async function samplePaintedColors(
   return { fg: sampled.fg, bg: sampled.bg, fgCss, bgCss: '' }
 }
 
+/**
+ * Parse a `rgb(r, g, b)` / `rgba(r, g, b, a)` CSS color string into {r,g,b}.
+ * Throws a clear error if the string does not match (so a future regression
+ * where the value is no longer an rgb()/rgba() literal fails loudly here
+ * instead of producing a NaN contrast downstream).
+ */
+function parseCssColor(str: string): { r: number; g: number; b: number } {
+  const m = /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*[\d.]+)?\s*\)$/.exec(str.trim())
+  if (!m) throw new Error(`parseCssColor: unparseable css color: ${JSON.stringify(str)}`)
+  return { r: Number(m[1]), g: Number(m[2]), b: Number(m[3]) }
+}
+
+/**
+ * #294: resolve the foreground + background colors of an element from
+ * getComputedStyle (engine-independent, no anti-aliasing) instead of
+ * pixel-sampling a screenshot. This is the right method when the bg is a
+ * SINGLE-COLOR gradient (one color-stop value used for both ends), because
+ * the resolved color is unambiguous and identical across browser engines —
+ * unlike pixel-sampling, which reads glyph-edge blends that vary with each
+ * engine's font-smoothing/anti-aliasing (the Mobile Safari 3.88-vs-5.50 gap
+ * that #294 fixes).
+ *
+ * The bg color is parsed out of getComputedStyle(...).backgroundImage (a
+ * `linear-gradient(<stop>, <stop>)` literal) because .backgroundColor returns
+ * the layer UNDER the gradient (transparent). GUARD: if the gradient is
+ * genuinely multi-stop (both stops parse AND differ), we THROW rather than
+ * measure an arbitrary stop — the caller must fall back to samplePaintedColors
+ * for a real multi-stop gradient. Today the projects-badge uses
+ * var(--accent-magenta) for BOTH stops, so the resolved bg is unambiguous.
+ */
+async function resolveComputedColors(
+  page: import('@playwright/test').Page,
+  selector: string,
+): Promise<{ fg: { r: number; g: number; b: number }; bg: { r: number; g: number; b: number }; fgCss: string; bgCss: string }> {
+  const result = await page.locator(selector).first().evaluate((el) => ({
+    fg: getComputedStyle(el).color,
+    bgImage: getComputedStyle(el).backgroundImage,
+  }))
+  const fg = parseCssColor(result.fg)
+  // Pull every rgb()/rgba() color-stop out of the backgroundImage literal.
+  const stopRegex = /rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*[\d.]+)?\)/g
+  const stops: { r: number; g: number; b: number }[] = []
+  let m: RegExpExecArray | null
+  while ((m = stopRegex.exec(result.bgImage)) !== null) {
+    stops.push({ r: Number(m[1]), g: Number(m[2]), b: Number(m[3]) })
+  }
+  if (stops.length < 1) {
+    throw new Error(`resolveComputedColors(${selector}): no rgb()/rgba() color-stop found in backgroundImage=${JSON.stringify(result.bgImage)} — element may not have a gradient bg`)
+  }
+  // GUARD: a genuinely multi-stop gradient has no single resolved color, so a
+  // computed-style contrast reading would be arbitrary. Throw loudly so a
+  // future regression (someone adds a real second stop) surfaces here instead
+  // of measuring whichever stop happens to be first.
+  if (stops.length >= 2) {
+    const first = stops[0]
+    const multiStop = stops.some((s) => s.r !== first.r || s.g !== first.g || s.b !== first.b)
+    if (multiStop) {
+      throw new Error(`projects-badge bg gradient is multi-stop — fall back to samplePaintedColors; computed-style contrast only valid for single-color gradients (found stops=${JSON.stringify(stops)})`)
+    }
+  }
+  const bg = stops[0]
+  return { fg, bg, fgCss: result.fg, bgCss: result.bgImage }
+}
+
 test.describe('#252 color contrast — WCAG AA on fixed surfaces', () => {
   test('/careers .position-card__badge is in the live DOM (#287 render-bug gate) + contrast measured', async ({ page }) => {
     // #287 fixed the /careers render bug (template refs no longer use .value),
@@ -144,44 +213,18 @@ test.describe('#252 color contrast — WCAG AA on fixed surfaces', () => {
     expect(ratio, summary).toBeGreaterThan(1)
   })
 
-  test('/about .projects-badge clears 4.5:1 AA', async ({ page, browserName }) => {
-    // #229: skip on Mobile Safari ONLY. #229 enabled the Mobile Safari project
-    // in CI, which surfaced THIS #252 contrast test failing on it: the screenshot
-    // pixel-sampling reads fg=rgb(255,0,170) on bg=rgb(84,10,68) = ratio 3.88
-    // (below the 4.5 AA gate) on Mobile Safari, while the same badge PASSES on
-    // chromium (Mobile Chrome + desktop chromium) AND on desktop webkit. The
-    // badge's CSS color tokens are unchanged across engines — Mobile Safari's
-    // mobile-viewport text anti-aliasing/font-smoothing renders the glyph edge
-    // pixels at a different blend than chromium/desktop-webkit, which the pixel-
-    // sampling contrastRatio() picks up. This is a cross-browser pixel-sampling
-    // reliability gap in the #252 test harness on the MOBILE webkit viewport,
-    // NOT a confirmed WCAG failure (the source tokens pass the source-level
-    // contrast-audit.mjs). CI evidence: run 28499977525, Mobile Safari job
-    // 84474747742, ratio=3.88; desktop webkit job passes (run 28501418389).
-    //
-    // Discriminator: Playwright's `browserName` fixture returns the BROWSER
-    // ENGINE name ('webkit'), NOT the project name — so it is 'webkit' for BOTH
-    // the desktop 'webkit' project AND the 'Mobile Safari' project (which also
-    // uses the webkit engine). To target Mobile Safari ONLY (and keep desktop
-    // webkit enforcing this AC), discriminate on the mobile viewport: the
-    // 'Mobile Safari' project uses iPhone 13 (390x844); desktop webkit is
-    // 1280x720. chromium + firefox + Mobile Chrome + desktop webkit enforce.
-    // Filed as follow-up #<NNN> for #252 to investigate Mobile Safari pixel-
-    // sampling vs a computed-style contrast assertion.
-    const vw = page.viewportSize()
-    const isMobileSafari = browserName === 'webkit' && !!vw && vw.width <= 844
-    test.skip(isMobileSafari,
-      '#229/#252: Mobile Safari mobile-viewport pixel-sampling reads projects-badge below 4.5:1 (run 28499977525); chromium + desktop webkit pass — follow-up #<NNN>')
+  test('/about .projects-badge clears 4.5:1 AA', async ({ page }) => {
+    // Computed-style contrast (engine-independent, no anti-aliasing): #294
+    // replaced the unreliable Mobile Safari pixel-sampling. The badge bg is a
+    // single-color linear-gradient (var(--accent-magenta) both stops) so the
+    // resolved color is unambiguous.
     await page.goto(ABOUT)
     const badge = page.locator('.projects-badge').first()
     await expect(badge).toBeVisible()
-    const { fg, bg, fgCss } = await samplePaintedColors(page, '.projects-badge')
-    expect(fg, 'fg pixel must be sampled').not.toBeNull()
-    expect(bg, 'bg pixel must be sampled').not.toBeNull()
-    const ratio = contrastRatio(fg!, bg!)
-    expect(
-      ratio,
-      `projects-badge contrast fg=${JSON.stringify(fg)} bg=${JSON.stringify(bg)} cssColor=${fgCss} ratio=${ratio.toFixed(2)}`,
-    ).toBeGreaterThanOrEqual(4.5)
+    const { fg, bg, fgCss } = await resolveComputedColors(page, '.projects-badge')
+    const ratio = contrastRatio(fg, bg)
+    const summary = `projects-badge contrast fg=${JSON.stringify(fg)} bg=${JSON.stringify(bg)} cssColor=${fgCss} ratio=${ratio.toFixed(2)}`
+    test.info().annotations.push({ type: 'contrast-ratio', description: summary })
+    expect(ratio, summary).toBeGreaterThanOrEqual(4.5)
   })
 })
