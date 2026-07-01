@@ -547,11 +547,26 @@ h1 {
   position: relative;
   z-index: 1;
   margin-top: 3rem;
+  /* NOTE: content-visibility:auto is intentionally NOT applied here. This is
+     an INTERACTIVE module (the console launcher + activityDecay animation the
+     user clicks/reads). content-visibility:auto skips render/layout/paint of
+     offscreen subtrees and delays the first paint after scroll-into-view by a
+     frame or two — on click-driven components that delay is exactly the
+     "visible lag" this ticket eliminates, and on slower mobile engines it
+     flipped neural-core.spec.ts's forceClick "effect not observed" gate red
+     (the pulse the test watches for did not paint within the retry budget).
+     content-visibility:auto is reserved for PASSIVE below-the-fold content
+     (Home .settlement-stream-section, About .achievements/.vision-mission/
+     .service-provider/.stats-section) where no click→paint latency contract
+     exists. The paint skip this section still benefits from is delivered by
+     the IntersectionObserver-backed useAnimationThrottle (pauses the
+     activityDecay interval when offscreen), without delaying scroll-in paint. */
 }
 
 /* AI Core neural-network visualizer section (#179) — mirrors the
    .neural-terminal-section rhythm so the two interactive AI modules read
-   as a coordinated pair on the homepage. */
+   as a coordinated pair on the homepage. Interactive → no
+   content-visibility:auto (see .neural-terminal-section note above). */
 .neural-core-section {
   position: relative;
   z-index: 1;
@@ -559,7 +574,8 @@ h1 {
 }
 
 /* AI Solution Forge configurator section (#180) — same rhythm as the AI Core
-   section so the three interactive modules stack consistently. */
+   section so the three interactive modules stack consistently. Interactive →
+   no content-visibility:auto (see .neural-terminal-section note above). */
 .solution-forge-section {
   position: relative;
   z-index: 1;
@@ -567,7 +583,8 @@ h1 {
 }
 
 /* Cyber Ops HUD section (#182) — same rhythm as the AI modules above so the
-   interactive HUD stacks consistently on the homepage. */
+   interactive HUD stacks consistently on the homepage. Interactive → no
+   content-visibility:auto (see .neural-terminal-section note above). */
 .cyber-ops-hud-section {
   position: relative;
   z-index: 1;
@@ -592,6 +609,13 @@ h1 {
      z-index (would race with .content's z-index:1 siblings). */
   isolation: isolate;
   overflow: hidden;
+  /* #253 perf: skip rendering/layout/paint of this offscreen PASSIVE subtree
+     until it scrolls near the viewport (the stream is a background backdrop,
+     not interactive — safe for content-visibility:auto). contain-intrinsic-size
+     reserves the box height BEFORE first render so the browser does not reflow
+     (CLS guard — AC #3). */
+  content-visibility: auto;
+  contain-intrinsic-size: 320px;
 }
 
 /* Responsive */
