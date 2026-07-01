@@ -30,6 +30,8 @@
       "submitting": "提交中...",
       "success": "感谢您！您的留言已发送。",
       "error": "请先修正上方的错误后再提交。",
+      "submitError": "抱歉，您的留言未能发送。请稍后重试，或直接通过邮箱联系我们。",
+      "demoNotice": "这是一个演示表单，不会真实发送留言。如需联系我们，请发送邮件至 {email}。",
       "validation": {
         "nameRequired": "请输入姓名。",
         "nameTooShort": "姓名至少需要 2 个字符。",

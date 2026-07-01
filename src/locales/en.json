@@ -30,6 +30,8 @@
       "submitting": "Submitting...",
       "success": "Thank you! Your message has been sent.",
       "error": "Please fix the errors above before submitting.",
+      "submitError": "Sorry — your message could not be sent. Please try again or email us directly.",
+      "demoNotice": "This is a demo form and does not send a message. To reach us, email {email}.",
       "validation": {
         "nameRequired": "Name is required.",
         "nameTooShort": "Name must be at least 2 characters.",
