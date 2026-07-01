@@ -174,11 +174,13 @@
     },
     "mission": {
       "heading": "我们的使命",
-      "description": "以尖端科技赋能客户。"
+      "description": "以尖端科技赋能客户。",
+      "iconAlt": "使命图标"
     },
     "vision": {
       "title": "我们的愿景",
-      "description": "成为区域领先的金融科技平台。"
+      "description": "成为区域领先的金融科技平台。",
+      "iconAlt": "愿景图标"
     },
     "culture": {
       "title": "我们的文化",
@@ -186,7 +188,13 @@
       "customer": "客户至上",
       "agile": "敏捷创新",
       "collaboration": "开放协作",
-      "professional": "专业卓越"
+      "professional": "专业卓越",
+      "icons": {
+        "customerAlt": "客户至上图标",
+        "collaborationAlt": "开放协作图标",
+        "agileAlt": "敏捷创新图标",
+        "professionalAlt": "专业卓越图标"
+      }
     },
     "whoWeAre": {
       "title": "我们是谁",
@@ -228,7 +236,9 @@
       "guangdongFintechAlt": "广东省金融科技协会会员单位",
       "hightechAlt": "国家高新技术企业",
       "innovativeSmeAlt": "深圳市创新型中小企业",
-      "specializedSmeAlt": "深圳市专精特新中小企业"
+      "specializedSmeAlt": "深圳市专精特新中小企业",
+      "firstMncIconAlt": "首家跨国金融机构 AI 风险引擎里程碑图标",
+      "firstFintechIconAlt": "首家区域性金融科技数字贷款平台里程碑图标"
     },
     "serviceProvider": {
       "title": "我们的业务",

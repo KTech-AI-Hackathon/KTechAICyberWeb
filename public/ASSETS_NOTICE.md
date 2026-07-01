@@ -93,15 +93,44 @@ from the trademarked `about1-5.svg`:
 
 The 5 icons are wired into the **Who We Are** section of `About.vue`
 (company, parentRegion, capital, established, services), replacing the prior
-emoji placeholders. The remaining About emoji (Vision/Mission/Culture/
-Achievements) are NOT part of the `about1-5.svg` slot and are tracked in a
-separate follow-up.
+emoji placeholders.
+
+### Original About icons — #273 extension (Vision/Mission/Culture/Achievements)
+
+Issue #273 extends the same `AboutIcon.vue` component with **8 additional
+ORIGINAL royalty-free geometric line-art motifs** to replace the remaining
+About emoji that were out of scope for #198 (they are not part of the
+`about1-5.svg` slot). The same IP attestation applies — the 8 motifs are
+hand-authored primitives on the shared `0 0 64 64` viewBox, fill:none /
+stroke:currentColor, and are NOT derived from any trademarked source:
+
+- **vision** — nested circles + horizontal sightline (a scope / long-range
+  vision, not a literal eye).
+- **mission** — 3 concentric circles + 4 crosshair ticks (a reticle / target).
+- **customer** — 2 head circles + 2 shallow shoulder arcs (abstract busts).
+- **collaboration** — 2 interlocking hexagons (linkage / partnership).
+- **agile** — outer circle + rising zigzag polyline (speed / energy).
+- **professional** — briefcase wireframe (rect body + handle + divider +
+  latch).
+- **firstMnc** — 5-pointed star + 2 laurel arcs (an award / achievement, NOT
+  a literal trophy cup).
+- **firstFintech** — medal (circle + centered star + 2 ribbon tails).
+
+No wordmarks, no logos, no map landmasses, no currency symbols, and no
+trophy-cup / rocket likeness. The component also gains a `size` prop
+(default 48) so the 8 new motifs render at 32px (culture / achievements) or
+48px (vision / mission) while the 5 #198 icons keep their exact 48px size.
+The `AboutIcon.test.ts` IP-gate assertions (no KASIKORN / KBank / KTech text,
+no embedded `<text>`, only line-art primitives) iterate all 13 motifs and
+cover the 8 new ones automatically.
 
 ## Related follow-up issues
 
 - **#198** (RESOLVED) — commissioned original About section icons to replace
   the trademarked `about1-5.svg`; the 5 original inline-SVGs now ship in
   `AboutIcon.vue` for the Who We Are cards.
+- **#273** (RESOLVED) — extended `AboutIcon.vue` with 8 more original motifs
+  to replace the remaining About emoji (Vision/Mission/Culture/Achievements).
 - **#199** — generate `srcset` responsive image variants for the About/News
   images (this ticket ships a single `webp`/`png` per slot).
 

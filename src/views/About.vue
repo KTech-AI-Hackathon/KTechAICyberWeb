@@ -107,11 +107,15 @@
             <p>{{ t('about.achievements.iso20000') }}</p>
           </div>
           <div class="achievement-card">
-            <div class="badge milestone-badge">🏆</div>
+            <div class="badge milestone-badge">
+              <AboutIcon name="firstMnc" :size="32" :label="t('about.achievements.firstMncIconAlt')" />
+            </div>
             <p>{{ t('about.achievements.firstMnc') }}</p>
           </div>
           <div class="achievement-card">
-            <div class="badge milestone-badge">🥇</div>
+            <div class="badge milestone-badge">
+              <AboutIcon name="firstFintech" :size="32" :label="t('about.achievements.firstFintechIconAlt')" />
+            </div>
             <p>{{ t('about.achievements.firstFintech') }}</p>
           </div>
           <div class="achievement-card">
@@ -203,12 +207,16 @@
       <div class="container">
         <div class="vmc-grid">
           <div class="vmc-card neon-glow">
-            <div class="vmc-icon">👁️</div>
+            <div class="vmc-icon">
+              <AboutIcon name="vision" :size="48" :label="t('about.vision.iconAlt')" />
+            </div>
             <h3>{{ t('about.vision.title') }}</h3>
             <p>{{ t('about.vision.description') }}</p>
           </div>
           <div class="vmc-card neon-glow">
-            <div class="vmc-icon">🎯</div>
+            <div class="vmc-icon">
+              <AboutIcon name="mission" :size="48" :label="t('about.mission.iconAlt')" />
+            </div>
             <h3>{{ t('about.mission.heading') }}</h3>
             <p>{{ t('about.mission.description') }}</p>
           </div>
@@ -217,19 +225,27 @@
         <h2 class="section-title neon-text" style="margin-top: 3rem;">{{ t('about.culture.title') }}</h2>
         <div class="culture-grid">
           <div class="culture-item cyber-card">
-            <div class="culture-icon">👥</div>
+            <div class="culture-icon">
+              <AboutIcon name="customer" :size="32" :label="t('about.culture.icons.customerAlt')" />
+            </div>
             <h4>{{ t('about.culture.customer') }}</h4>
           </div>
           <div class="culture-item cyber-card">
-            <div class="culture-icon">🤝</div>
+            <div class="culture-icon">
+              <AboutIcon name="collaboration" :size="32" :label="t('about.culture.icons.collaborationAlt')" />
+            </div>
             <h4>{{ t('about.culture.collaboration') }}</h4>
           </div>
           <div class="culture-item cyber-card">
-            <div class="culture-icon">⚡</div>
+            <div class="culture-icon">
+              <AboutIcon name="agile" :size="32" :label="t('about.culture.icons.agileAlt')" />
+            </div>
             <h4>{{ t('about.culture.agile') }}</h4>
           </div>
           <div class="culture-item cyber-card">
-            <div class="culture-icon">💼</div>
+            <div class="culture-icon">
+              <AboutIcon name="professional" :size="32" :label="t('about.culture.icons.professionalAlt')" />
+            </div>
             <h4>{{ t('about.culture.professional') }}</h4>
           </div>
         </div>
@@ -649,6 +665,18 @@ const { enabled } = useParallax({
 .culture-icon {
   font-size: 2rem;
   margin-bottom: 0.5rem;
+}
+
+/* #273: the Vision/Mission/Culture/Achievements emoji were replaced with
+   inline <AboutIcon> SVGs. Emojis were sized by font-size; the SVGs are sized
+   by the AboutIcon `size` prop. Force the rendered <svg> to display:block so
+   it drops the inline baseline-alignment quirks font-size used to absorb. The
+   existing font-size rules above are left in place as harmless no-ops (the
+   slots no longer contain text). */
+.vmc-icon svg,
+.culture-icon svg,
+.milestone-badge svg {
+  display: block;
 }
 
 .culture-item h4 {
