@@ -153,4 +153,33 @@ describe.skipIf(!existsSync(ASSETS_DIR))('bundle-size performance budget (#18)',
 
     expect(worst.gzip).toBeLessThanOrEqual(MAX_ROUTE_CHUNK_GZIP_BUDGET)
   })
+
+  // #253 AC9: the main entry point (the chunks the browser MUST fetch on first
+  // paint of any route before any lazy chunk loads) must stay under 500KB
+  // gzipped. The entry is the app shell: the index-* chunk (router + app
+  // bootstrap + eagerly-imported components) + the vendor-* chunk (Vue, VueUse,
+  // Pinia, vue-router). 5x headroom over the measured ~94KB total so the gate
+  // does not flake on minor dependency bumps but catches a real regression
+  // (e.g. a heavy dep accidentally imported into the entry).
+  //
+  // Measured baseline (post #253 build): index-* gzip 53,241 + vendor-* gzip
+  // 40,273 = 93,514 bytes total (re-derived from a fresh `vite build`).
+  it('main entry gzipped < 500KB (#253 AC9)', () => {
+    const entryChunks = chunks.filter(
+      (f) => f.startsWith('index-') || f.startsWith('vendor-')
+    )
+    const perFile = entryChunks.map((f) => ({ file: f, ...chunkSizes(f) }))
+    const entryGzip = perFile.reduce((sum, c) => sum + c.gzip, 0)
+
+    console.log(
+      '\n[bundle-size] main entry gzip (index + vendor):',
+      entryGzip,
+      'bytes (AC9 budget 500_000 bytes)'
+    )
+    for (const c of perFile.sort((a, b) => b.gzip - a.gzip)) {
+      console.log(`  ${c.file.padEnd(48)} gzip ${String(c.gzip).padStart(7)}`)
+    }
+
+    expect(entryGzip).toBeLessThan(500_000)
+  })
 })
