@@ -14,7 +14,12 @@ test.describe('Privacy Policy Page (#87)', () => {
     await page.goto('/');
 
     // Navigate via the footer Privacy Policy link (SPA client-side routing)
-    await page.click('.cyber-footer .footer-link');
+    // #229 AC #1: the footer renders TWO .footer-link elements (Privacy Policy +
+    // Terms of Service, App.vue:34/39). A bare non-strict page.click('.footer-link')
+    // is ambiguous and on webkit-linux races actionability/scroll-into-view into a
+    // ~13.5s timeout. filter({ hasText }) resolves to exactly one element. Mirrors
+    // the pattern test #3 already uses.
+    await page.locator('.cyber-footer .footer-link').filter({ hasText: /Privacy/i }).click();
 
     // URL should reflect the client-side route
     await expect(page).toHaveURL(/\/privacy$/);
@@ -25,7 +30,12 @@ test.describe('Privacy Policy Page (#87)', () => {
 
   test('renders all required GDPR content sections', async ({ page }) => {
     await page.goto('/');
-    await page.click('.cyber-footer .footer-link');
+    // #229 AC #1: the footer renders TWO .footer-link elements (Privacy Policy +
+    // Terms of Service, App.vue:34/39). A bare non-strict page.click('.footer-link')
+    // is ambiguous and on webkit-linux races actionability/scroll-into-view into a
+    // ~13.5s timeout. filter({ hasText }) resolves to exactly one element. Mirrors
+    // the pattern test #3 already uses.
+    await page.locator('.cyber-footer .footer-link').filter({ hasText: /Privacy/i }).click();
     await expect(page).toHaveURL(/\/privacy$/);
 
     // Eight section headings present (h2)
@@ -47,7 +57,12 @@ test.describe('Privacy Policy Page (#87)', () => {
 
   test('lists all six GDPR user rights', async ({ page }) => {
     await page.goto('/');
-    await page.click('.cyber-footer .footer-link');
+    // #229 AC #1: the footer renders TWO .footer-link elements (Privacy Policy +
+    // Terms of Service, App.vue:34/39). A bare non-strict page.click('.footer-link')
+    // is ambiguous and on webkit-linux races actionability/scroll-into-view into a
+    // ~13.5s timeout. filter({ hasText }) resolves to exactly one element. Mirrors
+    // the pattern test #3 already uses.
+    await page.locator('.cyber-footer .footer-link').filter({ hasText: /Privacy/i }).click();
 
     const rightsList = page
       .locator('.privacy-content .content-block')
@@ -59,13 +74,23 @@ test.describe('Privacy Policy Page (#87)', () => {
 
   test('shows a last-updated line', async ({ page }) => {
     await page.goto('/');
-    await page.click('.cyber-footer .footer-link');
+    // #229 AC #1: the footer renders TWO .footer-link elements (Privacy Policy +
+    // Terms of Service, App.vue:34/39). A bare non-strict page.click('.footer-link')
+    // is ambiguous and on webkit-linux races actionability/scroll-into-view into a
+    // ~13.5s timeout. filter({ hasText }) resolves to exactly one element. Mirrors
+    // the pattern test #3 already uses.
+    await page.locator('.cyber-footer .footer-link').filter({ hasText: /Privacy/i }).click();
     await expect(page.locator('.page-meta')).toBeVisible();
   });
 
   test('includes contact details', async ({ page }) => {
     await page.goto('/');
-    await page.click('.cyber-footer .footer-link');
+    // #229 AC #1: the footer renders TWO .footer-link elements (Privacy Policy +
+    // Terms of Service, App.vue:34/39). A bare non-strict page.click('.footer-link')
+    // is ambiguous and on webkit-linux races actionability/scroll-into-view into a
+    // ~13.5s timeout. filter({ hasText }) resolves to exactly one element. Mirrors
+    // the pattern test #3 already uses.
+    await page.locator('.cyber-footer .footer-link').filter({ hasText: /Privacy/i }).click();
     // Web-first assertion: PrivacyPolicy.vue renders exactly two .contact-line
     // elements (email + address, lines 126-127). The previous `.count().resolves`
     // form is a non-retrying anti-pattern — it snapshots the DOM once instead of
@@ -78,20 +103,35 @@ test.describe('Privacy Policy Page (#87)', () => {
 
   test('uses exactly one h1 for the page title (accessibility)', async ({ page }) => {
     await page.goto('/');
-    await page.click('.cyber-footer .footer-link');
+    // #229 AC #1: the footer renders TWO .footer-link elements (Privacy Policy +
+    // Terms of Service, App.vue:34/39). A bare non-strict page.click('.footer-link')
+    // is ambiguous and on webkit-linux races actionability/scroll-into-view into a
+    // ~13.5s timeout. filter({ hasText }) resolves to exactly one element. Mirrors
+    // the pattern test #3 already uses.
+    await page.locator('.cyber-footer .footer-link').filter({ hasText: /Privacy/i }).click();
     await expect(page.locator('h1')).toHaveCount(1);
   });
 
   test('marks the disclaimer with role="note"', async ({ page }) => {
     await page.goto('/');
-    await page.click('.cyber-footer .footer-link');
+    // #229 AC #1: the footer renders TWO .footer-link elements (Privacy Policy +
+    // Terms of Service, App.vue:34/39). A bare non-strict page.click('.footer-link')
+    // is ambiguous and on webkit-linux races actionability/scroll-into-view into a
+    // ~13.5s timeout. filter({ hasText }) resolves to exactly one element. Mirrors
+    // the pattern test #3 already uses.
+    await page.locator('.cyber-footer .footer-link').filter({ hasText: /Privacy/i }).click();
     await expect(page.locator('.disclaimer')).toHaveAttribute('role', 'note');
   });
 
   test('is reachable on mobile viewport', async ({ page, browserName }) => {
     test.skip(browserName === 'firefox', 'mobile viewport tested via chromium/webkit');
     await page.goto('/');
-    await page.click('.cyber-footer .footer-link');
+    // #229 AC #1: the footer renders TWO .footer-link elements (Privacy Policy +
+    // Terms of Service, App.vue:34/39). A bare non-strict page.click('.footer-link')
+    // is ambiguous and on webkit-linux races actionability/scroll-into-view into a
+    // ~13.5s timeout. filter({ hasText }) resolves to exactly one element. Mirrors
+    // the pattern test #3 already uses.
+    await page.locator('.cyber-footer .footer-link').filter({ hasText: /Privacy/i }).click();
     await expect(page.locator('h1.page-title')).toBeVisible();
   });
 });
