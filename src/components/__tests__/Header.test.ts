@@ -462,7 +462,7 @@ describe('Header.vue', () => {
     it('the logo link and routed items render as focusable anchors', () => {
       // Logo + Home + About + Contact = 4 <a> (dropdowns render <button> triggers).
       const links = wrapper.findAll('nav a')
-      expect(links.length).toBeGreaterThanOrEqual(3)
+      expect(links.length).toBeGreaterThanOrEqual(4)
       links.forEach((link) => {
         expect(link.element.tagName.toLowerCase()).toBe('a')
       })
