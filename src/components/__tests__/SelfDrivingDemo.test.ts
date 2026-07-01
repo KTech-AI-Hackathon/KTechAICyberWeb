@@ -140,9 +140,17 @@ describe('SelfDrivingDemo', () => {
     // behind the route, which fully occluded the demo; the contract is now
     // "visible content".)
     expect(root.attributes('aria-hidden')).toBeFalsy()
-    // A visible heading labels the region for sighted + SR users. Tag is <h3>
-    // (demoted from <h2> so the host page's first <h2> stays "Our Business").
-    expect(wrapper.find('.self-driving-heading').exists()).toBe(true)
+    // A visible label names the region for sighted + SR users. Rendered as a
+    // NON-heading <p> (styled via .self-driving-heading) per #225: this section
+    // mounts in DOM BEFORE the page's first <h2> ("Our Business"), so any heading
+    // tag here would either skip h2 (h3/h4 -> axe heading-order fail) or steal
+    // first-h2 from "Our Business" (h2 -> breaks the #224 first-h2 contract). The
+    // <section> already carries aria-label, so the landmark stays named for SR
+    // users. Class retained for the neon-label styling.
+    const headingEl = wrapper.find('.self-driving-heading')
+    expect(headingEl.exists()).toBe(true)
+    // Must NOT be a heading element — a <p> keeps it out of the document outline.
+    expect(headingEl.element.tagName.toLowerCase()).toBe('p')
     // data-current-phase is one of the 8 pipeline phases.
     const phase = root.attributes('data-current-phase')
     expect(phase).toBeTruthy()
