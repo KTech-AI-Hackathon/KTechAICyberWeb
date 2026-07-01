@@ -23,6 +23,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount, VueWrapper, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
+import { ref } from 'vue'
 
 // Mock translations — only the keys the view actually references need values.
 const mockTranslations: Record<string, string> = {
@@ -67,12 +68,25 @@ const mockTranslations: Record<string, string> = {
   'positions.empty.message': 'Try adjusting your filters',
 }
 
+// NOTE: currentLanguage / languageDisplay / isEnglish are returned as REAL Vue
+// refs (not plain { value: ... } objects). The real useLanguage composable
+// returns refs, and the PositionList <template> relies on Vue's ref
+// auto-unwrapping (it reads `currentLanguage`, not `currentLanguage.value`).
+// Returning a plain object here would mask that contract — which is exactly
+// how the #287 render bug went undetected by this suite for so long: the plain
+// object made `currentLanguage.value` in the old (buggy) template resolve
+// correctly in the test, while the real ref auto-unwrapped to `undefined.value`
+// in production. Using real refs makes the test faithful to production.
+const currentLanguageRef = ref('en')
+const languageDisplayRef = ref('EN')
+const isEnglishRef = ref(true)
+
 vi.mock('../../composables/useLanguage', () => {
   return {
     useLanguage: () => ({
-      currentLanguage: { value: 'en' },
-      languageDisplay: { value: 'EN' },
-      isEnglish: { value: true },
+      currentLanguage: currentLanguageRef,
+      languageDisplay: languageDisplayRef,
+      isEnglish: isEnglishRef,
       initLanguage: vi.fn(),
       setLanguage: vi.fn(),
       toggleLanguage: vi.fn(),

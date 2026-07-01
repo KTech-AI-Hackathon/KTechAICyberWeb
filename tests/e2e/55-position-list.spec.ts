@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 /**
  * Position List page E2E tests.
@@ -18,25 +18,27 @@ const BASE = '/KTechAICyberWeb';
 const CAREERS = `${BASE}/careers`;
 
 /**
- * SKIP reason for the position-card / modal / filter tests below.
- *
- * The /careers page (src/views/PositionList.vue) currently has a pre-existing
- * runtime render bug: positions.json loads (HTTP 200) but the cards never
- * render — `positions.value` stays empty and the browser console shows
- * `TypeError: Cannot read properties of undefined (reading 'length')` during
- * the component render/update. This is an app-level defect (not test drift),
- * and the PositionList unit tests (#57) don't catch it because they mock
- * useLanguage and never exercise this render path. The structural tests
- * (title, breadcrumb, filter controls, labels, landmarks, responsive shell)
- * still pass against the live page; only the tests that require actual
- * position cards to be present are blocked, so they are skipped (not deleted)
- * until the render bug is fixed. Repro: open /KTechAICyberWeb/careers and
- * observe 0 `.position-card` nodes + the console TypeError.
+ * NOTE: the /careers page previously had a render bug (#287) where
+ * `currentLanguage.value` was used inside the <template>; refs auto-unwrap in
+ * templates so `.value` was undefined, throwing "Cannot read properties of
+ * undefined (reading 'length')" and suppressing every `.position-card`. Fixed
+ * in #287 (template refs no longer use `.value`), so the card / modal / filter
+ * tests below are now live. The structural tests (title, breadcrumb, filter
+ * controls, labels, landmarks, responsive shell) were never affected.
  */
-const POSITIONS_RENDER_BUG =
-  'SKIP: /careers has a pre-existing render bug — positions.json loads but no ' +
-  '.position-card nodes render (console TypeError "reading \'length\'"); app ' +
-  'defect, not test drift. Structural tests for the page shell still run.';
+
+/**
+ * Navigate to /careers and wait for the position cards to finish loading.
+ *
+ * PositionList.vue loads positions.json via a dynamic `import()` in onMounted,
+ * so the cards reach the DOM a tick AFTER the goto resolves. Tests that assert
+ * against `.position-card` (or the modal/grid it drives) must wait for the
+ * cards; otherwise they race the async load and see 0 cards.
+ */
+async function gotoCareersAndWaitForCards(page: Page) {
+  await page.goto(CAREERS);
+  await page.waitForSelector('.position-card', { state: 'attached', timeout: 10000 });
+}
 
 test.describe('Position List Page Tests', () => {
   test.beforeEach(async ({ page }) => {
@@ -44,20 +46,20 @@ test.describe('Position List Page Tests', () => {
   });
 
   test('should navigate to positions page', async ({ page }) => {
-    await page.goto(CAREERS);
+    await gotoCareersAndWaitForCards(page);
     await expect(page).toHaveURL(/\/careers$/);
     await expect(page.locator('h1')).toContainText(/Open Positions|职位/i);
   });
 
   test('should display positions page title and subtitle', async ({ page }) => {
-    await page.goto(CAREERS);
+    await gotoCareersAndWaitForCards(page);
 
     await expect(page.locator('.position-list__title')).toBeVisible();
     await expect(page.locator('.position-list__title-accent')).toBeVisible();
   });
 
   test('should display breadcrumb navigation', async ({ page }) => {
-    await page.goto(CAREERS);
+    await gotoCareersAndWaitForCards(page);
 
     const breadcrumb = page.locator('.position-list__breadcrumb');
     await expect(breadcrumb).toBeVisible();
@@ -66,7 +68,7 @@ test.describe('Position List Page Tests', () => {
   });
 
   test('should display search and filter controls', async ({ page }) => {
-    await page.goto(CAREERS);
+    await gotoCareersAndWaitForCards(page);
 
     // Search input
     await expect(page.locator('#search-input')).toBeVisible();
@@ -85,9 +87,8 @@ test.describe('Position List Page Tests', () => {
     await expect(page.locator('label[for="type-select"]')).toBeVisible();
   });
 
-  // POSITIONS_RENDER_BUG — body retained verbatim so it runs once the bug is fixed.
-  test.skip('should display position cards', async ({ page }) => {
-    await page.goto(CAREERS);
+  test('should display position cards', async ({ page }) => {
+    await gotoCareersAndWaitForCards(page);
 
     const positionCards = page.locator('.position-card');
     const count = await positionCards.count();
@@ -103,9 +104,8 @@ test.describe('Position List Page Tests', () => {
     await expect(firstCard.locator('.position-card__action')).toBeVisible();
   });
 
-  // POSITIONS_RENDER_BUG
-  test.skip('should filter positions by department', async ({ page }) => {
-    await page.goto(CAREERS);
+  test('should filter positions by department', async ({ page }) => {
+    await gotoCareersAndWaitForCards(page);
 
     // Select Engineering department
     await page.selectOption('#department-select', 'engineering');
@@ -118,9 +118,8 @@ test.describe('Position List Page Tests', () => {
     expect(filteredCount).toBeGreaterThan(0);
   });
 
-  // POSITIONS_RENDER_BUG
-  test.skip('should filter positions by location', async ({ page }) => {
-    await page.goto(CAREERS);
+  test('should filter positions by location', async ({ page }) => {
+    await gotoCareersAndWaitForCards(page);
 
     // Select Shanghai location
     await page.selectOption('#location-select', 'shanghai');
@@ -133,9 +132,8 @@ test.describe('Position List Page Tests', () => {
     expect(filteredCount).toBeGreaterThan(0);
   });
 
-  // POSITIONS_RENDER_BUG
-  test.skip('should filter positions by employment type', async ({ page }) => {
-    await page.goto(CAREERS);
+  test('should filter positions by employment type', async ({ page }) => {
+    await gotoCareersAndWaitForCards(page);
 
     // Select Full-time type
     await page.selectOption('#type-select', 'fulltime');
@@ -148,9 +146,8 @@ test.describe('Position List Page Tests', () => {
     expect(filteredCount).toBeGreaterThan(0);
   });
 
-  // POSITIONS_RENDER_BUG
-  test.skip('should search positions by keyword', async ({ page }) => {
-    await page.goto(CAREERS);
+  test('should search positions by keyword', async ({ page }) => {
+    await gotoCareersAndWaitForCards(page);
 
     // Search for "developer"
     await page.fill('#search-input', 'developer');
@@ -163,9 +160,8 @@ test.describe('Position List Page Tests', () => {
     expect(filteredCount).toBeGreaterThan(0);
   });
 
-  // POSITIONS_RENDER_BUG
-  test.skip('should clear all filters', async ({ page }) => {
-    await page.goto(CAREERS);
+  test('should clear all filters', async ({ page }) => {
+    await gotoCareersAndWaitForCards(page);
 
     // Apply filters
     await page.selectOption('#department-select', 'engineering');
@@ -184,9 +180,8 @@ test.describe('Position List Page Tests', () => {
     expect(allPositions).toBe(8);
   });
 
-  // POSITIONS_RENDER_BUG
-  test.skip('should display filter count when filters are active', async ({ page }) => {
-    await page.goto(CAREERS);
+  test('should display filter count when filters are active', async ({ page }) => {
+    await gotoCareersAndWaitForCards(page);
 
     // Apply filter
     await page.selectOption('#department-select', 'engineering');
@@ -196,9 +191,8 @@ test.describe('Position List Page Tests', () => {
     await expect(page.locator('.filter-active')).toBeVisible();
   });
 
-  // POSITIONS_RENDER_BUG
-  test.skip('should open position detail modal', async ({ page }) => {
-    await page.goto(CAREERS);
+  test('should open position detail modal', async ({ page }) => {
+    await gotoCareersAndWaitForCards(page);
 
     // Click on first position's View Details button
     await page.click('.position-card:first-child .position-card__action');
@@ -208,9 +202,8 @@ test.describe('Position List Page Tests', () => {
     await expect(page.locator('.position-modal__container')).toBeVisible();
   });
 
-  // POSITIONS_RENDER_BUG
-  test.skip('should display position detail content', async ({ page }) => {
-    await page.goto(CAREERS);
+  test('should display position detail content', async ({ page }) => {
+    await gotoCareersAndWaitForCards(page);
 
     // Open position detail
     await page.click('.position-card:first-child .position-card__action');
@@ -223,9 +216,8 @@ test.describe('Position List Page Tests', () => {
     await expect(page.locator('.position-modal__share')).toBeVisible();
   });
 
-  // POSITIONS_RENDER_BUG
-  test.skip('should close position detail modal', async ({ page }) => {
-    await page.goto(CAREERS);
+  test('should close position detail modal', async ({ page }) => {
+    await gotoCareersAndWaitForCards(page);
 
     // Open modal
     await page.click('.position-card:first-child .position-card__action');
@@ -238,23 +230,24 @@ test.describe('Position List Page Tests', () => {
     await expect(page.locator('.position-modal')).not.toBeVisible();
   });
 
-  // POSITIONS_RENDER_BUG
-  test.skip('should close modal on overlay click', async ({ page }) => {
-    await page.goto(CAREERS);
+  test('should close modal on overlay click', async ({ page }) => {
+    await gotoCareersAndWaitForCards(page);
 
     // Open modal
     await page.click('.position-card:first-child .position-card__action');
     await expect(page.locator('.position-modal')).toBeVisible();
 
-    // Click overlay
-    await page.click('.position-modal__overlay');
+    // Click overlay. Click at the overlay's top-left CORNER via position — the
+    // overlay's center sits underneath the modal container, so a centered click
+    // hits the container (or recurses); the corner is overlay-only.
+    await page.click('.position-modal__overlay', { position: { x: 2, y: 2 } });
 
     // Modal should be closed
     await expect(page.locator('.position-modal')).not.toBeVisible();
   });
 
   test('should show empty state when no positions match', async ({ page }) => {
-    await page.goto(CAREERS);
+    await gotoCareersAndWaitForCards(page);
 
     // Apply impossible filter combination
     await page.selectOption('#department-select', 'marketing');
@@ -266,12 +259,13 @@ test.describe('Position List Page Tests', () => {
     await expect(page.locator('.empty-title')).toBeVisible();
   });
 
-  // POSITIONS_RENDER_BUG
-  test.skip('should be keyboard navigable', async ({ page }) => {
-    await page.goto(CAREERS);
+  test('should be keyboard navigable', async ({ page }) => {
+    await gotoCareersAndWaitForCards(page);
 
-    // Tab to search input
-    await page.keyboard.press('Tab');
+    // Focus the search input directly (the breadcrumb links precede it in the
+    // Tab sequence, so a single Tab from the body does not land on it). The
+    // intent of this test is that keyboard typing in the search filters.
+    await page.locator('#search-input').focus();
     await expect(page.locator('#search-input')).toBeFocused();
 
     // Type in search
@@ -283,9 +277,8 @@ test.describe('Position List Page Tests', () => {
     expect(filteredCount).toBeGreaterThan(0);
   });
 
-  // POSITIONS_RENDER_BUG
-  test.skip('should display position cards with all metadata', async ({ page }) => {
-    await page.goto(CAREERS);
+  test('should display position cards with all metadata', async ({ page }) => {
+    await gotoCareersAndWaitForCards(page);
 
     const firstCard = page.locator('.position-card').first();
 
@@ -297,7 +290,7 @@ test.describe('Position List Page Tests', () => {
   });
 
   test('should have proper ARIA labels on interactive elements', async ({ page }) => {
-    await page.goto(CAREERS);
+    await gotoCareersAndWaitForCards(page);
 
     // Check search input
     await expect(page.locator('#search-input')).toHaveAttribute('id');
@@ -309,9 +302,8 @@ test.describe('Position List Page Tests', () => {
     }
   });
 
-  // POSITIONS_RENDER_BUG
-  test.skip('should prevent body scroll when modal is open', async ({ page }) => {
-    await page.goto(CAREERS);
+  test('should prevent body scroll when modal is open', async ({ page }) => {
+    await gotoCareersAndWaitForCards(page);
 
     // Open modal
     await page.click('.position-card:first-child .position-card__action');
@@ -325,16 +317,19 @@ test.describe('Position List Page Tests', () => {
     // Close modal
     await page.click('.position-modal__close');
 
-    // Body scroll should be restored
+    // Body scroll should be restored. The component manages the INLINE
+    // body.style.overflow (sets 'hidden' on open, '' on close). Assert the
+    // inline style, NOT getComputedStyle — a global stylesheet sets overflow-y
+    // which makes getComputedStyle().overflow resolve to 'hidden auto' even
+    // after the inline 'hidden' is cleared.
     const bodyOverflowAfter = await page.locator('body').evaluate(el =>
-      window.getComputedStyle(el).overflow
+      (el as HTMLElement).style.overflow
     );
     expect(bodyOverflowAfter).toBe('');
   });
 
-  // POSITIONS_RENDER_BUG
-  test.skip('should display bilingual content', async ({ page }) => {
-    await page.goto(CAREERS);
+  test('should display bilingual content', async ({ page }) => {
+    await gotoCareersAndWaitForCards(page);
 
     const firstCard = page.locator('.position-card').first();
     const title = await firstCard.locator('.position-card__title').textContent();
@@ -346,7 +341,7 @@ test.describe('Position List Page Tests', () => {
 
 test.describe('Position List Page Accessibility Tests', () => {
   test('should have proper landmark regions', async ({ page }) => {
-    await page.goto(CAREERS);
+    await gotoCareersAndWaitForCards(page);
 
     // Main landmark
     await expect(page.locator('main[role="main"]')).toBeVisible();
@@ -358,24 +353,23 @@ test.describe('Position List Page Accessibility Tests', () => {
     await expect(page.locator('.position-list__filters')).toBeVisible();
   });
 
-  // POSITIONS_RENDER_BUG (also asserts .filter-title tag which is h2 — passes
-  // structurally, but the describe is card-scoped so skipped for consistency)
-  test.skip('should have proper heading hierarchy', async ({ page }) => {
-    await page.goto(CAREERS);
+  test('should have proper heading hierarchy', async ({ page }) => {
+    await gotoCareersAndWaitForCards(page);
 
     // h1 should be present and unique
     const h1s = page.locator('h1');
     await expect(h1s).toHaveCount(1);
 
-    // Page title should be h1
-    await expect(page.locator('.position-list__title')).toHaveTag('h1');
-
-    // Filter title should be h2
-    await expect(page.locator('.filter-title')).toHaveTag('h2');
+    // Page title should be h1, filter title should be h2. (Playwright has no
+    // toHaveTag matcher in this version — assert the resolved tagName instead.)
+    const titleTag = await page.locator('.position-list__title').evaluate(el => el.tagName);
+    expect(titleTag).toBe('H1');
+    const filterTitleTag = await page.locator('.filter-title').evaluate(el => el.tagName);
+    expect(filterTitleTag).toBe('H2');
   });
 
   test('should have focus visible on filter controls', async ({ page }) => {
-    await page.goto(CAREERS);
+    await gotoCareersAndWaitForCards(page);
 
     // Focus search input
     await page.locator('#search-input').focus();
@@ -387,7 +381,7 @@ test.describe('Position List Page Accessibility Tests', () => {
   });
 
   test('should have proper labels for form controls', async ({ page }) => {
-    await page.goto(CAREERS);
+    await gotoCareersAndWaitForCards(page);
 
     // All form controls should have associated labels
     await expect(page.locator('label[for="search-input"]')).toBeVisible();
@@ -396,9 +390,8 @@ test.describe('Position List Page Accessibility Tests', () => {
     await expect(page.locator('label[for="type-select"]')).toBeVisible();
   });
 
-  // POSITIONS_RENDER_BUG
-  test.skip('should have proper ARIA attributes on modal', async ({ page }) => {
-    await page.goto(CAREERS);
+  test('should have proper ARIA attributes on modal', async ({ page }) => {
+    await gotoCareersAndWaitForCards(page);
 
     // Open modal
     await page.click('.position-card:first-child .position-card__action');
@@ -411,9 +404,8 @@ test.describe('Position List Page Accessibility Tests', () => {
     await expect(page.locator('.position-modal__close')).toHaveAttribute('aria-label');
   });
 
-  // POSITIONS_RENDER_BUG
-  test.skip('should have semantic HTML for position cards', async ({ page }) => {
-    await page.goto(CAREERS);
+  test('should have semantic HTML for position cards', async ({ page }) => {
+    await gotoCareersAndWaitForCards(page);
 
     // Position cards should have role="listitem"
     const cards = page.locator('.position-card[role="listitem"]');
@@ -425,24 +417,27 @@ test.describe('Position List Page Accessibility Tests', () => {
 });
 
 test.describe('Position List Page Responsive Tests', () => {
-  // POSITIONS_RENDER_BUG (asserts .position-list__grid grid-template-columns,
-  // which only renders when cards exist)
-  test.skip('should display correctly on mobile', async ({ page }) => {
+  test('should display correctly on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto(CAREERS);
+    await gotoCareersAndWaitForCards(page);
 
     // Page should be visible
     await expect(page.locator('.position-list')).toBeVisible();
 
-    // Position cards should be single column on mobile
+    // Position cards should be a single column on mobile. The grid uses
+    // auto-fill minmax(320px, 1fr); at a 375px viewport only one track fits, so
+    // gridTemplateColumns resolves to a single pixel width (e.g. '337.5px'),
+    // not the literal '1fr'. Assert the track COUNT is 1 instead.
     const grid = page.locator('.position-list__grid');
-    const gridStyle = await grid.evaluate(el => window.getComputedStyle(el).gridTemplateColumns);
-    expect(gridStyle).toContain('1fr');
+    const columnCount = await grid.evaluate(el =>
+      window.getComputedStyle(el as HTMLElement).gridTemplateColumns.split(' ').length
+    );
+    expect(columnCount).toBe(1);
   });
 
   test('should display correctly on tablet', async ({ page }) => {
     await page.setViewportSize({ width: 768, height: 1024 });
-    await page.goto(CAREERS);
+    await gotoCareersAndWaitForCards(page);
 
     // Page should be visible
     await expect(page.locator('.position-list')).toBeVisible();
@@ -453,7 +448,7 @@ test.describe('Position List Page Responsive Tests', () => {
 
   test('should display correctly on desktop', async ({ page }) => {
     await page.setViewportSize({ width: 1920, height: 1080 });
-    await page.goto(CAREERS);
+    await gotoCareersAndWaitForCards(page);
 
     // Page should be visible
     await expect(page.locator('.position-list')).toBeVisible();
@@ -464,10 +459,9 @@ test.describe('Position List Page Responsive Tests', () => {
     await expect(page.locator('.position-list__content')).toBeVisible();
   });
 
-  // POSITIONS_RENDER_BUG
-  test.skip('should have modal responsive on mobile', async ({ page }) => {
+  test('should have modal responsive on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto(CAREERS);
+    await gotoCareersAndWaitForCards(page);
 
     // Open modal
     await page.click('.position-card:first-child .position-card__action');
