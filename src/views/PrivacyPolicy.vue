@@ -195,7 +195,7 @@ const { t } = useLanguage()
   font-family: var(--font-body);
   font-size: 1.05rem;
   line-height: 1.8;
-  color: #aaa;
+  color: var(--text-secondary);
 }
 .item-list {
   list-style: none;
@@ -206,7 +206,7 @@ const { t } = useLanguage()
   font-family: var(--font-body);
   font-size: 1.05rem;
   line-height: 1.7;
-  color: #aaa;
+  color: var(--text-secondary);
   padding: var(--spacing-xs) var(--spacing-sm);
   margin-bottom: var(--spacing-xs);
   background: rgba(0, 255, 204, 0.03);

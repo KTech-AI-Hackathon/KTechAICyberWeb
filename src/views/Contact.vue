@@ -533,7 +533,7 @@ const handleSubmit = async () => {
 .page-subtitle {
   font-family: var(--font-body);
   font-size: 1.2rem;
-  color: #888;
+  color: var(--text-secondary);
 }
 
 /* Breadcrumb */
@@ -661,7 +661,7 @@ select.form-input option {
   gap: 0.75rem;
   font-family: var(--font-body);
   font-size: 0.9rem;
-  color: #aaa;
+  color: var(--text-muted);
   cursor: pointer;
 }
 
@@ -776,7 +776,7 @@ select.form-input option {
 .info-item p {
   font-family: var(--font-body);
   font-size: 0.95rem;
-  color: #aaa;
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
@@ -831,7 +831,7 @@ select.form-input option {
 .demo-description {
   font-family: var(--font-body);
   font-size: 1.1rem;
-  color: #aaa;
+  color: var(--text-secondary);
   line-height: 1.8;
   margin-bottom: 3rem;
 }

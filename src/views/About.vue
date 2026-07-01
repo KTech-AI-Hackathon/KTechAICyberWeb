@@ -736,7 +736,7 @@ const { enabled } = useParallax({
 .stat-label {
   font-family: var(--font-body);
   font-size: 1rem;
-  color: #888;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.15em;
 }
