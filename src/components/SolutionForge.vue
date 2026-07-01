@@ -13,6 +13,7 @@
     class="solution-forge"
     :class="{ 'reduced-motion': prefersReducedMotion }"
     data-test="solution-forge"
+    :data-state="assemblyState"
     :aria-label="t('forge.aria.regionLabel')"
   >
     <!-- Screen-reader description of the configurator (AC 3.1). -->
