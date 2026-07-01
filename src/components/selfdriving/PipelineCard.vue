@@ -30,7 +30,7 @@ const statusKey = `selfDriving.phases.${props.phase}.status`
 </script>
 
 <template>
-  <article
+  <li
     class="pipeline-card"
     :class="{ current: isCurrent, done: isDone }"
     :style="{ '--card-accent': `var(${accentVar})` }"
@@ -46,11 +46,17 @@ const statusKey = `selfDriving.phases.${props.phase}.status`
          between its real sections. The parent PipelineTrack is a role="list"
          and this card is a role="listitem", so screen readers still get
          structure without inflating the heading map. -->
+    <!-- Host tag is native <li> (NOT <article>) per #225: a native <li>'s
+         implicit role is `listitem`, so the explicit role="listitem" above is
+         allowed-by-implicit-role and Lighthouse's `aria-allowed-role` audit
+         passes. <article> was rejected because its implicit role (`article`)
+         is incompatible with `listitem`. The .pipeline-card class still owns
+         all styling (display:flex, etc.), so the swap is a visual noop. -->
     <div class="pipeline-card-header">
       <span class="pipeline-card-title">{{ t(titleKey) }}</span>
     </div>
     <p class="pipeline-card-status">{{ t(statusKey) }}</p>
-  </article>
+  </li>
 </template>
 
 <style scoped>

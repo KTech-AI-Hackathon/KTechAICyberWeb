@@ -164,17 +164,19 @@ const nearStyle = computed(() => depthStyle(34))
     :data-static="isStatic ? 'true' : 'false'"
     :aria-label="t('selfDriving.aria.regionLabel')"
   >
-    <!-- Visible heading so a screen-reader user (and a sighted user) knows what
+    <!-- Visible label so a screen-reader user (and a sighted user) knows what
          this auto-playing region is. The demo IS page content now (not a hidden
-         background), so it gets a real landmark label + heading. Rendered as
-         an <h3> (NOT <h2>) because this section is mounted as the FIRST in-flow
-         block on Home/About, ahead of the page's primary "Our Business" <h2>
-         (#224 rebrand). Demoting to <h3> keeps the page's heading order valid
-         (h1 -> h2 "Our Business" -> h3 demo sub-heading -> h4 cards) so the
-         #224 a11y test (first-h2 == "Our Business") and axe heading-order rules
-         both hold. The <section> itself carries aria-label, so the landmark is
-         still named independently of this heading. -->
-    <h3 class="self-driving-heading neon-text">{{ t('selfDriving.heading') }}</h3>
+         background), so it gets a real landmark label. Rendered as a NON-heading
+         <p> (styled via .self-driving-heading + .neon-text) per #225: this
+         section mounts in DOM BEFORE the page's first <h2> ("Our Business",
+         #224 rebrand). Any heading tag here would break the outline — an <h3>/
+         <h4> skips h2 (axe `heading-order` fail, the exact desktop audit this
+         fixes) and an <h2> would steal first-h2 from "Our Business" (breaking
+         the #224 first-h2 contract). A <p> is the semantically-correct
+         "visible label text" element and does NOT enter the heading outline.
+         The <section> already carries aria-label, so the landmark stays named
+         for SR users independent of this label. -->
+    <p class="self-driving-heading neon-text">{{ t('selfDriving.heading') }}</p>
 
     <!-- Scanlines contained WITHIN this demo's stacking context. The shared
          Scanlines.vue component is `position: fixed; z-index: var(--z-scanlines)`
