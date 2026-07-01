@@ -21,13 +21,21 @@
 
 import { describe, it, expect } from 'vitest'
 import seo, { getRouteMeta, getStructuredData, getSitemapRoutes } from '../seo.js'
+// #260: load the real locale trees so the per-route titles describe block can
+// build a true `t` (resolves dotted keys, returns the key on miss — mirroring
+// useLanguage.t's contract). Vite resolves JSON imports natively.
+import enLocale from '../../locales/en.json'
+import zhLocale from '../../locales/zh.json'
 
 // ---------------------------------------------------------------------------
 // Expected constants — mirror the values defined in seo.js so that tests
 // document expected behavior independently of the module internals.
 // ---------------------------------------------------------------------------
 const SITE_URL = 'https://jasonhou007.github.io/KTechAICyberWeb'
-const LOCALE = 'zh_CN'
+// #260 / #239: site default language is English, so the no-JS og:locale floor
+// and getRouteMeta's no-`t` fallback locale are now en_US (was zh_CN before
+// the default-language flip in #239).
+const LOCALE = 'en_US'
 const SITE_NAME = 'KTech'
 
 // Helper: build a minimal but realistic Vue Router route object
@@ -232,6 +240,78 @@ describe('getRouteMeta(route)', () => {
         expect(meta.canonical).toMatch(/^https:\/\/[^/]+\//)
         expect(meta.canonical.endsWith(p)).toBe(true)
       })
+    })
+  })
+
+  // -------------------------------------------------------------------------
+  // #260 — per-route document titles resolved via the i18n `t` translator.
+  // The no-`t` calls above exercise the hardcoded fallbacks; these exercise the
+  // LIVE path App.vue uses (getRouteMeta(route, t)). Each titleKey MUST resolve
+  // to a real value (not a raw dotted key) and compose "name - KTech" (home
+  // carries the brand in-value, so no suffix). A missing/unresolved key would
+  // surface the raw "x.y.z" string as <title> — the assertion catches that.
+  // -------------------------------------------------------------------------
+  describe('per-route titles (AC #260)', () => {
+    // Build a real `t` over en.json: resolves dotted keys, returns the key
+    // itself when missing (mirrors useLanguage.t's missing-key contract).
+    const en: Record<string, unknown> = enLocale as unknown as Record<string, unknown>
+    const tEn = (key: string): string => {
+      const val = key.split('.').reduce<any>((o, k) => (o == null ? undefined : o[k]), en)
+      return val == null ? key : String(val)
+    }
+
+    const cases: Array<{ path: string; expected: string; note?: string }> = [
+      { path: '/', expected: 'KTech - Fintech Innovation' },
+      { path: '/about', expected: 'About - KTech' },
+      { path: '/news', expected: 'News & Updates - KTech' },
+      { path: '/news/some-article', expected: 'News & Updates - KTech', note: 'news detail reuses /news title' },
+      { path: '/services/supply-chain-finance', expected: 'Supply Chain Finance Solution - KTech' },
+      { path: '/services/project-and-program-management', expected: 'Project Management - KTech', note: 'leaf-string key services.projectManagement' },
+      { path: '/services/blockchain', expected: 'Blockchain Solutions - KTech', note: 'top-level blockchain.docTitle' },
+      { path: '/services/big-data-ai', expected: 'Big Data & AI Solutions - KTech' },
+      { path: '/services/retail-lending', expected: 'Retail Lending Solution - KTech' },
+      { path: '/services/cross-border-payment', expected: 'Cross-Border Payment Solution - KTech' },
+      { path: '/services/digital-asset-custody', expected: 'Digital Asset Custody Solution - KTech' },
+      { path: '/services/stablecoin', expected: 'Stablecoin Solution - KTech' },
+      { path: '/join-us', expected: 'Join Us - KTech' },
+      { path: '/contact', expected: 'Contact - KTech' },
+      { path: '/careers', expected: 'Careers - KTech' },
+      { path: '/pulse', expected: 'Neon Pulse - KTech' },
+      { path: '/this-route-does-not-exist', expected: 'Page Not Found - KTech', note: 'catch-all -> notFound.docTitle' },
+    ]
+
+    it.each(cases)(
+      'resolves a real (non-raw-key) title for $path',
+      ({ path, expected }) => {
+        const meta = getRouteMeta(makeRoute(path), tEn as unknown as (k: string) => string)
+        expect(meta.title).toBe(expected)
+        // The title must NOT be a raw dotted key (the missing-key failure mode).
+        expect(meta.title).not.toMatch(/^[a-z]+\.[a-zA-Z.]+$/)
+      },
+    )
+
+    it('does NOT append the brand suffix for the home route (brand is in-value)', () => {
+      const meta = getRouteMeta(makeRoute('/'), tEn as unknown as (k: string) => string)
+      // home.docTitle is "KTech - Fintech Innovation" — not "KTech - Fintech Innovation - KTech".
+      expect(meta.title.endsWith(' - KTech')).toBe(false)
+    })
+
+    it('composes the ZH brand suffix when the resolved value contains CJK', () => {
+      // Build a zh translator and confirm the suffix brand flips to 开泰远景.
+      const zh: Record<string, unknown> = zhLocale as unknown as Record<string, unknown>
+      const tZh = (key: string): string => {
+        const val = key.split('.').reduce<any>((o, k) => (o == null ? undefined : o[k]), zh)
+        return val == null ? key : String(val)
+      }
+      const meta = getRouteMeta(makeRoute('/about'), tZh as unknown as (k: string) => string)
+      expect(meta.title).toBe('关于我们 - 开泰远景')
+    })
+
+    it('falls back to the hardcoded title when t is omitted (legacy contract)', () => {
+      // The no-`t` path must keep returning the pre-#260 hardcoded strings so
+      // existing assertions stay green.
+      expect(getRouteMeta(makeRoute('/')).title).toBe('KTech | 金融科技创新')
+      expect(getRouteMeta(makeRoute('/about')).title).toBe('关于我们 - KTech')
     })
   })
 })

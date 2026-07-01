@@ -94,10 +94,19 @@ export default {
       initLanguage()
     })
 
-    const { t } = useLanguage()
+    const { t, currentLanguage } = useLanguage()
 
-    const currentMeta = computed(() => getRouteMeta(route))
+    // #260: pass the live translator so getRouteMeta resolves per-route
+    // document titles from the docTitle / service-title i18n keys (the AC2 fix
+    // — every route gets its own localized <title> instead of sharing the
+    // static index.html value).
+    const currentMeta = computed(() => getRouteMeta(route, t))
     const structuredData = computed(() => getStructuredData(route))
+
+    // #239 / #260: og:locale follows the ACTIVE language, not a static floor.
+    // Default is English (en_US); Chinese visitors get zh_CN. This is what
+    // social scrapers read off the live DOM after useHead updates it.
+    const ogLocale = computed(() => (currentLanguage.value === 'zh' ? 'zh_CN' : 'en_US'))
 
     // Update head meta tags reactively
     useHead(() => ({
@@ -110,7 +119,7 @@ export default {
 
         // Open Graph
         { property: 'og:type', content: currentMeta.value.ogType },
-        { property: 'og:locale', content: currentMeta.value.ogLocale },
+        { property: 'og:locale', content: ogLocale.value },
         { property: 'og:site_name', content: currentMeta.value.ogSiteName },
         { property: 'og:title', content: currentMeta.value.title },
         { property: 'og:description', content: currentMeta.value.description },
