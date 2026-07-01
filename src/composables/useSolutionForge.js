@@ -43,6 +43,19 @@ const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 // useNeuralNet's PULSE_SPEED.
 const PROGRESS_SPEED = 0.06
 
+// Wall-clock fallback that bounds the FSM `done` transition (#293). The rAF
+// chain advances ~0.06 progress/frame (~17 frames => ~1.0s at 60fps), but under
+// webkit-CI throttle the rAF cadence starves and the chain can take >5s — the
+// E2E test timeout. To DECOUPLE completion from the rAF cadence (root-cause fix
+// for the iter-293 rAF-gated FSM pitfall), we ALSO arm a setTimeout fallback
+// that fires finishForge() if the rAF chain hasn't completed in time. The value
+// is comfortably above the nominal ~1.0s animation (so a healthy rAF chain
+// still wins first, preserving the scramble-decode visual) but well under the
+// 5s test timeout. Reduced-motion already sync-commits done, so this only arms
+// on the animated path. Mirrors useNeuralNet.INFERENCE_FALLBACK_MS with a
+// slightly larger budget for the scramble decode.
+const FORGE_FALLBACK_MS = 2000
+
 // ---------------------------------------------------------------------------
 // Deterministic recommendation mapping (PURE)
 // ---------------------------------------------------------------------------
@@ -260,6 +273,7 @@ export function useSolutionForge() {
   const scrambleText = ref('')
   const recommendation = ref(null)
   let rafHandle = null
+  let fallbackTimer = null
 
   // The verdict word the scramble reveals, derived from the current
   // recommendation (or a placeholder while computing). Exposed read-only so
@@ -305,6 +319,13 @@ export function useSolutionForge() {
       window.cancelAnimationFrame(rafHandle)
       rafHandle = null
     }
+    if (fallbackTimer !== null) {
+      clearTimeout(fallbackTimer)
+      fallbackTimer = null
+    }
+    // Idempotent guard: the rAF chain and the wall-clock fallback both call
+    // this; the second arrival is a no-op once the FSM has left 'computing'.
+    if (assemblyState.value !== 'computing') return
     assemblyState.value = 'done'
     computeProgress.value = 1
     recommendation.value = computeNow()
@@ -318,6 +339,10 @@ export function useSolutionForge() {
     if (rafHandle !== null) {
       window.cancelAnimationFrame(rafHandle)
       rafHandle = null
+    }
+    if (fallbackTimer !== null) {
+      clearTimeout(fallbackTimer)
+      fallbackTimer = null
     }
     if (prefersReducedMotion.value) {
       // Reduced motion: skip the rAF loop, jump straight to done.
@@ -334,6 +359,11 @@ export function useSolutionForge() {
     recommendation.value = computeNow()
     scrambleText.value = scrambleStep(verdictTarget.value, 0)
     rafHandle = window.requestAnimationFrame(tick)
+    // Wall-clock bound (#293): if the rAF chain starves under throttle (webkit
+    // CI), force the FSM to `done` within FORGE_FALLBACK_MS regardless of rAF
+    // cadence — decouples completion from the animation while still letting a
+    // healthy rAF chain finish first. Mirrors useNeuralNet.runInference.
+    fallbackTimer = window.setTimeout(finishForge, FORGE_FALLBACK_MS)
   }
 
   function reroll() {
@@ -345,6 +375,10 @@ export function useSolutionForge() {
     if (rafHandle !== null) {
       window.cancelAnimationFrame(rafHandle)
       rafHandle = null
+    }
+    if (fallbackTimer !== null) {
+      clearTimeout(fallbackTimer)
+      fallbackTimer = null
     }
     assemblyState.value = 'idle'
     computeProgress.value = 0
@@ -400,6 +434,10 @@ export function useSolutionForge() {
     if (rafHandle !== null) {
       window.cancelAnimationFrame(rafHandle)
       rafHandle = null
+    }
+    if (fallbackTimer !== null) {
+      clearTimeout(fallbackTimer)
+      fallbackTimer = null
     }
     if (motionMq) {
       if (motionMq.removeEventListener) {
