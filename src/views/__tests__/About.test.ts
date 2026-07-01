@@ -742,4 +742,184 @@ describe('About.vue', () => {
       expect(wrapper.findAll('h4')).toHaveLength(4)
     })
   })
+
+  // ============================================
+  // Vision / Mission / Culture Icons (AC #273) — the emoji placeholders
+  // (👁️🎯👥🤝⚡💼) are replaced with original cyber AboutIcon inline-SVGs. Each
+  // vmc-icon / culture-icon slot must contain an <svg role="img"> with a
+  // non-empty aria-label, and the legacy emojis must be GONE.
+  // ============================================
+  describe('Vision / Mission / Culture Icons (AC #273)', () => {
+    it('each vmc-icon slot contains an <svg role="img">', () => {
+      const vmcIcons = wrapper.findAll('.vmc-icon')
+      expect(vmcIcons.length).toBeGreaterThanOrEqual(2)
+      vmcIcons.forEach((slot) => {
+        const svg = slot.find('svg')
+        expect(svg.exists(), 'vmc-icon must wrap an <svg>').toBe(true)
+        expect(svg.attributes('role')).toBe('img')
+      })
+    })
+
+    it('each vmc-icon svg has a non-empty aria-label that is NOT a raw about.* key', () => {
+      wrapper.findAll('.vmc-icon').forEach((slot) => {
+        const label = slot.find('svg').attributes('aria-label') || ''
+        expect(label.length).toBeGreaterThan(0)
+        expect(label).not.toMatch(/^about\./)
+      })
+    })
+
+    it('each culture-icon slot contains an <svg role="img">', () => {
+      const cultureIcons = wrapper.findAll('.culture-icon')
+      expect(cultureIcons.length).toBe(4)
+      cultureIcons.forEach((slot) => {
+        const svg = slot.find('svg')
+        expect(svg.exists(), 'culture-icon must wrap an <svg>').toBe(true)
+        expect(svg.attributes('role')).toBe('img')
+      })
+    })
+
+    it('each culture-icon svg has a non-empty aria-label that is NOT a raw about.* key', () => {
+      wrapper.findAll('.culture-icon').forEach((slot) => {
+        const label = slot.find('svg').attributes('aria-label') || ''
+        expect(label.length).toBeGreaterThan(0)
+        expect(label).not.toMatch(/^about\./)
+      })
+    })
+
+    it('does NOT render the legacy Vision/Mission/Culture emojis (CORE AC)', () => {
+      const vmcText = wrapper.findAll('.vmc-icon').map((i) => i.text()).join('')
+      const cultureText = wrapper
+        .findAll('.culture-icon')
+        .map((i) => i.text())
+        .join('')
+      const combined = vmcText + cultureText
+      // The 6 legacy emojis that #273 replaces.
+      expect(combined).not.toContain('👁️')
+      expect(combined).not.toContain('🎯')
+      expect(combined).not.toContain('👥')
+      expect(combined).not.toContain('🤝')
+      expect(combined).not.toContain('⚡')
+      expect(combined).not.toContain('💼')
+    })
+  })
+
+  // ============================================
+  // Achievement Icons (AC #273) — the milestone-badge emoji placeholders
+  // (🏆🥇) are replaced with original cyber AboutIcon inline-SVGs (firstMnc,
+  // firstFintech). Each milestone-badge slot must contain an <svg role="img">
+  // with a non-empty aria-label, and the legacy emojis must be GONE.
+  // ============================================
+  describe('Achievement Icons (AC #273)', () => {
+    it('the two milestone-badge slots contain an <svg role="img">', () => {
+      const badges = wrapper.findAll('.milestone-badge')
+      expect(badges).toHaveLength(2)
+      badges.forEach((badge) => {
+        const svg = badge.find('svg')
+        expect(svg.exists(), 'milestone-badge must wrap an <svg>').toBe(true)
+        expect(svg.attributes('role')).toBe('img')
+      })
+    })
+
+    it('each milestone-badge svg has a non-empty aria-label that is NOT a raw about.* key', () => {
+      wrapper.findAll('.milestone-badge').forEach((badge) => {
+        const label = badge.find('svg').attributes('aria-label') || ''
+        expect(label.length).toBeGreaterThan(0)
+        expect(label).not.toMatch(/^about\./)
+      })
+    })
+
+    it('does NOT render the legacy Achievements emojis 🏆🥇 (CORE AC)', () => {
+      const badgeText = wrapper
+        .findAll('.milestone-badge')
+        .map((b) => b.text())
+        .join('')
+      expect(badgeText).not.toContain('🏆')
+      expect(badgeText).not.toContain('🥇')
+    })
+  })
+
+  // ============================================
+  // Visual-AC: icon sizing (AC #273) — the AboutIcon size prop must be ACTIVE
+  // in the component source (iter-13/15 pattern: strip comments before
+  // matching), About.vue must pass size to each new AboutIcon, and the 5
+  // #198 Who We Are icons must NOT pass size (default 48 — non-regression).
+  // ============================================
+  describe('Visual-AC: icon sizing (AC #273)', () => {
+    const aboutIconSource = fs.readFileSync(
+      path.resolve(
+        process.cwd(),
+        'src',
+        'components',
+        'icons',
+        'AboutIcon.vue',
+      ),
+      'utf-8',
+    )
+    // Strip block + line comments so a commented-out :width binding cannot pass.
+    const stripped = aboutIconSource
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\/\/.*$/gm, '')
+
+    const aboutSource = fs.readFileSync(
+      path.resolve(process.cwd(), 'src', 'views', 'About.vue'),
+      'utf-8',
+    )
+
+    it('AboutIcon.vue binds :width="size" / :height="size" (active, not commented)', () => {
+      expect(stripped).toMatch(/:width="size"/)
+      expect(stripped).toMatch(/:height="size"/)
+    })
+
+    it('About.vue passes size=48 to vision + mission AboutIcons', () => {
+      // The vmc-icon slots use vision/mission motifs at 48px.
+      const vmcBlock = aboutSource.match(
+        /<div class="vmc-icon">([\s\S]*?)<\/div>/g,
+      )
+      expect(vmcBlock, 'vmc-icon blocks must exist').not.toBeNull()
+      const joined = vmcBlock!.join('\n')
+      expect(joined).toMatch(/name="vision"/)
+      expect(joined).toMatch(/name="mission"/)
+      expect(joined).toMatch(/:size="48"/)
+    })
+
+    it('About.vue passes size=32 to the four culture AboutIcons', () => {
+      const cultureBlock = aboutSource.match(
+        /<div class="culture-icon">([\s\S]*?)<\/div>/g,
+      )
+      expect(cultureBlock, 'culture-icon blocks must exist').not.toBeNull()
+      const joined = cultureBlock!.join('\n')
+      expect(joined).toMatch(/name="customer"/)
+      expect(joined).toMatch(/name="collaboration"/)
+      expect(joined).toMatch(/name="agile"/)
+      expect(joined).toMatch(/name="professional"/)
+      expect(joined).toMatch(/:size="32"/)
+    })
+
+    it('About.vue passes size=32 to the two milestone AboutIcons', () => {
+      const badgeBlock = aboutSource.match(
+        /<div class="badge milestone-badge">([\s\S]*?)<\/div>/g,
+      )
+      expect(badgeBlock, 'milestone-badge blocks must exist').not.toBeNull()
+      const joined = badgeBlock!.join('\n')
+      expect(joined).toMatch(/name="firstMnc"/)
+      expect(joined).toMatch(/name="firstFintech"/)
+      expect(joined).toMatch(/:size="32"/)
+    })
+
+    it('the 5 #198 Who We Are icons do NOT pass size (default 48 — non-regression)', () => {
+      // Each Who We Are AboutIcon must omit the size prop so it renders at the
+      // 48px default (preserving #198 exactly).
+      const whoWeAre = aboutSource.match(
+        /<section class="section who-we-are">([\s\S]*?)<\/section>/,
+      )
+      expect(whoWeAre, 'who-we-are section must exist').not.toBeNull()
+      const block = whoWeAre![1]
+      const iconTags =
+        block.match(/<AboutIcon[^>]*name="(company|parentRegion|capital|established|services)"[^>]*\/>/g) || []
+      expect(iconTags.length).toBe(5)
+      iconTags.forEach((tag) => {
+        expect(tag).not.toMatch(/:size=/)
+      })
+    })
+  })
 })

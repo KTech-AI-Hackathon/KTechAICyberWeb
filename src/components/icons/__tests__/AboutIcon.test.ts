@@ -24,11 +24,21 @@ import path from 'node:path'
 import AboutIcon from '../AboutIcon.vue'
 
 const MOTIF_NAMES = [
+  // #198 Who We Are motifs (5)
   'company',
   'parentRegion',
   'capital',
   'established',
   'services',
+  // #273 follow-up motifs (8): Vision/Mission/Culture/Achievements
+  'vision',
+  'mission',
+  'customer',
+  'collaboration',
+  'agile',
+  'professional',
+  'firstMnc',
+  'firstFintech',
 ] as const
 
 describe('AboutIcon.vue', () => {
@@ -83,10 +93,10 @@ describe('AboutIcon.vue', () => {
       wrapper.unmount()
     })
 
-    it('renders distinct path geometry per motif (5 unique inner shapes)', () => {
+    it('renders distinct path geometry per motif (13 unique inner shapes)', () => {
       // Each motif must produce its OWN non-empty inner geometry (a motif that
       // renders nothing would be a regression). We collect the inner HTML of
-      // each rendered svg and assert all 5 are non-empty AND pairwise distinct.
+      // each rendered svg and assert all 13 are non-empty AND pairwise distinct.
       const inners = MOTIF_NAMES.map((name) => {
         const wrapper = mount(AboutIcon, {
           props: { name, label: `${name} icon` },
@@ -98,6 +108,7 @@ describe('AboutIcon.vue', () => {
       inners.forEach((inner) => expect(inner.length).toBeGreaterThan(0))
       const unique = new Set(inners)
       expect(unique.size).toBe(MOTIF_NAMES.length)
+      expect(unique.size).toBe(13)
     })
   })
 
@@ -113,6 +124,105 @@ describe('AboutIcon.vue', () => {
       expect(errors).toHaveLength(0)
       wrapper.unmount()
       spy.mockRestore()
+    })
+  })
+
+  // ============================================
+  // Size prop (AC #273) — the 8 new motifs render at 32px (culture/achievements)
+  // or 48px (vision/mission). The 5 #198 icons MUST stay 48px by default
+  // (non-regression). The svg width/height attrs must reflect the passed size.
+  // ============================================
+  describe('Size prop (AC #273)', () => {
+    it('default size is 48 (preserves the 5 #198 icons exactly)', () => {
+      const wrapper = mount(AboutIcon, {
+        props: { name: 'company', label: 'Company icon' },
+      })
+      const svg = wrapper.find('svg')
+      expect(svg.attributes('width')).toBe('48')
+      expect(svg.attributes('height')).toBe('48')
+      wrapper.unmount()
+    })
+
+    it('size=32 produces width=32 / height=32', () => {
+      const wrapper = mount(AboutIcon, {
+        props: { name: 'vision', label: 'Vision icon', size: 32 },
+      })
+      const svg = wrapper.find('svg')
+      expect(svg.attributes('width')).toBe('32')
+      expect(svg.attributes('height')).toBe('32')
+      wrapper.unmount()
+    })
+
+    it('size=48 explicit produces width=48 / height=48', () => {
+      const wrapper = mount(AboutIcon, {
+        props: { name: 'mission', label: 'Mission icon', size: 48 },
+      })
+      const svg = wrapper.find('svg')
+      expect(svg.attributes('width')).toBe('48')
+      expect(svg.attributes('height')).toBe('48')
+      wrapper.unmount()
+    })
+  })
+
+  // ============================================
+  // Motif-specific primitives (AC #273) — each new motif must contain the
+  // geometric primitive(s) its motif is built from. RED-proof: a motif that
+  // renders only a fallback empty <g> would fail its primitive check.
+  // ============================================
+  describe('Motif primitives (AC #273)', () => {
+    const innerHtml = (name: string) => {
+      const w = mount(AboutIcon, { props: { name, label: `${name} icon` } })
+      const html = w.find('svg').element.innerHTML
+      w.unmount()
+      return html
+    }
+
+    it('vision: nested circles + horizontal sightline line', () => {
+      const html = innerHtml('vision')
+      expect(html).toMatch(/<circle/)
+      expect(html).toMatch(/<line/)
+    })
+
+    it('mission: concentric circles (reticle/target)', () => {
+      // 3 concentric circles + crosshair ticks. The motif MUST contain at
+      // least 2 <circle> elements (the crosshair ticks could be <line>, so we
+      // assert circles separately from the tick count).
+      const html = innerHtml('mission')
+      const circleMatches = html.match(/<circle/g) || []
+      expect(circleMatches.length).toBeGreaterThanOrEqual(2)
+    })
+
+    it('customer: head circles + shoulder arcs (path or ellipse)', () => {
+      const html = innerHtml('customer')
+      expect(html).toMatch(/<circle/)
+      expect(/<path|<ellipse/.test(html)).toBe(true)
+    })
+
+    it('collaboration: interlocking hexagons (polygon)', () => {
+      const html = innerHtml('collaboration')
+      expect(html).toMatch(/<polygon/)
+    })
+
+    it('agile: outer circle + rising zigzag polyline', () => {
+      const html = innerHtml('agile')
+      expect(html).toMatch(/<circle/)
+      expect(html).toMatch(/<polyline/)
+    })
+
+    it('professional: briefcase wireframe (rect body)', () => {
+      const html = innerHtml('professional')
+      expect(html).toMatch(/<rect/)
+    })
+
+    it('firstMnc: award star (polygon)', () => {
+      const html = innerHtml('firstMnc')
+      expect(html).toMatch(/<polygon/)
+    })
+
+    it('firstFintech: medal circle + centered star polygon', () => {
+      const html = innerHtml('firstFintech')
+      expect(html).toMatch(/<circle/)
+      expect(html).toMatch(/<polygon/)
     })
   })
 
