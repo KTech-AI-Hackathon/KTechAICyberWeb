@@ -298,6 +298,7 @@
 
 import { ref, reactive } from 'vue'
 import { useLanguage } from '../composables/useLanguage'
+import { contactConfig } from '../config/contact'
 
 const { t } = useLanguage()
 
@@ -414,8 +415,41 @@ const validateForm = () => {
   return Object.keys(next).length === 0
 }
 
-// Handle form submit
-const handleSubmit = () => {
+// Reset every field of the form back to its initial empty value. Kept as a
+// helper so both the real-submit success path and any future callers stay in
+// sync with the full field list in `formData`.
+const resetForm = () => {
+  formData.name = ''
+  formData.phone = ''
+  formData.company = ''
+  formData.email = ''
+  formData.subject = ''
+  formData.message = ''
+  formData.privacy = false
+}
+
+// POST the validated form payload to the configured static-site form backend
+// (Formspree / FormSubmit / Web3Forms / getform). Returns true on a 2xx
+// response, false otherwise. Throws on network failure so the caller can map
+// it to a user-facing error. See issue #270 AC §1, §2.
+const postToBackend = async (endpoint, payload) => {
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+  return res.ok
+}
+
+// Handle form submit (issue #270: must NOT fake success).
+//  - If a form-backend endpoint is configured → real fetch POST, and the
+//    reported success/error reflects the genuine network result.
+//  - If no endpoint is configured → show a clear DEMO notice instead of
+//    fabricating a success message.
+const handleSubmit = async () => {
   // Clear previous status
   submitStatus.value = null
 
@@ -428,26 +462,43 @@ const handleSubmit = () => {
     return
   }
 
-  // Submit form
-  isSubmitting.value = true
+  const endpoint = contactConfig && contactConfig.endpoint
 
-  // Simulate API call
-  setTimeout(() => {
+  // Demo mode: no backend wired up. Be honest — do NOT pretend success.
+  if (!endpoint) {
+    submitStatus.value = {
+      type: 'demo',
+      message: t('contact.form.demoNotice', { email: (contactConfig && contactConfig.demoEmail) || '' })
+    }
+    return
+  }
+
+  // Real submission path.
+  isSubmitting.value = true
+  try {
+    const ok = await postToBackend(endpoint, { ...formData })
+    isSubmitting.value = false
+    if (ok) {
+      submitStatus.value = {
+        type: 'success',
+        message: t('contact.form.success')
+      }
+      // Reset form only after a genuinely successful submission.
+      resetForm()
+    } else {
+      submitStatus.value = {
+        type: 'error',
+        message: t('contact.form.submitError')
+      }
+    }
+  } catch (err) {
+    // Network failure / offline / DNS — surface a real error, never success.
     isSubmitting.value = false
     submitStatus.value = {
-      type: 'success',
-      message: t('contact.form.success')
+      type: 'error',
+      message: t('contact.form.submitError')
     }
-
-    // Reset form
-    formData.name = ''
-    formData.phone = ''
-    formData.company = ''
-    formData.email = ''
-    formData.subject = ''
-    formData.message = ''
-    formData.privacy = false
-  }, 1500)
+  }
 }
 </script>
 
@@ -667,6 +718,15 @@ select.form-input option {
   color: var(--status-error);
   background: rgba(255, 68, 68, 0.1);
   border: 1px solid rgba(255, 68, 68, 0.3);
+}
+
+/* Demo notice (issue #270): shown when no form backend is configured, so the
+   user is told honestly that nothing was sent. Uses the warning tone to
+   distinguish it from a real success. */
+.submit-message.demo {
+  color: var(--status-warning);
+  background: rgba(255, 204, 0, 0.1);
+  border: 1px solid rgba(255, 204, 0, 0.3);
 }
 
 /* Company Info Section */

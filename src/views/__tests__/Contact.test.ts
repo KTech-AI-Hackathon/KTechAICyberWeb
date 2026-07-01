@@ -49,6 +49,8 @@ const dictionary: Record<string, string> = {
   'contact.form.submitting': 'Submitting...',
   'contact.form.success': 'Thank you!',
   'contact.form.error': 'Please fix the errors above.',
+  'contact.form.submitError': 'Sorry — your message could not be sent.',
+  'contact.form.demoNotice': 'This is a demo form. Email {email}.',
   'contact.form.validation.nameRequired': 'Name is required.',
   'contact.form.validation.nameTooShort': 'Name must be at least 2 characters.',
   'contact.form.validation.phoneRequired': 'Phone is required.',
@@ -81,9 +83,22 @@ const dictionary: Record<string, string> = {
 
 vi.mock('../../composables/useLanguage', () => ({
   useLanguage: () => ({
-    t: (key: string) => dictionary[key] ?? key,
+    t: (key: string, params?: Record<string, string>) => {
+      let value = dictionary[key] ?? key
+      if (params) {
+        for (const [name, val] of Object.entries(params)) {
+          value = value.split(`{${name}}`).join(String(val))
+        }
+      }
+      return value
+    },
   }),
 }))
+
+// Issue #270: drive the contact form's submit-mode config (real backend vs
+// demo notice) per-test. We import the REAL reactive singleton and reset it
+// in afterEach so tests are isolated.
+import { contactConfig } from '../../config/contact'
 
 // A complete, valid payload. Tests start from this and mutate ONE field to
 // exercise a specific rule, driving the value through the real input.
@@ -108,6 +123,10 @@ describe('Contact.vue (FEAT-004 form validation)', () => {
   afterEach(() => {
     wrapper.unmount()
     vi.useRealTimers()
+    // Reset issue-#270 submit-mode config so the next test starts clean.
+    contactConfig.endpoint = null
+    contactConfig.demoEmail = 'contact@ktechai.example'
+    vi.unstubAllGlobals()
   })
 
   // Helper: fill every field with a valid value via the real DOM, then leave
@@ -362,27 +381,65 @@ describe('Contact.vue (FEAT-004 form validation)', () => {
       expect((wrapper.vm as any).submitStatus.type).toBe('error')
     })
 
-    it('submits successfully when valid and resets the form', async () => {
+    it('shows a DEMO notice (not a fake success) when no backend endpoint is configured (issue #270)', async () => {
+      // Default config has no endpoint wired up, so the form must NOT fake
+      // success. It should show an honest demo notice and leave isSubmitting
+      // false (no async work pending).
       await fillValidExcept()
       await wrapper.find('form').trigger('submit.prevent')
       await flushPromises()
 
-      // Loading state engaged.
-      expect((wrapper.vm as any).isSubmitting).toBe(true)
-      expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined()
+      const status = wrapper.find('.submit-message')
+      expect(status.exists()).toBe(true)
+      expect(status.classes()).not.toContain('success')
+      expect(status.classes()).toContain('demo')
+      // The form is NOT reset in demo mode — the user may still want their text.
+      expect((wrapper.vm as any).formData.message).not.toBe('')
+      // No lingering loading state.
+      expect((wrapper.vm as any).isSubmitting).toBe(false)
+    })
 
-      // Resolve the mock API timer.
-      vi.advanceTimersByTime(2000)
+    it('performs a real fetch POST and reports genuine success when an endpoint is configured (issue #270)', async () => {
+      vi.useRealTimers()
+      const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({}) })
+      vi.stubGlobal('fetch', fetchMock)
+      contactConfig.endpoint = 'https://formspree.io/f/test'
+      contactConfig.demoEmail = 'demo@example.com'
+
+      await fillValidExcept()
+      await wrapper.find('form').trigger('submit.prevent')
       await flushPromises()
 
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+      const [url, opts] = fetchMock.mock.calls[0]
+      expect(url).toBe('https://formspree.io/f/test')
+      expect(opts.method).toBe('POST')
+      const body = JSON.parse(opts.body)
+      expect(body.email).toBe(validInput.email)
+
+      // Success reflects the REAL network result, and the form is reset.
       expect((wrapper.vm as any).submitStatus.type).toBe('success')
-      // Form reset (every field back to empty / unchecked).
       const vm = wrapper.vm as any
       expect(vm.formData.name).toBe('')
       expect(vm.formData.email).toBe('')
       expect(vm.formData.subject).toBe('')
       expect(vm.formData.message).toBe('')
       expect(vm.formData.privacy).toBe(false)
+    })
+
+    it('reports a real error when the configured backend returns non-2xx (issue #270)', async () => {
+      vi.useRealTimers()
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 500, json: async () => ({}) }))
+      contactConfig.endpoint = 'https://formspree.io/f/test'
+      contactConfig.demoEmail = 'demo@example.com'
+
+      await fillValidExcept()
+      await wrapper.find('form').trigger('submit.prevent')
+      await flushPromises()
+
+      expect((wrapper.vm as any).submitStatus.type).toBe('error')
+      // Regression guard: never fake success on a failed real submission.
+      expect((wrapper.vm as any).submitStatus.type).not.toBe('success')
     })
 
     it('clears field errors before re-validating on each submit', async () => {
