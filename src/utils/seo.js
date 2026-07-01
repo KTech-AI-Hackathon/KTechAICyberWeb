@@ -7,14 +7,103 @@ const SITE_URL = 'https://jasonhou007.github.io/KTechAICyberWeb'
 const SITE_NAME = 'KTech'
 const DEFAULT_DESCRIPTION = '开泰远景信息科技有限公司 - 专注于金融科技创新，提供项目管理、零售信贷、供应链金融、区块链技术等解决方案。'
 const DEFAULT_KEYWORDS = '开泰远景信息科技,KTech,金融科技,区块链,供应链金融,零售信贷,开泰远景,深圳金融科技,跨境电商,项目管理'
-const LOCALE = 'zh_CN'
+// #239: site default language is English. og:locale must reflect the active
+// language (App.vue overrides this per-route via the computed ogLocale from
+// useLanguage), but the no-JS floor and any path that doesn't pass a `t`
+// resolver should still default to en_US rather than the pre-#239 zh_CN.
+const LOCALE = 'en_US'
+
+// Brand suffix appended to composed document titles (separator ' - ').
+// EN brand is "KTech"; ZH brand is "开泰远景". Picked at compose-time from the
+// language the active t() resolves in (see resolveTitle below).
+const BRAND = { en: 'KTech', zh: '开泰远景' }
+
+/**
+ * Map of route path -> i18n titleKey. getRouteMeta composes
+ *   t(titleKey) + ' - ' + BRAND[lang]
+ * for every route, EXCEPT home which carries the full brand in its value
+ * (home.docTitle already reads "KTech - Fintech Innovation" / "开泰远景 - 金融科技创新"
+ * so no suffix is appended — otherwise the brand would appear twice).
+ *
+ * Service routes have INCONSISTENT locale shapes — 6 are objects with a
+ * `.title` sub-key; `services.projectManagement` is a LEAF STRING. The
+ * `/services/blockchain` route maps to the top-level `blockchain.docTitle`
+ * key added in #260 (the services.* namespace has no blockchain entry). The
+ * keys below were verified against src/locales/{en,zh}.json.
+ *
+ * Dynamic / special routes (handled in getRouteMeta, not listed here):
+ *   - /news/:slug  -> reuses /news title (news.docTitle)
+ *   - /:pathMatch  -> notFound.docTitle (the 404 catch-all)
+ *   - /privacy, /terms -> keep their hardcoded "Privacy Policy - KTech" /
+ *     "Terms of Service - KTech" fallbacks (no docTitle key — out of #260 scope)
+ */
+const ROUTE_TITLE_KEYS = {
+  '/': { key: 'home.docTitle', full: true },
+  '/about': { key: 'about.docTitle' },
+  '/news': { key: 'news.docTitle' },
+  '/services/supply-chain-finance': { key: 'services.supplyChainFinance.title' },
+  '/services/project-and-program-management': { key: 'services.projectManagement' },
+  '/services/blockchain': { key: 'blockchain.docTitle' },
+  '/services/big-data-ai': { key: 'services.bigDataAI.title' },
+  '/services/retail-lending': { key: 'services.retailLending.title' },
+  '/services/cross-border-payment': { key: 'services.crossBorderPayment.title' },
+  '/services/digital-asset-custody': { key: 'services.digitalAssetCustody.title' },
+  '/services/stablecoin': { key: 'services.stablecoin.title' },
+  '/join-us': { key: 'joinUs.docTitle' },
+  '/contact': { key: 'contact.docTitle' },
+  '/careers': { key: 'positions.docTitle' },
+  '/pulse': { key: 'pulse.docTitle' }
+}
+
+// Map a concrete route path to its titleKey entry, handling the dynamic /
+// special routes that aren't in ROUTE_TITLE_KEYS:
+//   - /news/<slug>           -> news.docTitle (same as /news)
+//   - any unmatched path     -> notFound.docTitle (the 404 catch-all)
+function entryForPath(path) {
+  if (ROUTE_TITLE_KEYS[path]) return ROUTE_TITLE_KEYS[path]
+  if (path === '/news' || path.startsWith('/news/')) {
+    return { key: 'news.docTitle' }
+  }
+  // Unknown path -> NotFound catch-all. (Known static routes that intentionally
+  // have no docTitle — /privacy, /terms — are NOT in ROUTE_TITLE_KEYS and are
+  // handled by the caller's hardcoded fallback, so they must NOT fall into the
+  // NotFound branch. Whitelist the known no-docTitle routes here.)
+  if (path === '/privacy' || path === '/terms') return null
+  return { key: 'notFound.docTitle' }
+}
+
+// Compose the per-route title. When `t` is provided (the real useLanguage
+// translator, or a test double), resolve the titleKey's value; if the key
+// returned is the raw dotted string (missing key → t() returns the key), treat
+// it as unresolved and fall back. Brand suffix: ' - KTech' (en) / ' - 开泰远景'
+// (zh), except for the home route whose value already embeds the brand.
+function resolveTitle(path, t) {
+  if (typeof t !== 'function') return undefined
+  const entry = entryForPath(path)
+  if (!entry) return undefined
+  const raw = t(entry.key)
+  // useLanguage.t() returns the literal key when the key is missing. Guard
+  // against surfacing a raw dotted string as the <title>.
+  if (!raw || typeof raw !== 'string' || raw === entry.key) return undefined
+  if (entry.full) return raw // home: brand already in value
+  // Detect language from the resolved string: if it contains CJK, use the ZH
+  // brand suffix; otherwise EN. This avoids threading a separate lang arg and
+  // matches how useLanguage.t() already returns the active-locale string.
+  const brand = /[一-鿿]/.test(raw) ? BRAND.zh : BRAND.en
+  return `${raw} - ${brand}`
+}
 
 /**
  * Get SEO meta configuration for a specific route
  * @param {Object} route - Vue Router route object
+ * @param {Function} [t] - optional i18n translator (useLanguage.t). When
+ *   provided, the title is resolved from the active locale's docTitle / service
+ *   title keys (so document.title matches the user's language and the route).
+ *   When omitted, the hardcoded fallback strings below are used (keeps existing
+ *   seo.test.ts assertions green).
  * @returns {Object} SEO meta configuration
  */
-export function getRouteMeta(route) {
+export function getRouteMeta(route, t) {
   const path = route.path || '/'
   const fullUrl = `${SITE_URL}${path}`
 
@@ -31,7 +120,9 @@ export function getRouteMeta(route) {
     twitterSite: '@ktech_fintech'
   }
 
-  // Route-specific meta
+  // Route-specific meta (descriptions + OG images). Titles are resolved from
+  // the i18n docTitle keys when `t` is provided; the hardcoded `title` fields
+  // below are the no-`t` fallbacks.
   const routeMeta = {
     '/': {
       title: `KTech | 金融科技创新`,
@@ -67,11 +158,18 @@ export function getRouteMeta(route) {
 
   const specific = routeMeta[path] || {}
 
+  // Title resolution order:
+  //  1. i18n-resolved title (when `t` is provided and the key resolves)
+  //  2. hardcoded routeMeta title (the legacy fallback)
+  //  3. base brand title
+  const i18nTitle = resolveTitle(path, t)
+  const title = i18nTitle || specific.title || baseMeta.title
+
   return {
     ...baseMeta,
     ...specific,
     // Use specific if available, otherwise fallback to base
-    title: specific.title || baseMeta.title,
+    title,
     description: specific.description || baseMeta.description,
     ogImage: specific.ogImage || `${SITE_URL}/og-image-default.jpg`,
     twitterImage: specific.twitterImage || specific.ogImage || `${SITE_URL}/og-image-default.jpg`

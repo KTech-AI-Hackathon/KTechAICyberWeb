@@ -238,7 +238,7 @@ const loading = ref(true)
 onMounted(() => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 
-  document.title = t('services.crossBorderPayment.title')
+  // document <title> is owned by App.vue's useHead (#260).
   const metaName = 'description'
   let descriptionMeta = document.querySelector(`meta[name="${metaName}"]`)
   if (!descriptionMeta) {

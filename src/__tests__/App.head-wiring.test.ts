@@ -67,6 +67,14 @@ const buildRouter = (): Router =>
 
 const App = (await import('../App.vue')).default
 
+// @vueuse/head v2 (unhead) patches the DOM <title> on a MACROTASK (it queues
+// a resolveTags + updateDOM on a setTimeout/rAF, not a microtask). flushPromises
+// + $nextTick only flush microtasks, so they're not enough — document.title is
+// still '' right after mount. This helper yields one macrotask so the head
+// effect lands. (Same shape as the onMounted dynamic-import macrotask wait in
+// the broader App test suite.)
+const flushHead = () => new Promise((resolve) => setTimeout(resolve, 50))
+
 describe('App.vue -> createHead + per-route document titles (#260 AC2)', () => {
   let pinia: ReturnType<typeof createPinia>
   let router: Router
@@ -100,9 +108,8 @@ describe('App.vue -> createHead + per-route document titles (#260 AC2)', () => {
     await mountApp()
     // createHead must be installed (the RED state has it uninstalled → useHead
     // is a no-op → document.title stays ''). @vueuse/head v2 (unhead) drives the
-    // DOM <title> effect via internal reactivity; flushPromises + nextTick let
-    // it settle.
-    await flushPromises()
+    // DOM <title> effect on a macrotask; flushHead yields it.
+    await flushHead()
     const title = document.title
     expect(typeof title).toBe('string')
     expect(title.length).toBeGreaterThan(0)
@@ -112,14 +119,13 @@ describe('App.vue -> createHead + per-route document titles (#260 AC2)', () => {
 
   it('CHANGES document.title when navigating / -> /about (proves useHead is live)', async () => {
     const wrapper = await mountApp()
-    updateDom(head)
-    await flushPromises()
+    await flushHead()
     const homeTitle = document.title
 
     await router.push('/about')
     await flushPromises()
     await wrapper.vm.$nextTick()
-    await flushPromises()
+    await flushHead()
     const aboutTitle = document.title
 
     // The RED state (useHead a no-op) leaves document.title UNCHANGED here.
@@ -139,7 +145,7 @@ describe('App.vue -> createHead + per-route document titles (#260 AC2)', () => {
       await router.push(r.path)
       await flushPromises()
       await wrapper.vm.$nextTick()
-      await flushPromises()
+      await flushHead()
       titles.set(r.path, document.title)
     }
 

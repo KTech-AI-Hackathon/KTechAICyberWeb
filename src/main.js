@@ -1,6 +1,12 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { createPinia } from 'pinia'
+// #260: App.vue calls useHead(() => ({ title, meta, ... })) to drive per-route
+// document titles + OG tags. Before #260, createHead() was never installed, so
+// useHead was a silent no-op and document.title stayed frozen at the static
+// index.html value on every route. Installing the plugin makes the head effect
+// live (the AC2 fix).
+import { createHead } from '@vueuse/head'
 
 // Global theme (CSS variables + reset) — required by all components.
 // Without this the SPA renders unstyled because component styles reference
@@ -66,6 +72,8 @@ const router = createRouter({
 })
 
 const app = createApp(App)
+const head = createHead()
 app.use(createPinia())
 app.use(router)
+app.use(head)
 app.mount('#app')

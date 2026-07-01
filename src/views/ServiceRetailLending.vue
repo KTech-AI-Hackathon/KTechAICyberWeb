@@ -342,8 +342,8 @@ onMounted(() => {
   // Scroll to top for a clean entry from the services index.
   window.scrollTo({ top: 0, behavior: 'smooth' })
 
-  // SEO: set document title and meta description.
-  document.title = t('services.retailLending.title')
+  // SEO meta description (the document <title> is owned by App.vue's useHead,
+  // driven per-route by getRouteMeta — see #260).
   const metaName = 'description'
   let descriptionMeta = document.querySelector(`meta[name="${metaName}"]`)
   if (!descriptionMeta) {
