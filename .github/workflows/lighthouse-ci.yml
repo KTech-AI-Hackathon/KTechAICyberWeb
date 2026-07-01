@@ -20,6 +20,13 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Least-privilege token scope (security review L-1): this job only reads the
+# repo and uploads Lighthouse artifacts — it never writes to the repo or
+# pushes. Declaring the scope explicitly avoids inheriting an over-broad
+# default GITHUB_TOKEN scope.
+permissions:
+  contents: read
+
 jobs:
   lighthouse:
     name: Lighthouse Performance Audit
