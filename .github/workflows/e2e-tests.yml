@@ -11,12 +11,20 @@ jobs:
   test:
     name: Playwright E2E Tests
     # chromium + firefox + Mobile Chrome here (fast engines). webkit + Mobile
-    # Safari run in the parallel `test-webkit` job below (#229) — they were
-    # serially appended here first, but webkit's slower engine pushed total
-    # runtime past both the 15m and 25m budgets (PR #243 runs 28410495122 +
-    # 28411226987 both CANCELLED). Sharding gives webkit its own budget without
-    # slowing chromium/firefox feedback.
-    timeout-minutes: 15
+    # Safari run in the parallel `test-webkit` / `test-mobile-safari` jobs below
+    # (#229) — they were serially appended here first, but webkit's slower
+    # engine pushed total runtime past both the 15m and 25m budgets (PR #243
+    # runs 28410495122 + 28411226987 both CANCELLED). Sharding gives the webkit
+    # engine family its own budget without slowing chromium/firefox feedback.
+    #
+    # #229: timeout bumped 15m -> 25m. The serial chromium+firefox+Mobile Chrome
+    # suite (workers:1 in CI, ~800+ tests incl. the #252 + #226 additions) began
+    # hitting the 15m ceiling after #252/#226 landed on main — runs 28495829918,
+    # 28499977525, 28502655243 all CANCELLED at exactly 15m15s on this job with
+    # the "Run Playwright tests" step mid-execution. 25m matches the headroom
+    # the parallel webkit jobs already have (and a serial full-green run needs
+    # ~17-18m, so 25m leaves margin for runner variance).
+    timeout-minutes: 25
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
