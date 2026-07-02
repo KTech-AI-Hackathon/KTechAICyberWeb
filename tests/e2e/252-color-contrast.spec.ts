@@ -34,10 +34,15 @@ import { test, expect } from '@playwright/test'
  * engine-dependent proxy for a property the browser already resolves
  * authoritatively; #294 replaces it with the causal measure.
  *
- * The /careers .position-card__badge test STILL uses samplePaintedColors
- * because that badge's painted contrast is a known pre-existing #252 defect
- * (~2.25:1, magenta-on-magenta over a 20%-opacity tint) that pixel-sampling
- * surfaces for the report. Switching it is out of scope for #294.
+ * The /careers .position-card__badge test uses the computed-style measure
+ * (getComputedStyle + resolveEffectiveBackground), NOT samplePaintedColors.
+ * #310 moved the badge background to a fully OPAQUE dark surface (--bg-primary
+ * #0a0a0a) specifically so computed-style works: the browser resolves the
+ * opaque backgroundColor fast-path deterministically across engines, giving
+ * magenta #ff00aa on #0a0a0a = 5.5:1. (PRE-#310 the bg was a 20% magenta
+ * TINT composited over the card, where computed-style returned the layer
+ * beneath and pixel-sampling read anti-aliased glyph edges + a CI-flaky 4.12:1
+ * with light text — both fixed by making the bg opaque.)
  *
  * Note on routes: the PositionList view is served at /careers (see
  * src/main.js route table). About is at /about. Both use the Vite base
@@ -240,29 +245,36 @@ test.describe('#252 color contrast — WCAG AA on fixed surfaces', () => {
     const badge = page.locator('.position-card__badge').first()
     await expect(badge, '.position-card__badge must be in the live DOM — render bug #287 must be fixed').toBeVisible({ timeout: 15000 })
 
-    // Measure the painted contrast and attach it to the report. FINDING: the
-    // badge currently measures ~2.25:1 — BELOW the WCAG AA 4.5:1 normal-text
-    // floor AND below the 3:1 non-text floor (magenta #ff00aa text on a 20%-
-    // opacity magenta tint composited over the dark page = magenta-on-magenta).
-    // This is a #252 color/design defect — #252's own "Verify WCAG AA" AC is
-    // still unchecked, and its source-token fix (routing the color through
-    // --accent-magenta) did not achieve AA in the painted result. It is NOT a
-    // #287 regression and is out of scope for the render-bug fix.
+    // Measure the computed-style contrast and gate on WCAG AA 4.5:1 (normal
+    // text). #310's RESOLVED fix moves the badge background to a fully OPAQUE
+    // dark surface (--bg-primary #0a0a0a) and keeps the magenta text, so the
+    // ratio is DETERMINISTIC via getComputedStyle (browser resolves var() ->
+    // rgb() identically across engines before paint) — magenta #ff00aa on
+    // #0a0a0a = 5.5:1, WCAG AA 4.5:1 with ~1.0 margin.
     //
-    // We keep the measurement LIVE (so the ratio is in every report and the
-    // defect is visible) and gate only on "the colors were actually sampled
-    // and differ" (ratio > 1.0), so the test fails loudly if the badge stops
-    // rendering OR the pixel-sampling breaks — but does NOT block #287 on the
-    // pre-existing #252 contrast defect. The 4.5:1 AA gate is left as a #252
-    // follow-up that must adjust the badge background/token.
-    const { fg, bg, fgCss } = await samplePaintedColors(page, '.position-card__badge')
-    expect(fg, 'fg pixel must be sampled').not.toBeNull()
-    expect(bg, 'bg pixel must be sampled').not.toBeNull()
-    const ratio = contrastRatio(fg!, bg!)
-    const summary = `position-card__badge live contrast fg=${JSON.stringify(fg)} bg=${JSON.stringify(bg)} cssColor=${fgCss} ratio=${ratio.toFixed(2)} — WCAG AA 4.5:1 NOT met (tracked under #252, out of scope for #287 render-bug fix)`
+    // History: PRE-#310 the badge measured ~2.25:1 — magenta text on a 20%-
+    // opacity magenta tint composited over the card = magenta-on-magenta. An
+    // earlier #310 attempt used light text on the unchanged tint, but that
+    // measured a CI-flaky 4.12:1 (chromium) because the translucent tint's
+    // painted luminance depended on the compositing layer; pixel-sampling also
+    // read anti-aliased glyph edges. The opaque bg removes both sources of
+    // variance, and computed-style is the same causal measure the /about
+    // .projects-badge test below uses (iter-294). The #287 render contract is
+    // still gated separately above (toBeVisible).
+    const cs = await badge.evaluate((el) => {
+      const s = getComputedStyle(el)
+      return { color: s.color, backgroundImage: s.backgroundImage, backgroundColor: s.backgroundColor }
+    })
+    const fg = parseCssColor(cs.color)
+    const bg = resolveEffectiveBackground(cs)
+    const ratio = contrastRatio(fg, bg)
+    const summary =
+      `position-card__badge computed-style contrast fg=${JSON.stringify(fg)} bg=${JSON.stringify(bg)} ` +
+      `cssColor=${cs.color} cssBgImage=${cs.backgroundImage} cssBgColor=${cs.backgroundColor} ` +
+      `ratio=${ratio.toFixed(2)} (>=4.5 AA required, fix #310)`
     // Attach the measurement to the HTML report for traceability.
     test.info().annotations.push({ type: 'contrast-ratio', description: summary })
-    expect(ratio, summary).toBeGreaterThan(1)
+    expect(ratio, summary).toBeGreaterThanOrEqual(4.5)
   })
 
   test('/about .projects-badge clears 4.5:1 AA', async ({ page }) => {
