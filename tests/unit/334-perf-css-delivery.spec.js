@@ -69,19 +69,32 @@ describe('#334 Fix A — non-blocking Google Fonts in index.html', () => {
     ).toBe(true)
   })
 
-  it('does NOT keep a plain blocking <link rel=stylesheet> for Google Fonts (the preload pattern replaces it)', () => {
+  it('does NOT keep a plain blocking <link rel=stylesheet> for Google Fonts outside <noscript> (the preload pattern replaces it)', () => {
     // After the fix, the ONLY fonts.googleapis.com stylesheet references should
     // be the preload (with onload swap) and the <noscript> fallback. A plain
-    // blocking <link rel="stylesheet" href="...fonts.googleapis.com..."> (no
-    // preload, no onload) would re-introduce the render-blocking fetch.
-    const blockingFontLink = INDEX_HTML.match(
-      /<link[^>]*\brel=["']stylesheet["'][^>]*\bhref=["']https:\/\/fonts\.googleapis\.com\/css2[^"']*["'][^>]*>/i,
+    // blocking <link ... rel="stylesheet" ...> pointing at fonts.googleapis.com
+    // OUTSIDE <noscript> would re-introduce the render-blocking fetch. The
+    // <noscript> fallback is intentionally a plain stylesheet link — it only
+    // loads for no-JS clients and is itself non-render-blocking for the JS
+    // path because it lives inside <noscript>, so we strip
+    // <noscript>...</noscript> before scanning for offenders.
+    //
+    // The match is ORDER-INDEPENDENT on the rel/href attributes: the pre-fix
+    // markup was `<link href="..." rel="stylesheet">` (href first), so a regex
+    // requiring rel-before-href would false-negative. We scan every <link> tag
+    // and flag any that has BOTH rel="stylesheet" AND a fonts.googleapis.com
+    // href — that is the render-blocking resource Lighthouse flags.
+    const withoutNoscript = INDEX_HTML.replace(/<noscript>[\s\S]*?<\/noscript>/gi, '')
+    const linkTags = withoutNoscript.match(/<link[^>]*>/gi) || []
+    const blocking = linkTags.filter(
+      (tag) => /rel=["']stylesheet["']/i.test(tag)
+        && /href=["']https:\/\/fonts\.googleapis\.com\/css2/i.test(tag),
     )
     expect(
-      blockingFontLink,
-      'found a BLOCKING <link rel=stylesheet> for Google Fonts — should be converted to preload+onload. ' +
-        'Match: ' + (blockingFontLink ? blockingFontLink[0] : ''),
-    ).toBeNull()
+      blocking,
+      'found a BLOCKING <link rel=stylesheet> for Google Fonts outside <noscript> — should be converted to preload+onload. ' +
+        'Match: ' + (blocking[0] || ''),
+    ).toEqual([])
   })
 
   it('keeps display=swap in the font URL (FOUT, not FOIT)', () => {
