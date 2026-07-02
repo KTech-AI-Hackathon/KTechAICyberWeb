@@ -467,6 +467,10 @@ h1 {
 .whatwedo {
   text-align: left;
   padding: clamp(0.3rem, 0.3vh, 0.75rem) 5%;
+  /* #335: isolate layout shifts (font reflow, card stagger) so they cannot
+   * propagate CLS to ancestor scoring. Named as the biggest Home shifter
+   * (section.whatwedo 0.1116) in the saved Lighthouse layout-shifts audit. */
+  contain: layout;
 }
 
 .solution-group {

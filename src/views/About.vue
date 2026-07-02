@@ -410,6 +410,9 @@ const { enabled } = useParallax({
   border-bottom: 1px solid var(--accent-cyan-alpha-20);
   position: relative;
   overflow: hidden;
+  /* #335: isolate layout shifts so the ::before pulse + font reflow cannot
+   * propagate CLS to ancestor scoring. */
+  contain: layout;
 }
 
 .about-hero::before {
