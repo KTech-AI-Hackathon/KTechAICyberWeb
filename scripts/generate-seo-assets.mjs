@@ -4,8 +4,12 @@
  * Regen path. Run:  `node scripts/generate-seo-assets.mjs`
  *
  * Produces (all under public/, idempotent — re-running overwrites):
- *   - og-image.jpg          (1200×630 JPEG)   — OpenGraph preview
- *   - twitter-image.jpg     (1200×630 JPEG)   — Twitter card preview
+ *   - og-image.jpg          (1200×630 JPEG)   — #263 generic OpenGraph preview
+ *   - twitter-image.jpg     (1200×630 JPEG)   — #263 generic Twitter card preview
+ *   - og-image-{home,about,news,privacy,terms,default}.jpg
+ *       (1200×630 JPEG)                       — #301 per-route OG previews (6 files)
+ *   - twitter-image-{home,about,news,privacy,terms}.jpg
+ *       (1200×630 JPEG)                       — #301 per-route Twitter previews (5 files)
  *   - apple-touch-icon.png  (180×180 PNG)
  *   - icon-192.png          (192×192 PNG)     — PWA manifest icon
  *   - icon-512.png          (512×512 PNG)     — PWA manifest icon
@@ -112,8 +116,23 @@ function squareSvg() {
 /**
  * The wide banner — 1200×630 for og-image + twitter-image. Same mark on the
  * left, a headline + tagline + URL on the right, framed by a circuit motif.
+ *
+ * #301 — parameterized into a factory so the same layout drives BOTH the legacy
+ * generic `og-image.jpg` / `twitter-image.jpg` (the #263 static index.html
+ * fallback, subtitle = "Fintech Cyber Platform") AND the 11 per-route images
+ * (one per route slug, with a route-specific subtitle). Title stays "KTech" for
+ * every variant — the route identity lives in the subtitle (matches seo.js'
+ * per-route subtitle mapping).
+ *
+ * @param {object} opts
+ * @param {string} opts.title    - headline wordmark ("KTech")
+ * @param {string} opts.subtitle - route tagline (e.g. "About Us", "Privacy Policy")
  */
-function bannerSvg() {
+function bannerSvg({ title = 'KTech', subtitle = 'Fintech Cyber Platform' } = {}) {
+  const esc = (s) =>
+    String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  const safeTitle = esc(title)
+  const safeSubtitle = esc(subtitle)
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <defs>
@@ -168,8 +187,8 @@ function bannerSvg() {
 
   <!-- right-side copy -->
   <g font-family="'Helvetica Neue', Helvetica, Arial, sans-serif">
-    <text x="540" y="250" font-size="96" font-weight="800" letter-spacing="6" fill="${CYAN}">KTech</text>
-    <text x="544" y="306" font-size="34" font-weight="500" letter-spacing="3" fill="${TEXT}">Fintech Cyber Platform</text>
+    <text x="540" y="250" font-size="96" font-weight="800" letter-spacing="6" fill="${CYAN}">${safeTitle}</text>
+    <text x="544" y="306" font-size="34" font-weight="500" letter-spacing="3" fill="${TEXT}">${safeSubtitle}</text>
     <line x1="544" y1="336" x2="1100" y2="336" stroke="${CYAN}" stroke-width="1.5" opacity="0.6"/>
     <text x="544" y="384" font-size="26" font-weight="400" fill="${TEXT}" opacity="0.85">
       Fintech solutions: blockchain, supply-chain
@@ -187,6 +206,23 @@ function bannerSvg() {
   <rect x="24" y="605" width="1152" height="3" fill="url(#bar)"/>
 </svg>`
 }
+
+// #301 — per-route banner variants. seo.js (lines 130-156) references these 6
+// slugs in its og-image-<slug>.jpg URLs; the 5 non-default slugs also each get a
+// twitter-image-<slug>.jpg (the default slug emits ONLY og-image-default.jpg —
+// seo.js:175 falls the unknown-route twitter image back to og-image-default.jpg
+// and seo.test.ts:225-226 asserts that, so twitter-image-default.jpg would be
+// an unreferenced orphan if generated). Title is "KTech" for every variant;
+// the route identity lives in the subtitle. Subtitles mirror the route purpose
+// (home/default share "Fintech Cyber Platform" since both brand the product).
+const ROUTE_BANNERS = [
+  { slug: 'home',    title: 'KTech', subtitle: 'Fintech Cyber Platform' },
+  { slug: 'about',   title: 'KTech', subtitle: 'About Us' },
+  { slug: 'news',    title: 'KTech', subtitle: 'News & Updates' },
+  { slug: 'privacy', title: 'KTech', subtitle: 'Privacy Policy' },
+  { slug: 'terms',   title: 'KTech', subtitle: 'Terms of Service' },
+  { slug: 'default', title: 'KTech', subtitle: 'Fintech Cyber Platform' }
+]
 
 // ---------------------------------------------------------------------------
 // Rasterization helpers
@@ -252,6 +288,7 @@ async function main() {
   if (!fs.existsSync(PUBLIC_DIR)) fs.mkdirSync(PUBLIC_DIR, { recursive: true })
 
   const square = squareSvg()
+  // #263 legacy generic banner — keeps subtitle "Fintech Cyber Platform".
   const banner = bannerSvg()
   // Persist the canonical SVG source as favicon.svg.
   fs.writeFileSync(path.join(PUBLIC_DIR, 'favicon.svg'), square, 'utf8')
@@ -267,6 +304,25 @@ async function main() {
     fs.writeFileSync(path.join(PUBLIC_DIR, 'og-image.jpg'), og)
     fs.writeFileSync(path.join(PUBLIC_DIR, 'twitter-image.jpg'), og)
     console.log(`wrote og-image.jpg (${og.length} bytes) + twitter-image.jpg`)
+
+    // --- #301 per-route banners (1200×630) ---
+    // For each route slug, rasterize ONE JPEG and write BOTH og-image-<slug>.jpg
+    // AND twitter-image-<slug>.jpg — EXCEPT the `default` slug, which writes
+    // ONLY og-image-default.jpg (twitter-image-default.jpg is an orphan; see
+    // ROUTE_BANNERS comment). Rasterize once per slug (the two files are byte-
+    // identical because the source SVG is identical for og vs twitter on the
+    // same route).
+    for (const { slug, title, subtitle } of ROUTE_BANNERS) {
+      const svg = bannerSvg({ title, subtitle })
+      const buf = await svgToBuffer(page, svg, { width: 1200, height: 630, type: 'jpeg', quality: 92 })
+      fs.writeFileSync(path.join(PUBLIC_DIR, `og-image-${slug}.jpg`), buf)
+      if (slug !== 'default') {
+        fs.writeFileSync(path.join(PUBLIC_DIR, `twitter-image-${slug}.jpg`), buf)
+        console.log(`wrote og-image-${slug}.jpg + twitter-image-${slug}.jpg (${buf.length} bytes)`)
+      } else {
+        console.log(`wrote og-image-default.jpg (${buf.length} bytes) — no twitter-image-default.jpg (orphan)`)
+      }
+    }
 
     // --- square PNGs ---
     const png180 = await svgToBuffer(page, square, { width: 180, height: 180, type: 'png' })
@@ -293,7 +349,7 @@ async function main() {
     await browser.close()
   }
 
-  console.log('\nDone. 8 assets under public/.')
+  console.log('\nDone. 8 original assets + 11 per-route og/twitter images under public/.')
 }
 
 main().catch((err) => {
