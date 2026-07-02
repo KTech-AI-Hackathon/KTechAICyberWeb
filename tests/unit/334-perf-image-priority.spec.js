@@ -151,24 +151,44 @@ describe('#334 Fix C+D — About hero LCP image is eager + fetchpriority=high (+
     ).toBe('high')
   })
 
-  it('index.html preloads the About hero LCP image with fetchpriority=high (parallel-with-JS fetch)', () => {
+  it('index.html preloads the About hero LCP image RESPONSIVELY with fetchpriority=high (parallel-with-JS fetch, viewport-matched variant)', () => {
     // The preload hint in <head> is what lets the browser start fetching the
     // hero image IN PARALLEL with the JS bundle, instead of waiting for the
     // SPA to hydrate and render the <img>. Assert a <link rel=preload as=image
-    // fetchpriority=high> pointing at the 800w variant (the one Lighthouse
-    // flagged as the LCP element on /about) exists in index.html.
+    // fetchpriority=high> exists in index.html.
+    //
+    // RESPONSIVE PRELOAD (imagesrcset + imagesizes, NOT a fixed href): the
+    // About hero <img> uses srcset (400w/800w/1200w) + sizes so the browser
+    // picks the variant per viewport (#199: mobile=400w, desktop=800w). A
+    // fixed-href preload would override that selection (the preloaded source
+    // wins the <img> currentSrc) and break #199. The W3C responsive-preload
+    // pattern mirrors srcset+sizes on the <link> via imagesrcset+imagesizes,
+    // so preload and <img> select the SAME variant per viewport. This test
+    // asserts BOTH the responsive-preload attributes AND that the 800w
+    // descriptor is present (the desktop LCP variant Lighthouse flagged).
     const preloadMatch = INDEX_HTML.match(
       /<link[^>]*rel=["']preload["'][^>]*as=["']image["'][^>]*>/i,
     )
     expect(preloadMatch, 'expected a <link rel=preload as=image> in index.html').not.toBeNull()
     expect(
-      /about-who-we-are-800w\.webp/i.test(preloadMatch[0]),
-      'preload must target the 800w About hero image (the LCP element). Found: ' + preloadMatch[0],
-    ).toBe(true)
-    expect(
       /fetchpriority=["']high["']/i.test(preloadMatch[0]),
       'preload must carry fetchpriority=high (LCP priority). Found: ' + preloadMatch[0],
     ).toBe(true)
+    expect(
+      /imagesrcset=["'][^"']*about-who-we-are-800w\.webp\s+800w[^"']*["']/i.test(preloadMatch[0]),
+      'preload must use imagesrcset (responsive preload) containing the 800w descriptor. Found: ' + preloadMatch[0],
+    ).toBe(true)
+    expect(
+      /imagesizes=["'][^"']+["']/i.test(preloadMatch[0]),
+      'preload must carry imagesizes (mirrors the <img sizes>). Found: ' + preloadMatch[0],
+    ).toBe(true)
+    // Regression guard (#199): a FIXED href on the preload would override the
+    // responsive <img> selection. The preload must NOT carry a plain href
+    // pointing at a single variant (the responsive imagesrcset replaces it).
+    expect(
+      /\shref=["'][^"']*about-who-we-are[^"']*["']/i.test(preloadMatch[0]),
+      'preload must NOT use a fixed href (would override #199 responsive selection); use imagesrcset+imagesizes. Found: ' + preloadMatch[0],
+    ).toBe(false)
   })
 })
 

@@ -57,11 +57,20 @@
        immediately on first paint, before the JS bundle even arrives, so the
        image is in flight while the bundle parses. fetchpriority=high marks it
        as the LCP candidate so it wins contention against other sub-resources.
-       The 800w variant is the descriptor Lighthouse flagged as the actual LCP
-       element (the srcset selects it for typical mobile widths). Root-relative
-       /images/... resolves under the Vite base subpath in dev+prod via the
-       same mechanism CyberImage uses for its <img src>. -->
-  <link rel="preload" as="image" fetchpriority="high" href="/images/about/about-who-we-are-800w.webp">
+
+       IMPORTANT — imagesrcset + imagesizes (not a fixed href): the About hero
+       <img> uses srcset (400w/800w/1200w) + sizes="(max-width: 600px) 100vw,
+       50vw" so the browser picks the variant per viewport. Preloading a FIXED
+       href would override that responsive selection (the preloaded source wins
+       the <img> currentSrc) and break the #199 responsive-image contract
+       (mobile must pick 400w, desktop 800w). The W3C responsive-preload pattern
+       mirrors the <img>'s srcset + sizes on the <link> via imagesrcset +
+       imagesizes, so preload and <img> select the SAME variant per viewport.
+       Root-relative /images/... URLs resolve under the Vite base subpath in
+       dev+prod via the same mechanism CyberImage uses for its <img src>. -->
+  <link rel="preload" as="image" fetchpriority="high"
+        imagesrcset="/images/about/about-who-we-are-400w.webp 400w, /images/about/about-who-we-are-800w.webp 800w, /images/about/about-who-we-are.webp 1200w"
+        imagesizes="(max-width: 600px) 100vw, 50vw">
 
   <title>开泰科技 - KTech Fintech | 金融科技创新</title>
   <style>
