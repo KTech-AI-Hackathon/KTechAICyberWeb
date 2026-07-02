@@ -48,7 +48,11 @@ function makeFixture({ formFactor = 'desktop', withInp = true } = {}) {
             firstContentfulPaintTs: 0,
             cumulativeLayoutShift: 0.05,
             totalBlockingTime: 50,
-            tti: 1900, // <- the canonical TTI slot
+            // Lighthouse 10+ names the TTI slot `interactive` in the metrics
+            // details table (verified against LH 12.8.2 capture JSON). Older
+            // fixtures / some lab presets named it `tti`; the helper accepts
+            // both, but the canonical real shape is `interactive`.
+            interactive: 1900,
             maxPotentialFID: 50,
             speedIndex: 1300,
           },
@@ -82,13 +86,22 @@ describe('extractMetrics (Issue #302 Lighthouse helper)', () => {
     expect(m.finalUrl).toBe('http://localhost:4173/about')
   })
 
-  it('falls back to experimental-interactive when metrics.details.items[0].tti is missing', () => {
+  it('falls back to experimental-interactive when metrics.details.items[0].interactive is missing', () => {
     const fx = makeFixture()
     // Remove the canonical TTI slot — helper must fall through to
     // experimental-interactive.numericValue (2100 in the fixture).
-    delete fx.audits.metrics.details.items[0].tti
+    delete fx.audits.metrics.details.items[0].interactive
     const m = extractMetrics(fx)
     expect(m.tti).toBe(2100)
+  })
+
+  it('accepts the legacy `tti` key in metrics.details.items[0] (older LH fixtures)', () => {
+    // Some lab presets / older capture JSON named the slot `tti` instead of
+    // `interactive`. The helper should still extract it.
+    const fx = makeFixture()
+    delete fx.audits.metrics.details.items[0].interactive
+    fx.audits.metrics.details.items[0].tti = 2300
+    expect(extractMetrics(fx).tti).toBe(2300)
   })
 
   it('reads configSettings.formFactor (desktop / mobile)', () => {

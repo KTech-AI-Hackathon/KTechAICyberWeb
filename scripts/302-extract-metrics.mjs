@@ -59,12 +59,15 @@ export function extractMetrics(lh) {
   const cls = Number(audits['cumulative-layout-shift']?.numericValue)
   const tbt = Number(audits['total-blocking-time']?.numericValue)
 
-  // TTI — prefer the canonical metrics.details.items[0].tti slot; fall back to
-  // the legacy experimental-interactive audit. Both are present on LH 12+
-  // desktop runs; the fallback covers lab presets that drop the metrics table.
-  const ttiFromMetrics = audits.metrics?.details?.items?.[0]?.tti
-  const tti = Number.isFinite(ttiFromMetrics)
-    ? Number(ttiFromMetrics)
+  // TTI (Time To Interactive). Lighthouse folds TTI into the metrics audit's
+  // details table; the per-run key is `interactive` on LH 10+ (verified against
+  // the LH 12.8.2 JSON this capture harness produces). Older LH / some fixtures
+  // named it `tti`; we accept both. Fallback: the legacy
+  // experimental-interactive audit numericValue (present on some lab presets).
+  const metricsItem = audits.metrics?.details?.items?.[0]
+  const ttiPrimary = metricsItem?.interactive ?? metricsItem?.tti
+  const tti = Number.isFinite(ttiPrimary)
+    ? Number(ttiPrimary)
     : Number(audits['experimental-interactive']?.numericValue)
 
   // INP — interaction-to-next-paint is a field/Core-Web-Vital metric. Lighthouse
