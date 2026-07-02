@@ -489,6 +489,38 @@ describe('CyberImage.vue', () => {
       expect(w.find('.cyber-image__fallback').exists()).toBe(true)
       w.unmount()
     })
+
+    // Security-agent Low finding (#305 review): when a <CyberImage> instance is
+    // reused across SPA navigation (e.g. the main article image in NewsDetail.vue
+    // lives outside the v-for and is reused when <router-view> has no :key), if
+    // article A's image 404s (errored=true) and the user navigates to article B
+    // (working image), :src updates but errored MUST reset so the good image is
+    // not stuck behind the placeholder until a full reload.
+    it('resets the errored state when src prop changes (SPA-nav instance reuse)', async () => {
+      const w = mount(CyberImage, {
+        props: { src: '/broken-a.webp', alt: 'Article A' },
+      })
+      // Article A's image fails to load → fallback shows, img hidden.
+      await w.find('img').trigger('error')
+      expect(w.find('.cyber-image__fallback').exists()).toBe(true)
+      expect(w.find('img').attributes('style') || '').toContain('display: none')
+
+      // SPA-navigate to article B: only the src prop changes; the component
+      // instance is reused. errored must reset so article B's good image is
+      // shown (fallback gone, img v-show visible again).
+      await w.setProps({ src: '/good-b.webp', alt: 'Article B' })
+
+      // The fallback placeholder must be gone.
+      expect(w.find('.cyber-image__fallback').exists()).toBe(false)
+      // The img must be visible again (no inline display:none from v-show).
+      expect(w.find('img').attributes('style') || '').not.toContain(
+        'display: none',
+      )
+      // The new src must reach the rendered <img> (sanity: the prop really
+      // changed, so a reset-to-visible is the correct behavior, not a stuck hide).
+      expect(w.find('img').attributes('src')).toBe('/good-b.webp')
+      w.unmount()
+    })
   })
 
   // ============================================

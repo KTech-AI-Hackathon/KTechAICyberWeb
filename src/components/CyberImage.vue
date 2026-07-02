@@ -83,7 +83,7 @@ const props = defineProps({
   },
 })
 
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 /**
  * Reactive error flag (AC #305). Flips to true when the inner <img> fails to
@@ -104,6 +104,23 @@ const errored = ref(false)
 const onError = () => {
   errored.value = true
 }
+
+/**
+ * Reset the error flag when `src` changes (review(security) #305).
+ *
+ * The article-image <CyberImage> in NewsDetail.vue lives outside the v-for and
+ * is reused across SPA navigation when <router-view> has no :key. If article A's
+ * image 404s (errored=true) and the user navigates to article B (working image),
+ * `:src` updates but `errored` would otherwise stay true → the good image stays
+ * hidden behind the placeholder until a full reload. Watching the primary `src`
+ * prop and resetting the flag restores correct fallback behavior on route nav.
+ */
+watch(
+  () => props.src,
+  () => {
+    errored.value = false
+  },
+)
 
 
 /**
