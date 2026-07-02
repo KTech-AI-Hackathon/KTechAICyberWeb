@@ -246,21 +246,22 @@ test.describe('#252 color contrast — WCAG AA on fixed surfaces', () => {
     const badge = page.locator('.position-card__badge').first()
     await expect(badge, '.position-card__badge must be in the live DOM — render bug #287 must be fixed').toBeVisible({ timeout: 15000 })
 
-    // Measure the painted contrast and attach it to the report. FINDING: the
-    // badge currently measures ~2.25:1 — BELOW the WCAG AA 4.5:1 normal-text
-    // floor AND below the 3:1 non-text floor (magenta #ff00aa text on a 20%-
-    // opacity magenta tint composited over the dark page = magenta-on-magenta).
-    // This is a #252 color/design defect — #252's own "Verify WCAG AA" AC is
-    // still unchecked, and its source-token fix (routing the color through
-    // --accent-magenta) did not achieve AA in the painted result. It is NOT a
-    // #287 regression and is out of scope for the render-bug fix.
+    // Measure the painted contrast and gate on WCAG AA 4.5:1 (normal text).
+    // History: the badge PRE-#310 measured ~2.25:1 — magenta #ff00aa text on a
+    // 20%-opacity magenta tint composited over the card = magenta-on-magenta,
+    // collapsing the luminance difference below both the 4.5:1 normal-text and
+    // 3:1 non-text floors. This was a #252 color/design defect (its source-token
+    // fix did not achieve AA in the painted result) first surfaced by the #287
+    // render-bug fix that put the badge in the live DOM.
     //
-    // We keep the measurement LIVE (so the ratio is in every report and the
-    // defect is visible) and gate only on "the colors were actually sampled
-    // and differ" (ratio > 1.0), so the test fails loudly if the badge stops
-    // rendering OR the pixel-sampling breaks — but does NOT block #287 on the
-    // pre-existing #252 contrast defect. The 4.5:1 AA gate is left as a #252
-    // follow-up that must adjust the badge background/token.
+    // #310 fixed it by switching ONLY the badge text to --text-primary (#e0e0e0)
+    // on the unchanged magenta tint, measuring ~5.29:1 on chromium (12.26:1 on
+    // Mobile Chrome). The measurement stays LIVE painted-pixel sampling
+    // (samplePaintedColors, NOT getComputedStyle) because the badge bg is a
+    // translucent tint composited over the card — computed-style returns the
+    // layer beneath, not the painted composite, so it would measure the wrong
+    // surface. The #287 render contract is still gated separately above
+    // (toBeVisible).
     const { fg, bg, fgCss } = await samplePaintedColors(page, '.position-card__badge')
     expect(fg, 'fg pixel must be sampled').not.toBeNull()
     expect(bg, 'bg pixel must be sampled').not.toBeNull()
