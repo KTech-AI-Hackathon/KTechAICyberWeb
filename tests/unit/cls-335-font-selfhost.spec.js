@@ -82,6 +82,28 @@ describe('#335 Group A — index.html no longer reaches Google Fonts', () => {
   })
 })
 
+describe('#335 Group A2 — App.vue useHead no longer preconnects to Google Fonts', () => {
+  // The static index.html link is one source; App.vue's useHead injected a
+  // SECOND pair of preconnect links at runtime. Both must be gone or the
+  // browser still opens a third-party connection for fonts we no longer fetch.
+  // Read App.vue source (stripped of comments) and assert no Google Fonts href.
+  const APP_VUE = path.join(ROOT, 'src/App.vue')
+
+  it('App.vue exists', () => {
+    expect(fs.existsSync(APP_VUE)).toBe(true)
+  })
+
+  it('App.vue does NOT preconnect to fonts.googleapis.com', () => {
+    const src = stripComments(read(APP_VUE))
+    expect(src).not.toMatch(/fonts\.googleapis\.com/)
+  })
+
+  it('App.vue does NOT preconnect to fonts.gstatic.com', () => {
+    const src = stripComments(read(APP_VUE))
+    expect(src).not.toMatch(/fonts\.gstatic\.com/)
+  })
+})
+
 describe('#335 Group B — fonts.css declares the 9 self-hosted faces', () => {
   it('fonts.css exists', () => {
     expect(fs.existsSync(FONTS_CSS)).toBe(true)

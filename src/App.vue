@@ -148,9 +148,12 @@ export default {
       ],
       link: [
         { rel: 'canonical', href: currentMeta.value.canonical },
-        { rel: 'icon', href: 'favicon.ico' },
-        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: true }
+        { rel: 'icon', href: 'favicon.ico' }
+        // #335: the Google Fonts preconnect pair that used to live here was
+        // removed. Orbitron + Rajdhani are now self-hosted (see
+        // src/assets/styles/fonts.css, font-display: optional), so a preconnect
+        // to the third-party font host would be a dead connection with nothing
+        // to fetch from it.
       ],
       script: [
         // Structured data is handled separately in template
