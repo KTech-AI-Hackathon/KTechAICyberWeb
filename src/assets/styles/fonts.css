@@ -1,0 +1,169 @@
+/**
+ * @file fonts.css
+ * @description Self-hosted Orbitron + Rajdhani web fonts. Issue #335.
+ *
+ * Why this file exists (#335 CLS regression):
+ *   The Home (CLS 0.132 desktop) and About (CLS 0.191 desktop) layout-shift
+ *   regression was 100% web-font FOIT/FOUT reflow. index.html previously
+ *   loaded these two families from Google Fonts via `display=swap`; text
+ *   painted in the fallback then reflowed when the web font arrived. The
+ *   saved Lighthouse layout-shifts audit named section.whatwedo (Home) and
+ *   footer / .about-hero::before (About) as the biggest shifters.
+ *
+ *   Self-hosting + `font-display: optional` fixes it at the source:
+ *   - `optional` gives the browser a very short window (~100ms) to use the
+ *     web font. If it is not decoded in that window, the browser keeps the
+ *     fallback FOREVER for that page view — zero swap, zero reflow, zero CLS
+ *     contribution from font loading. (Contrast with `swap`, which always
+ *     swaps once the font arrives and is the source of the reflow.)
+ *   - Self-hosting removes the render-blocking round-trip to
+ *     fonts.googleapis.com / fonts.gstatic.com and the third-party
+ *     connection setup, improving LCP as a side effect.
+ *
+ * The family names ('Orbitron', 'Rajdhani') MUST match the
+ * --font-display / --font-body tokens in variables.css so the
+ * font-family: var(--font-display) consumers resolve to these faces. The
+ * unit test in tests/unit/cls-335-font-selfhost.spec.js guards this.
+ *
+ * Subsetting: only the Latin subset woff2 is shipped per weight (the
+ * unicode-range below), matching what the Google Fonts CSS API serves for
+ * the Latin block. The page's CJK text uses the system CJK stack regardless
+ * (Orbitron/Rajdhani have no CJK glyphs); shipping the Devanagari + extended
+ * Latin subsets would only bloat the bundle for glyphs this site never
+ * renders in these families. unicode-range is preserved so the browser can
+ * skip these faces entirely for pure-CJK text runs.
+ *
+ * src paths are absolute ('/fonts/...') so they resolve both under the Vite
+ * dev server AND under the production deploy base '/KTechAICyberWeb/' AND at
+ * the web root (audit variant base='/'). Vite copies public/fonts/* verbatim
+ * to dist/fonts/* for both base settings.
+ *
+ * Orbitron v35 is a variable font — the same woff2 binary serves all four
+ * weights (400/500/700/900); the weight is selected by the @font-face
+ * font-weight descriptor, not by the binary. This mirrors exactly what the
+ * Google Fonts CSS API declared.
+ *
+ * @ticket #335
+ */
+
+/* ===== Orbitron (display) — variable font, 4 weights, shared binary ===== */
+@font-face {
+  font-family: 'Orbitron';
+  font-weight: 400;
+  font-style: normal;
+  font-display: optional;
+  src: url('/fonts/orbitron-400.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Orbitron';
+  font-weight: 500;
+  font-style: normal;
+  font-display: optional;
+  src: url('/fonts/orbitron-500.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Orbitron';
+  font-weight: 700;
+  font-style: normal;
+  font-display: optional;
+  src: url('/fonts/orbitron-700.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Orbitron';
+  font-weight: 900;
+  font-style: normal;
+  font-display: optional;
+  src: url('/fonts/orbitron-900.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ===== Rajdhani (body) — 5 weights, weight-specific binaries ===== */
+@font-face {
+  font-family: 'Rajdhani';
+  font-weight: 300;
+  font-style: normal;
+  font-display: optional;
+  src: url('/fonts/rajdhani-300.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Rajdhani';
+  font-weight: 400;
+  font-style: normal;
+  font-display: optional;
+  src: url('/fonts/rajdhani-400.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Rajdhani';
+  font-weight: 500;
+  font-style: normal;
+  font-display: optional;
+  src: url('/fonts/rajdhani-500.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Rajdhani';
+  font-weight: 600;
+  font-style: normal;
+  font-display: optional;
+  src: url('/fonts/rajdhani-600.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Rajdhani';
+  font-weight: 700;
+  font-style: normal;
+  font-display: optional;
+  src: url('/fonts/rajdhani-700.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ===== Metric-matched fallback faces (#335 review fix, iter-NN)
+ *
+ * WHY: with `font-display: optional` above, if the self-hosted woff2 is not
+ * decoded within the browser's short (~100ms) optional window — which happens
+ * routinely in CI's colder decode timing — the browser keeps the FALLBACK
+ * font for the entire page view. The bare `system-ui` fallback is ~14% WIDER
+ * than Rajdhani at the same size (measured: a boundary card-body string
+ * renders at 322px in system-ui vs 282px in Rajdhani). That extra width
+ * pushes one card's body text past the grid-column wrap boundary (321px),
+ * the card grows from 1 line to 2 (+20px), .whatwedo grows +20px, and .cta
+ * overflows the #313 above-the-fold threshold at @2560x1440 by ~6px.
+ *
+ * FIX: declare a LOCAL-only face ('Rajdhani Fallback' / 'Orbitron Fallback')
+ * whose glyph box is size-adjusted to match the web font's metrics, and put
+ * it in the --font-body / --font-display stacks BETWEEN the web font and the
+ * bare system-ui tail. Now whether or not the web font decoded in the
+ * optional window, the rendered metrics are identical → no wrap flip → no
+ * .whatwedo height change → no .cta overflow → the #313 E2E is deterministic
+ * in CI AND the CLS win (0.132→0.00009) is preserved (optional still gives
+ * zero swap when the web font DOES make the window).
+ *
+ * size-adjust values are empirical, measured via Playwright natural-width
+ * probe against the shipped Rajdhani woff2 at the live page:
+ *   - Rajdhani vs system-ui: 1.141× wider  → size-adjust 87.67%
+ * (Only the Rajdhani override is load-bearing — it kills the .solution-card
+ * body wrap that pushed .whatwedo +20px and overflowed .cta. Orbitron titles
+ * are single-line and were never at a wrap boundary, so no Orbitron override
+ * is added — a global size-adjust there would risk perturbing the long h1
+ * title's wrap count.)
+ *
+ * `src: local('...')` selects an already-installed fallback; we then fall
+ * through to a generic. These faces have NO woff2 (intentional — they exist
+ * only to carry the metric overrides).
+ */
+@font-face {
+  font-family: 'Rajdhani Fallback';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: local('Helvetica Neue'), local('Arial'), local('system-ui');
+  size-adjust: 87.67%;
+  ascent-override: 92%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}

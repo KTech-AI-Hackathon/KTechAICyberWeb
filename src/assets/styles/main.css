@@ -4,6 +4,7 @@
  */
 
 @import './variables.css';
+@import './fonts.css';
 
 /* Reset and Base Styles */
 *, *::before, *::after {

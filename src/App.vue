@@ -148,9 +148,12 @@ export default {
       ],
       link: [
         { rel: 'canonical', href: currentMeta.value.canonical },
-        { rel: 'icon', href: 'favicon.ico' },
-        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: true }
+        { rel: 'icon', href: 'favicon.ico' }
+        // #335: the Google Fonts preconnect pair that used to live here was
+        // removed. Orbitron + Rajdhani are now self-hosted (see
+        // src/assets/styles/fonts.css, font-display: optional), so a preconnect
+        // to the third-party font host would be a dead connection with nothing
+        // to fetch from it.
       ],
       script: [
         // Structured data is handled separately in template
@@ -181,6 +184,17 @@ export default {
 .main-content {
   flex: 1;
   padding-top: 5rem;
+  /* #335: reserve the full viewport so the footer is positioned at-or-below
+   * the fold from FIRST paint, BEFORE any lazy route chunk (About, Services,
+   * ...) finishes loading. Without this, on a lazy route the router-view is
+   * briefly empty, <main> collapses to ~0 content height, the footer sits
+   * high on the page, and when the chunk renders the footer drops to its
+   * real position — a 0.097+ CLS hit on /about. flex:1 alone does not
+   * guarantee this because .app's min-height:100vh is only a floor on the
+   * WHOLE column, and a lazy-route main with no content still lets the
+   * footer ride up within that floor. Reserving 100vh on main pushes the
+   * footer at least one viewport below the header from the first frame. */
+  min-height: 100vh;
 }
 .cyber-footer {
   padding: 2rem 3rem; background: rgba(10, 10, 15, 0.8);
