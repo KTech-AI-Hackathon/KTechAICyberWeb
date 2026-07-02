@@ -191,6 +191,63 @@ describe('#335 Group E — contain: layout on the two biggest shifters', () => {
   })
 })
 
+describe('#335 Group G — async SelfDrivingDemo wrapper reserves its min-height', () => {
+  // The DOMINANT actual CLS source (re-diagnosed from the saved layout-shifts
+  // audit, which named the SAME elements + SAME scores before and after the
+  // font fix) is async-component reflow: SelfDrivingDemo is loaded via
+  // defineAsyncComponent on Home, and its .self-driving-section wrapper had
+  // NO min-height, so before the chunk arrived every section below it was
+  // positioned too high and shifted down ~280-360px when the chunk rendered
+  // (the .whatwedo 0.1116 hit on Home, the .cyber-footer 0.0968 hit on About).
+  // The fix reserves the demo's min-height on the eagerly-rendered wrapper so
+  // the below-the-demo layout is correct from first paint.
+  it("Home.vue .self-driving-section reserves min-height (clamp 280px floor)", () => {
+    const src = stripComments(read(HOME_VUE))
+    const block = src.match(/\.self-driving-section\s*\{([^}]*)\}/)
+    expect(block, '.self-driving-section rule block not found').not.toBeNull()
+    expect(block[1]).toMatch(/min-height:\s*clamp\(\s*280px/)
+  })
+
+  it("About.vue .self-driving-section reserves min-height (clamp 280px floor)", () => {
+    const src = stripComments(read(ABOUT_VUE))
+    const block = src.match(/\.self-driving-section\s*\{([^}]*)\}/)
+    expect(block, '.self-driving-section rule block not found').not.toBeNull()
+    expect(block[1]).toMatch(/min-height:\s*clamp\(\s*280px/)
+  })
+})
+
+describe('#335 Group H — About hero figure reserves image aspect-ratio', () => {
+  // The About CLS cluster (.hero-content 0.0746 mobile + .cyber-footer
+  // 0.0968/0.1422 + .about-hero::before 0.0904) traces to the hero <figure>
+  // collapsing to 0px before the eager WebP decodes, then expanding and
+  // pushing everything below it down. Reserving the source aspect-ratio
+  // (800x480) on the figure fixes the whole cluster in one rule.
+  it("About.vue .about-hero__figure reserves aspect-ratio (800 / 480)", () => {
+    const src = stripComments(read(ABOUT_VUE))
+    const block = src.match(/\.about-hero__figure\s*\{([^}]*)\}/)
+    expect(block, '.about-hero__figure rule block not found').not.toBeNull()
+    expect(block[1]).toMatch(/aspect-ratio:\s*800\s*\/\s*480/)
+  })
+})
+
+describe('#335 Group I — App.vue main-content reserves viewport for the footer', () => {
+  // The dominant About CLS source (re-diagnosed from the saved layout-shifts
+  // audit) was the GLOBAL footer shifting when a lazy route chunk (About,
+  // Services, ...) rendered after first paint. App.vue's <main> had flex:1
+  // but no min-height, so while a lazy chunk was loading the router-view was
+  // empty, main collapsed, and the footer rode up the page — then dropped to
+  // its real position when the chunk rendered (0.0968 desktop / 0.1422 mobile
+  // on /about). Reserving min-height:100vh on main pins the footer at-or-below
+  // the fold from the first frame. This was the single load-bearing rule that
+  // took all 4 route×device combos to CLS < 0.1.
+  it("App.vue .main-content reserves min-height: 100vh", () => {
+    const src = stripComments(read(path.join(ROOT, 'src/App.vue')))
+    const block = src.match(/\.main-content\s*\{([^}]*)\}/)
+    expect(block, '.main-content rule block not found').not.toBeNull()
+    expect(block[1]).toMatch(/min-height:\s*100vh/)
+  })
+})
+
 describe('#335 Group F — no-regression: font tokens unchanged', () => {
   // The @font-face family names MUST match the variables.css tokens so the
   // var(--font-display) / var(--font-body) consumers actually resolve to the

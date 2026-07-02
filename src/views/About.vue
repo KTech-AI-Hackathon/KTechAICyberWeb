@@ -394,6 +394,11 @@ const { enabled } = useParallax({
   border: 1px solid var(--accent-cyan-alpha-15);
   border-radius: var(--radius-sm);
   overflow: hidden;
+  /* #335: reserve the demo's min-height on the eagerly-rendered wrapper so
+   * the sections below it (esp. .cyber-footer, the dominant About shifter
+   * at 0.0968) do not reflow when the demo finishes mounting. Matches
+   * SelfDrivingDemo.vue's .self-driving-demo min-height. */
+  min-height: clamp(280px, 38vh, 360px);
   /* scroll-margin-top: leave head-room for the fixed Header so the demo's
      StatusReadout is NOT occluded by the nav (mobile Chrome E2E gate). */
   scroll-margin-top: 6rem;
@@ -777,20 +782,31 @@ const { enabled } = useParallax({
   margin: 2rem auto 0;
   max-width: 720px;
   width: 100%;
+  /* #335: reserve the hero image's aspect-ratio (source 800x480) BEFORE the
+   * WebP loads, so the figure does not collapse to 0px and push the hero
+   * content + everything below it (incl. .cyber-footer, the dominant About
+   * shifter) down when the image decodes. This single rule kills the
+   * .hero-content + .cyber-footer + .about-hero::before shift cluster. */
+  aspect-ratio: 800 / 480;
 }
 
 .about-hero__figure :deep(.cyber-image) {
   width: 100%;
+  height: 100%;
 }
 
 .who-we-are__feature {
   margin: 3rem auto 0;
   max-width: 720px;
   width: 100%;
+  /* #335: reserve aspect-ratio (source 800x480) before the WebP decodes so
+   * the figure does not push the sections below it (and the footer) down. */
+  aspect-ratio: 800 / 480;
 }
 
 .who-we-are__feature :deep(.cyber-image) {
   width: 100%;
+  height: 100%;
 }
 
 /* Awards strip — responsive grid of certificate/award CyberImages */
@@ -804,6 +820,10 @@ const { enabled } = useParallax({
 .awards-strip .award-item,
 .awards-strip :deep(.award-item) {
   margin: 0;
+  /* #335: award images are ~1.13:1 (500x440 / 346x305). Reserving the ratio
+   * on the grid item keeps the grid row height stable while the 12 award
+   * PNGs decode, so the section below (and the footer) does not reflow. */
+  aspect-ratio: 500 / 440;
 }
 
 .culture-feature {

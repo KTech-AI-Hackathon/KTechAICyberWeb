@@ -534,6 +534,14 @@ h1 {
   border: 1px solid var(--accent-cyan-alpha-15);
   border-radius: var(--radius-sm);
   overflow: hidden;
+  /* #335: SelfDrivingDemo is loaded via defineAsyncComponent, so before its
+   * chunk arrives this wrapper occupies ~0px and every section below it
+   * (.hero, .whatwedo, .cta) is positioned too high — then shifts down
+   * ~280-360px when the chunk renders. Reserving the demo's own min-height
+   * HERE (on the eagerly-rendered wrapper) means the below-the-demo layout
+   * is correct from first paint, killing the .whatwedo 0.1116 CLS hit. The
+   * value matches SelfDrivingDemo.vue's .self-driving-demo min-height. */
+  min-height: clamp(280px, 38vh, 360px);
   /* scroll-margin-top: when an E2E/user scrollIntoView()'s the demo, leave
      head-room for the fixed Header so the StatusReadout at the top of the
      stage is NOT occluded by the nav (mobile Chrome E2E occlusion gate). */
