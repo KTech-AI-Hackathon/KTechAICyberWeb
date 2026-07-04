@@ -84,39 +84,53 @@ describe('#340 Step 3 — /news first-card image preload in index.html <head>', 
     html = readIndexHtml()
   })
 
-  it('index.html <head> contains a <link rel="preload" as="image"> for the news LCP image', () => {
-    expect(html).toMatch(/<link[^>]*rel=["']preload["'][^>]*as=["']image["'][^>]*>/)
+  // NOTE (#346 reconciliation): the preload was previously a STATIC
+  // <link rel="preload" as="image"> tag. #346 replaced both static preloads
+  // (about + news) with a single ROUTE-AWARE inline <script> that injects
+  // the <link> ONLY for the matching route, because the unconditional static
+  // preloads caused /contact (and every other non-about/non-news route) to
+  // download ~95KB of /about + /news images it never renders. The intent of
+  // these assertions is unchanged: guard that the /news first-card preload
+  // still exists (now gated on /news) with the same srcset/sizes literals,
+  // so the iter-53 drift guard against news.json[0].image +
+  // NewsCard NATIVE_WIDTH_MAP still catches srcset drift. The assertions now
+  // target the route-aware script's literals instead of a static <link> tag.
+
+  it('index.html route-aware script injects a preload <link> for the news LCP image on /news', () => {
+    // The route-aware script must (a) gate the news preload on the EXACT /news
+    // path (NOT /news/:slug, which renders a different image), and (b) build
+    // the <link> via document.createElement with rel=preload + as=image.
+    expect(html, 'route-aware script must reference the /news path').toContain("'/news'")
+    expect(html, 'route-aware script must create the link via document.createElement').toContain("document.createElement('link')")
+    expect(html, 'route-aware script must set rel=preload on the link').toMatch(/\.rel\s*=\s*['"]preload['"]/)
+    expect(html, 'route-aware script must set as=image on the link').toMatch(/\.as\s*=\s*['"]image['"]/)
   })
 
   it('the preload has fetchpriority="high" (marks it as the LCP candidate)', () => {
-    // Match the whole preload link block (rel=preload as=image) and assert
-    // fetchpriority=high is on it.
-    const preloadBlock = html.match(/<link[^>]*rel=["']preload["'][^>]*as=["']image["'][^>]*>/)
-    expect(preloadBlock, 'expected a preload-as=image link in index.html').not.toBeNull()
-    expect(preloadBlock[0]).toMatch(/fetchpriority=["']high["']/i)
+    // The route-aware script sets link.fetchpriority = 'high'. Assert the
+    // literal is present in source.
+    expect(html).toMatch(/fetchpriority\s*=\s*['"]high['"]/i)
   })
 
   it('the preload imagesrcset matches the derived NewsCard.vue srcset (iter-53 drift guard)', () => {
     // DERIVED test: re-derive the expected srcset from news.json[0].image +
-    // NewsCard.vue NATIVE_WIDTH_MAP and assert the index.html preload contains
-    // it. If either source changes without updating index.html, this fails.
+    // NewsCard.vue NATIVE_WIDTH_MAP and assert the route-aware script's
+    // imagesrcset assignment contains it. If either source changes without
+    // updating index.html, this fails.
     const { srcset, isVector } = deriveExpectedPreload()
     expect(isVector, 'the /news first card image is expected to be a raster (webp), not a vector').toBe(false)
-    // imagesrcset value in the HTML attribute (double-quoted).
-    const expected = `imagesrcset="${srcset}"`
     expect(
       html,
-      `index.html preload missing imagesrcset="${srcset}" (derived from news.json[0].image + NewsCard.vue NATIVE_WIDTH_MAP)`,
-    ).toContain(expected)
+      `index.html route-aware preload missing imagesrcset value "${srcset}" (derived from news.json[0].image + NewsCard.vue NATIVE_WIDTH_MAP)`,
+    ).toContain(srcset)
   })
 
   it('the preload imagesizes matches the derived NewsCard.vue sizes (iter-53 drift guard)', () => {
     const { sizes } = deriveExpectedPreload()
-    const expected = `imagesizes="${sizes}"`
     expect(
       html,
-      `index.html preload missing imagesizes="${sizes}" (derived from NewsCard.vue sizes computed)`,
-    ).toContain(expected)
+      `index.html route-aware preload missing imagesizes value "${sizes}" (derived from NewsCard.vue sizes computed)`,
+    ).toContain(sizes)
   })
 
   it('the preload points at the iso27001 first-card image (literal-contract guard)', () => {
