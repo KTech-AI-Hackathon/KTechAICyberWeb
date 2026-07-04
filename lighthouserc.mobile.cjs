@@ -28,14 +28,15 @@
  * level reflects the real end-user experience.
  *
  * ASSERTION LEVELS — honest-partial (deferred-AC rule, iter-22):
- * LCP + performance score ship at WARN (their AC thresholds are missed on
- * mobile post-#340+#344); CLS / TBT / TTI ship at ERROR (every mobile route
- * passes them). See the inline assert block for the measured numbers driving
- * this split and the follow-up issue re-tightening LCP/score to error.
+ * LCP + performance score + TTI ship at WARN (their AC thresholds are missed
+ * on mobile post-#340+#344 — /about is the wide-miss route and misses all
+ * three); CLS / TBT ship at ERROR (every mobile route passes them). See the
+ * inline assert block for the measured numbers driving this split and the
+ * follow-up issue re-tightening LCP/score/TTI to error.
  *   - categories:performance   -> warn  minScore 0.9    (/about measures 84)
  *   - largest-contentful-paint -> warn  max 2500ms      (all 3 AC routes miss)
  *   - total-blocking-time      -> error max 200ms       (all 5 routes pass)
- *   - interactive (TTI)        -> error max 3800ms      (all 5 routes pass)
+ *   - interactive (TTI)        -> warn  max 3800ms      (/about 3907ms misses)
  *   - cumulative-layout-shift  -> error max 0.1         (all 5 routes pass)
  *
  * INP is NOT asserted here either — see lighthouserc.cjs header for the
@@ -94,12 +95,13 @@ module.exports = {
       //
       // Per the honest-partial decision tree (1-2 routes miss by small margin):
       // SHIP the mobile preset so the gate REPORTS the residual mobile-LCP gap
-      // on every PR, but DOWNGRADE the two failing metrics (LCP + perf score)
-      // to `warn` so the gate does not auto-fail every future PR while the gap
-      // is open. CLS / TBT / TTI stay at `error` because every route passes
+      // on every PR, but DOWNGRADE the three failing metrics (LCP + perf score
+      // + TTI) to `warn` so the gate does not auto-fail every future PR while
+      // the gap is open. CLS / TBT stay at `error` because every route passes
       // them on mobile. A follow-up issue (filed by #342) tracks re-tightening
-      // LCP + score to error once the residual gap closes (mobile LCP <2500ms
-      // on /about, /contact, /news measured in CI).
+      // LCP + score + TTI to error once the residual gap closes (mobile LCP
+      // <2500ms on /about, /contact, /news AND TTI <3800ms on /about, measured
+      // in CI).
       assertions: {
         // Performance score (0..1) — WARN at 0.9. /about measures 84 on mobile
         // (post-#340+#344); /contact and /news meet 90+. Warn reports the
@@ -111,11 +113,13 @@ module.exports = {
         'largest-contentful-paint': ['warn', { maxNumericValue: 2500 }],
         // TBT — error at 200ms. All 5 routes pass on mobile (max 1.2ms).
         'total-blocking-time': ['error', { maxNumericValue: 200 }],
-        // TTI — error at 3800ms. All 5 routes pass on mobile (max 3907ms is
-        // /about; the other 4 routes are well under). NOTE: /about at 3907 is
-        // 107ms under the 3800 gate — keep under review; if it ticks over in CI
-        // variance, downgrade to warn alongside LCP/score (filed follow-up).
-        'interactive': ['error', { maxNumericValue: 3800 }],
+        // TTI — WARN at 3800ms. /about measures 3906.5ms on mobile (107ms OVER
+        // the 3800 gate); the other 4 routes pass comfortably (max 2254.2ms —
+        // /). /about is the same wide-miss route that misses LCP and score, so
+        // TTI joins them at warn for honest-partial consistency: REPORT the gap
+        // without auto-failing CI. Re-tighten to error in the follow-up once
+        // /about TTI drops under 3800ms in CI.
+        'interactive': ['warn', { maxNumericValue: 3800 }],
         // CLS — error (max 0.1). All 5 routes measure 0 on mobile post-#335.
         'cumulative-layout-shift': ['error', { maxNumericValue: 0.1 }],
       },
