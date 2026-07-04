@@ -151,19 +151,11 @@ describe('#334 Fix C+D — About hero LCP image is eager + fetchpriority=high (+
     ).toBe('high')
   })
 
-  it('index.html preloads the About hero LCP image RESPONSIVELY with fetchpriority=high via the route-aware script (parallel-with-JS fetch, viewport-matched variant)', () => {
-    // The preload hint is what lets the browser start fetching the hero image
-    // IN PARALLEL with the JS bundle, instead of waiting for the SPA to
-    // hydrate and render the <img>. Since #346 the preload is ROUTE-AWARE:
-    // an inline <script> in <head> injects the <link> ONLY when
-    // location.pathname matches /about (so /contact, /, etc. no longer waste
-    // ~95KB of bandwidth on images they never render). This test asserts the
-    // route-aware script still carries the SAME responsive-preload contract
-    // that the previous static <link> did:
-    //   - the about-hero branch is gated on /about
-    //   - the link is created with rel=preload, as=image, fetchpriority=high
-    //   - imagesrcset is used (NOT a fixed href) with the 800w descriptor
-    //   - imagesizes is present (mirrors the <img sizes>)
+  it('index.html preloads the About hero LCP image RESPONSIVELY with fetchpriority=high (parallel-with-JS fetch, viewport-matched variant)', () => {
+    // The preload hint in <head> is what lets the browser start fetching the
+    // hero image IN PARALLEL with the JS bundle, instead of waiting for the
+    // SPA to hydrate and render the <img>. Assert a <link rel=preload as=image
+    // fetchpriority=high> exists in index.html.
     //
     // RESPONSIVE PRELOAD (imagesrcset + imagesizes, NOT a fixed href): the
     // About hero <img> uses srcset (400w/800w/1200w) + sizes so the browser
@@ -171,34 +163,31 @@ describe('#334 Fix C+D — About hero LCP image is eager + fetchpriority=high (+
     // fixed-href preload would override that selection (the preloaded source
     // wins the <img> currentSrc) and break #199. The W3C responsive-preload
     // pattern mirrors srcset+sizes on the <link> via imagesrcset+imagesizes,
-    // so preload and <img> select the SAME variant per viewport.
-    //
-    // The route-aware script builds the link via document.createElement +
-    // IDL property assignment, so the srcset/sizes literals appear in source
-    // as JS string values (link.imagesrcset = '...', link.imagesizes = '...').
-    // Assert against those literals directly.
+    // so preload and <img> select the SAME variant per viewport. This test
+    // asserts BOTH the responsive-preload attributes AND that the 800w
+    // descriptor is present (the desktop LCP variant Lighthouse flagged).
+    const preloadMatch = INDEX_HTML.match(
+      /<link[^>]*rel=["']preload["'][^>]*as=["']image["'][^>]*>/i,
+    )
+    expect(preloadMatch, 'expected a <link rel=preload as=image> in index.html').not.toBeNull()
     expect(
-      /\/about/.test(INDEX_HTML),
-      'route-aware script must gate the about hero preload on /about',
+      /fetchpriority=["']high["']/i.test(preloadMatch[0]),
+      'preload must carry fetchpriority=high (LCP priority). Found: ' + preloadMatch[0],
     ).toBe(true)
     expect(
-      INDEX_HTML,
-      'route-aware script must set fetchpriority=high on the preload link',
-    ).toMatch(/fetchpriority\s*=\s*['"]high['"]/i)
+      /imagesrcset=["'][^"']*about-who-we-are-800w\.webp\s+800w[^"']*["']/i.test(preloadMatch[0]),
+      'preload must use imagesrcset (responsive preload) containing the 800w descriptor. Found: ' + preloadMatch[0],
+    ).toBe(true)
     expect(
-      INDEX_HTML,
-      'preload must use imagesrcset (responsive preload) containing the 800w descriptor',
-    ).toContain('/images/about/about-who-we-are-800w.webp 800w')
-    expect(
-      INDEX_HTML,
-      'preload must carry imagesizes (mirrors the <img sizes>)',
-    ).toContain('(max-width: 600px) 100vw, 50vw')
+      /imagesizes=["'][^"']+["']/i.test(preloadMatch[0]),
+      'preload must carry imagesizes (mirrors the <img sizes>). Found: ' + preloadMatch[0],
+    ).toBe(true)
     // Regression guard (#199): a FIXED href on the preload would override the
-    // responsive <img> selection. The route-aware script must NOT set a plain
-    // link.href pointing at a single about-who-we-are variant.
+    // responsive <img> selection. The preload must NOT carry a plain href
+    // pointing at a single variant (the responsive imagesrcset replaces it).
     expect(
-      /\.href\s*=\s*['"][^'"]*about-who-we-are[^'"]*['"]/i.test(INDEX_HTML),
-      'preload must NOT use a fixed href (would override #199 responsive selection); use imagesrcset+imagesizes. Found a .href assignment to an about-who-we-are URL.',
+      /\shref=["'][^"']*about-who-we-are[^"']*["']/i.test(preloadMatch[0]),
+      'preload must NOT use a fixed href (would override #199 responsive selection); use imagesrcset+imagesizes. Found: ' + preloadMatch[0],
     ).toBe(false)
   })
 })

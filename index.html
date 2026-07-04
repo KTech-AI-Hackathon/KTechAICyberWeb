@@ -49,58 +49,50 @@
        regression from FOIT/FOUT reflow on Home + About. -->
 
 
-  <!-- #346 perf: ROUTE-AWARE LCP image preload. The /about hero image and the
-       /news first-card image are LCP candidates ONLY on their respective
-       routes. The previous UNCONDITIONAL static preloads (added by #334 Fix D
-       for /about and #340 Step 3 for /news) caused EVERY other route
-       (/contact, /, /services, ...) to download ~95KB of /about + /news images
-       it never renders — the Lighthouse network log for /contact proved it
-       fetched /images/about/about-who-we-are-800w.webp (90,868B) AND
-       /images/news/news-iso27001-official.webp (4,702B) on the critical path,
-       competing for bandwidth with the actual LCP element's resources and
-       contributing to the ~2870ms element-render-delay floor on /contact.
+  <!-- #334 perf: preload the /about hero LCP image IN PARALLEL with the JS
+       bundle. Lighthouse measured this image's Load Delay at 3058ms (72% of
+       the /about LCP) because the <img> is rendered by the SPA only AFTER
+       hydration — the browser cannot discover it from the initial HTML. A
+       <link rel=preload as=image> in <head> lets the parser start the fetch
+       immediately on first paint, before the JS bundle even arrives, so the
+       image is in flight while the bundle parses. fetchpriority=high marks it
+       as the LCP candidate so it wins contention against other sub-resources.
 
-       Fix: this PLAIN (non-module) inline <script> runs synchronously during
-       HTML parsing — BEFORE the application module script below — and injects
-       ONLY the relevant preload <link> for the current route:
+       IMPORTANT — imagesrcset + imagesizes (not a fixed href): the About hero
+       <img> uses srcset (400w/800w/1200w) + sizes="(max-width: 600px) 100vw,
+       50vw" so the browser picks the variant per viewport. Preloading a FIXED
+       href would override that responsive selection (the preloaded source wins
+       the <img> currentSrc) and break the #199 responsive-image contract
+       (mobile must pick 400w, desktop 800w). The W3C responsive-preload pattern
+       mirrors the <img>'s srcset + sizes on the <link> via imagesrcset +
+       imagesizes, so preload and <img> select the SAME variant per viewport.
+       Root-relative /images/... URLs resolve under the Vite base subpath in
+       dev+prod via the same mechanism CyberImage uses for its <img src>. -->
+  <link rel="preload" as="image" fetchpriority="high"
+        imagesrcset="/images/about/about-who-we-are-400w.webp 400w, /images/about/about-who-we-are-800w.webp 800w, /images/about/about-who-we-are.webp 1200w"
+        imagesizes="(max-width: 600px) 100vw, 50vw">
 
-         /about*         → preload the about hero (responsive imagesrcset,
-                           mirrors the About.vue <img srcset> + sizes)
-         /news (exact)   → preload the news first-card image (NOT /news/:slug,
-                           which renders a different image)
-         all other routes → no image preload (the SPA discovers the LCP element
-                           via hydration naturally, or the route has no LCP
-                           image)
+  <!-- #340 perf: preload the /news first-card LCP image. Lighthouse measured
+       this image's Load Delay at 3154ms (83% of /news LCP) because the
+       NewsCard <img> is rendered by CyberImage only AFTER the SPA parses
+       ~100KB JS + hydrates — the browser cannot discover it from the initial
+       HTML. A <link rel=preload as=image> in <head> lets the parser start the
+       fetch on first paint, before the JS bundle even arrives. Mirrors the
+       /about hero preload above (#334 Fix D).
 
-       Path normalization strips the GitHub Pages subpath /KTechAICyberWeb so
-       the script works in BOTH the audit build (base=/) and the deployed
-       build (base=/KTechAICyberWeb/).
-
-       The imagesrcset/imagesizes literals are IDENTICAL to the previous
-       static preloads — they remain DERIVED from About.vue srcset + NewsCard
-       NATIVE_WIDTH_MAP, and the existing drift-guard tests
-       (tests/unit/334-perf-image-priority.spec.js,
-        tests/unit/340-perf-news-image-preload.spec.js) still assert they
-       match source. -->
-  <script>
-    (function () {
-      var path = location.pathname.replace(/^\/KTechAICyberWeb/, '');
-      var link = document.createElement('link');
-      link.rel = 'preload';
-      link.as = 'image';
-      link.fetchpriority = 'high';
-      if (/^\/about/.test(path)) {
-        link.imagesrcset = '/images/about/about-who-we-are-400w.webp 400w, /images/about/about-who-we-are-800w.webp 800w, /images/about/about-who-we-are.webp 1200w';
-        link.imagesizes = '(max-width: 600px) 100vw, 50vw';
-        document.head.appendChild(link);
-      } else if (path === '/news') {
-        link.imagesrcset = '/images/news/news-iso27001-official.webp 258w';
-        link.imagesizes = '(max-width: 600px) 100vw, 258px';
-        document.head.appendChild(link);
-      }
-      // Other routes: no image preload (SPA discovers LCP via hydration).
-    })();
-  </script>
+       The srcset/sizes literals are DERIVED from src/data/news.json[0].image
+       (the first news card = the LCP candidate, NewsList sets
+       lcp-candidate on index===0) + src/components/NewsCard.vue
+       NATIVE_WIDTH_MAP. The first card image is the iso27001 webp (a real
+       258x258 raster, NOT an SVG), so NewsCard emits a single-descriptor
+       srcset at its intrinsic width. The unit test at
+       tests/unit/340-perf-news-image-preload.spec.js re-derives these
+       literals from source and asserts they match this preload, so any drift
+       (a new first-card image, a NATIVE_WIDTH_MAP edit) without updating
+       this line fails the suite. -->
+  <link rel="preload" as="image" fetchpriority="high"
+        imagesrcset="/images/news/news-iso27001-official.webp 258w"
+        imagesizes="(max-width: 600px) 100vw, 258px">
 
   <title>开泰科技 - KTech Fintech | 金融科技创新</title>
   <style>
