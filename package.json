@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite-ssg build",
+    "build": "node scripts/348-build-ssg.mjs",
     "build:spa": "vite build",
     "build:ssg": "vite-ssg build",
     "build:ssg:audit": "vite-ssg build --base=/ --outDir dist-audit",
