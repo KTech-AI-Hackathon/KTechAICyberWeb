@@ -72,14 +72,59 @@
         imagesrcset="/images/about/about-who-we-are-400w.webp 400w, /images/about/about-who-we-are-800w.webp 800w, /images/about/about-who-we-are.webp 1200w"
         imagesizes="(max-width: 600px) 100vw, 50vw">
 
+  <!-- #340 perf: preload the /news first-card LCP image. Lighthouse measured
+       this image's Load Delay at 3154ms (83% of /news LCP) because the
+       NewsCard <img> is rendered by CyberImage only AFTER the SPA parses
+       ~100KB JS + hydrates — the browser cannot discover it from the initial
+       HTML. A <link rel=preload as=image> in <head> lets the parser start the
+       fetch on first paint, before the JS bundle even arrives. Mirrors the
+       /about hero preload above (#334 Fix D).
+
+       The srcset/sizes literals are DERIVED from src/data/news.json[0].image
+       (the first news card = the LCP candidate, NewsList sets
+       lcp-candidate on index===0) + src/components/NewsCard.vue
+       NATIVE_WIDTH_MAP. The first card image is the iso27001 webp (a real
+       258x258 raster, NOT an SVG), so NewsCard emits a single-descriptor
+       srcset at its intrinsic width. The unit test at
+       tests/unit/340-perf-news-image-preload.spec.js re-derives these
+       literals from source and asserts they match this preload, so any drift
+       (a new first-card image, a NATIVE_WIDTH_MAP edit) without updating
+       this line fails the suite. -->
+  <link rel="preload" as="image" fetchpriority="high"
+        imagesrcset="/images/news/news-iso27001-official.webp 258w"
+        imagesizes="(max-width: 600px) 100vw, 258px">
+
   <title>开泰科技 - KTech Fintech | 金融科技创新</title>
   <style>
-    /* Critical-path no-FOUC block (#188): paints the dark background before
-       the JS bundle hydrates. The pre-Vue skeleton selectors that used to
-       live here were dead — Vue mounts #app and renders its own components —
-       and have been purged. Only the background-paint rule is kept. */
-    :root{--bg:#0a0a0a;--cyan:#00ffcc}
-    body{background:var(--bg)}
+    /* Critical-path no-FOUC + minimal-layout-seed block.
+       #188 kept only the dark-background paint (397 bytes) because the
+       pre-Vue skeleton selectors were dead. #340 Step 2 expands this block
+       into a real critical-CSS seed so the page renders with correct
+       typography + container layout BEFORE the deferred entry CSS bundle
+       applies (the entry sheet is now preloaded+async-onload via the
+       transformIndexHtml plugin in vite.config.js, so without this seed
+       users would see a flash of unstyled text + uncontained layout between
+       first paint and the sheet applying). The block stays well under the
+       1500-byte css-purge.spec.js budget. Variables match variables.css /
+       fonts.css so the seed resolves identically to the bundled sheets. */
+    :root{
+      --bg:#0a0a0a; --cyan:#00ffcc;
+      --font-display:'Orbitron',system-ui,sans-serif;
+      --font-body:'Rajdhani',system-ui,sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{min-height:100%}
+    body{
+      background:var(--bg);
+      color:#e0e0e0;
+      font-family:var(--font-body);
+      line-height:1.6;
+      -webkit-font-smoothing:antialiased;
+      overflow-x:hidden;
+    }
+    #app{min-height:100vh}
+    main{max-width:1400px;margin:0 auto;padding:2rem 1.5rem}
+    h1,h2,h3{font-family:var(--font-display);letter-spacing:.05em}
   </style>
 
   <!-- JSON-LD Structured Data -->
