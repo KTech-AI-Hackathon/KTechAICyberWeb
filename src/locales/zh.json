@@ -315,7 +315,11 @@
       "iso27001": "KTech 通过 ISO27001 信息安全认证公告",
       "blockchain": "区块链技术重塑金融服务示意图",
       "fintechSummit": "2024 金融科技创新峰会现场",
-      "aiFintech": "人工智能驱动的金融服务解决方案示意图"
+      "aiFintech": "人工智能驱动的金融服务解决方案示意图",
+      "supplyChainPlatform": "KTech 供应链金融平台连接核心企业、银行与中小企业供应商",
+      "crossBorderPayments": "实时跨境支付通道连接全球金融网络示意图",
+      "cybersecurityWorkshop": "KTech 2024 面向金融科技工程师与分析师的网络安全系列工坊",
+      "fraudDetection": "机器学习实时欺诈检测对金融交易进行评分示意图"
     }
   },
   "services": {

@@ -25,6 +25,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount, VueWrapper } from '@vue/test-utils'
 import { nextTick } from 'vue'
+import fs from 'node:fs'
+import path from 'node:path'
 import NewsDetail from '../NewsDetail.vue'
 import RouterLinkStub from '../../components/__tests__/RouterLinkStub.vue'
 
@@ -524,5 +526,59 @@ describe('NewsDetail.vue', () => {
         'KTech Achieves ISO27001 Certification'
       )
     })
+  })
+})
+
+// ============================================
+// #357 — Real-dataset regression for related-articles feasibility.
+//
+// The component-level tests above run against a mocked news.json fixture. This
+// top-level describe does NOT mount NewsDetail and does NOT rely on the
+// vi.mock above: it reads the REAL news.json from disk via fs.readFileSync
+// (so the vi.mock of '../../data/news.json' does not intercept it) and
+// asserts the production dataset satisfies the related-articles renderer's
+// contract: every article must have >= 1 same-category sibling, otherwise the
+// related-articles section built in #305 renders zero cards (the original
+// dead-code bug this ticket fixes).
+// ============================================
+describe('#357 — Real news.json supports related-articles for every article', () => {
+  const realNewsPath = path.resolve(__dirname, '../../data/news.json')
+  const realNews = JSON.parse(fs.readFileSync(realNewsPath, 'utf-8')) as Array<{
+    id: number
+    slug: string
+    category: string
+  }>
+
+  it('reads >= 8 articles from the real dataset (sanity check)', () => {
+    expect(realNews.length).toBeGreaterThanOrEqual(8)
+  })
+
+  it('every real article has >= 1 same-category sibling (related-articles renders >= 1 card)', () => {
+    const failures: string[] = []
+    for (const article of realNews) {
+      const siblings = realNews.filter(
+        (x) => x.category === article.category && x.id !== article.id,
+      )
+      if (siblings.length < 1) {
+        failures.push(
+          `id=${article.id} (${article.slug}, category="${article.category}") has ${siblings.length} same-category siblings`,
+        )
+      }
+    }
+    expect(
+      failures,
+      `related-articles would render 0 cards for: ${failures.join('; ')}`,
+    ).toEqual([])
+  })
+
+  it('each of the 4 categories has >= 2 real articles', () => {
+    const categories = ['Company News', 'Industry Insights', 'Events', 'Technology Updates']
+    for (const cat of categories) {
+      const count = realNews.filter((a) => a.category === cat).length
+      expect(
+        count,
+        `real dataset category "${cat}" must have >= 2 articles; got ${count}`,
+      ).toBeGreaterThanOrEqual(2)
+    }
   })
 })
