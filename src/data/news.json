@@ -46,5 +46,53 @@
     "image": "/images/news/ai-fintech.svg",
     "altKey": "news.articleAlts.aiFintech",
     "author": "KTech AI Team"
+  },
+  {
+    "id": 5,
+    "slug": "ktech-launches-supply-chain-finance-platform",
+    "title": "KTech Launches Next-Generation Supply Chain Finance Platform",
+    "excerpt": "KTech announces the general availability of its AI-driven supply chain finance platform, reducing SME financing turnaround from weeks to hours.",
+    "content": "# KTech Launches Next-Generation Supply Chain Finance Platform\n\nKTech today announced the general availability of its AI-driven supply chain finance platform, a unified solution that connects core enterprises, banks, and SME suppliers on a single distributed ledger. The platform reduces trade-finance turnaround from weeks to hours while cutting manual reconciliation effort by over 80 percent.\n\n## Why Supply Chain Finance Matters\n\nSmall and mid-sized suppliers form the backbone of global trade, yet they routinely wait 60 to 120 days for invoice settlement. Traditional factoring is slow, document-heavy, and opaque. KTech's platform digitizes the entire workflow:\n\n- **Electronic payable confirmation** anchored on a permissioned blockchain\n- **AI-based supplier risk scoring** using transaction history and alternative data\n- **Automated KYC and AML checks** integrated with partner banks\n- **Real-time settlement tracking** for every party in the chain\n\n## Built on the KTech Cybersecurity Stack\n\nBecause supply chain finance moves real money across borders, security is non-negotiable. The platform inherits KTech's ISO27001-certified controls and adds end-to-end encryption for all trade documents, hardware-backed key management for signing authority, and immutable audit logs that survive any node outage.\n\n## Early Results\n\nThree tier-one banks and over 200 suppliers have onboarded during the pilot phase. Average financing approval time dropped from 14 business days to under 6 hours, and dispute rates fell by more than half.\n\n> Supply chain finance is where fintech meets the real economy. We are proud to give SMEs the liquidity they need to grow. - KTech CEO\n\n## Availability\n\nThe platform is live today in China and Southeast Asia, with European expansion planned for later this year. Contact the KTech partnerships team to schedule an integration review.",
+    "date": "2024-02-20",
+    "category": "Company News",
+    "image": "/images/news/iso-certification.svg",
+    "altKey": "news.articleAlts.supplyChainPlatform",
+    "author": "KTech Product Team"
+  },
+  {
+    "id": 6,
+    "slug": "cross-border-payments-real-time-economy",
+    "title": "Cross-Border Payments and the Rise of the Real-Time Economy",
+    "excerpt": "Instant settlement is reshaping how money moves across borders. We examine the rails, regulations, and risks defining the next decade of global payments.",
+    "content": "# Cross-Border Payments and the Rise of the Real-Time Economy\n\nFor decades, moving money across borders meant waiting. Correspondent banking, SWIFT messaging, and intermediary clearing added days of float and layers of fees. That era is ending. Real-time payment rails, stablecoin settlement, and regulatory modernization are converging into what analysts now call the real-time economy.\n\n## The Three Forces Reshaping Cross-Border\n\n### 1. Domestic Instant Rails Going Global\n\nCountries that built domestic instant-payment systems, including China's IBPS, Thailand's PromptPay, and Malaysia's DuitNow, are now linking them. The result is retail cross-border settlement measured in seconds rather than days.\n\n### 2. Digital Currency and Stablecoin Settlement\n\nRegulated stablecoins and central bank digital currencies give treasury teams a programmable settlement asset. Used inside a permissioned ledger, they collapse the gap between trade execution and payment confirmation.\n\n### 3. RegTech and Embedded Compliance\n\nCross-border compliance used to mean manual screening against sanctions lists. Modern platforms embed sanctions screening, transaction monitoring, and audit trail generation directly into the payment flow, so compliance is a feature rather than a bottleneck.\n\n## Risks That Still Matter\n\n- **Liquidity fragmentation** across multiple new rails\n- **Cybersecurity exposure** as payment APIs multiply\n- **Regulatory divergence** between jurisdictions on digital assets\n- **Operational resilience** requirements for 24/7 settlement windows\n\n## Where KTech Fits\n\nKTech's research team is publishing a series of benchmarks measuring settlement latency, cost, and failure rates across the major cross-border corridors. The first report, covering Asia-Pacific corridors, will be released this quarter.\n\n> Speed without safety is just a faster way to lose money. The real-time economy only works when security scales with throughput. - KTech Head of Payments Research\n\nThe real-time economy is not a single product. It is a shift in expectations, and the institutions that adapt first will define the next decade of global finance.",
+    "date": "2024-02-12",
+    "category": "Industry Insights",
+    "image": "/images/news/blockchain-finance.svg",
+    "altKey": "news.articleAlts.crossBorderPayments",
+    "author": "KTech Research Team"
+  },
+  {
+    "id": 7,
+    "slug": "ktech-hosts-cybersecurity-workshop-series-2024",
+    "title": "KTech Hosts Cybersecurity Workshop Series 2024",
+    "excerpt": "KTech invites fintech engineers, security analysts, and compliance officers to a hands-on workshop series on zero-trust architecture, threat modeling, and incident response.",
+    "content": "# KTech Hosts Cybersecurity Workshop Series 2024\n\nKTech is launching a four-part cybersecurity workshop series for fintech engineers, security analysts, and compliance officers. Sessions are hands-on, built around the same incident-response playbooks KTech uses internally, and open to partners and clients at no cost.\n\n## Session Schedule\n\nAll sessions run 14:00 to 17:00 CST and are delivered in a hybrid format from the KTech Shenzhen innovation center.\n\n- **Session 1 - Zero-Trust Architecture for Fintech**: March 22, 2024\n- **Session 2 - Threat Modeling for Payment Systems**: April 19, 2024\n- **Session 3 - Detecting and Containing Insider Threats**: May 17, 2024\n- **Session 4 - Incident Response Tabletop Exercise**: June 21, 2024\n\n## What Participants Will Learn\n\n### Practical Zero-Trust\n\nMove beyond marketing slides. Participants will segment a sample payment service, rotate service credentials automatically, and enforce least-privilege access with short-lived tokens.\n\n### Threat Modeling with STRIDE\n\nWe will model a real-world trade-finance flow, enumerate threats using the STRIDE framework, and map each finding to a concrete control.\n\n### Insider Threat Detection\n\nUsing anonymized telemetry, participants will build behavioral baselines and tune alerts that distinguish careless mistakes from genuine data exfiltration.\n\n### Incident Response Under Pressure\n\nThe final session is a live tabletop exercise. A red team injects faults mid-session and participants must triage, contain, and communicate under realistic time pressure.\n\n## How to Register\n\nSeating is limited to 40 in-person participants per session, with unlimited online attendance. Registration is open now.\n\n[Reserve a seat](https://ktech.example.com/workshops-2024)\n\nParticipants who complete all four sessions receive a KTech cybersecurity certificate. We look forward to strengthening the fintech security community together.",
+    "date": "2024-02-28",
+    "category": "Events",
+    "image": "/images/news/fintech-conference.svg",
+    "altKey": "news.articleAlts.cybersecurityWorkshop",
+    "author": "KTech Security Team"
+  },
+  {
+    "id": 8,
+    "slug": "machine-learning-fraud-detection-real-time",
+    "title": "Real-Time Fraud Detection with Machine Learning",
+    "excerpt": "A look under the hood of KTech's real-time fraud engine: feature engineering, model architecture, and the latency budget that lets us score transactions in under 50 milliseconds.",
+    "content": "# Real-Time Fraud Detection with Machine Learning\n\nFraud moves fast. A compromised card gets tested with a small purchase, then drained within minutes. By the time a batch model runs overnight, the money is gone. KTech's fraud engine is built to score every transaction in under 50 milliseconds, fast enough to block the attack in the authorization flow itself.\n\n## The Latency Budget\n\nFifty milliseconds is not a lot. Here is roughly how we spend it.\n\n- **Feature lookup**: 12 ms (in-memory feature store with hot replicas)\n- **Model inference**: 18 ms (gradient-boosted trees, served via a compiled runtime)\n- **Decision and policy overlay**: 8 ms (rules engine + velocity checks)\n- **Network and observability overhead**: 12 ms\n\nEvery stage is monitored, and every regression against the budget triggers an automatic rollback.\n\n## Feature Engineering That Actually Works\n\nThe model quality depends far more on features than on architecture. The features that earn their place in our engine include:\n\n- **Velocity features**: spend in the last 5 minutes, 1 hour, 24 hours, per card, per device, and per merchant category\n- **Device and session signals**: device fingerprint age, login-to-purchase interval, IP geolocation distance from billing address\n- **Network features**: how connected this card is to known-fraud clusters in a bipartite graph\n- **Behavioral biometrics**: typing cadence and touch pressure where available\n\nWe retrain weekly on a rolling window and shadow-deploy new models for 72 hours before they receive any production traffic.\n\n## Why We Did Not Use a Giant Deep Net\n\nA large transformer might score a few points higher offline, but the inference cost and latency push us past the authorization timeout. For fraud, a fast interpretable model that ships beats a slow opaque one that does not.\n\n## The Human-in-the-Loop Layer\n\nNo model is perfect. High-confidence blocks are automated. Medium-confidence cases route to a human analyst queue with full context, and every analyst decision is fed back as a training signal.\n\n> The goal is not to catch every fraudster. The goal is to make fraud expensive enough that attackers move on to easier targets. - KTech ML Engineering Lead\n\nReal-time fraud detection is an arms race. KTech invests continuously in the features, the models, and the latency budget required to stay ahead.",
+    "date": "2024-02-05",
+    "category": "Technology Updates",
+    "image": "/images/news/ai-fintech.svg",
+    "altKey": "news.articleAlts.fraudDetection",
+    "author": "KTech AI Team"
   }
 ]

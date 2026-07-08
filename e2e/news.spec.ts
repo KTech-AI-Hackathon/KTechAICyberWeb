@@ -58,7 +58,7 @@ test.describe('News Section Tests', () => {
     await page.goto('/news');
 
     const newsCards = page.locator('.news-card');
-    await expect(newsCards).toHaveCount(4);
+    await expect(newsCards).toHaveCount(8);
 
     // Check first card has required elements
     const firstCard = newsCards.first();
