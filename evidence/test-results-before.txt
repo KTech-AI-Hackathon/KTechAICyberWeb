@@ -1,0 +1,100 @@
+
+ RUN  v4.1.9 /Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb
+
+Warning: A vi.mock("@vueuse/core") call in "/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/composables/__tests__/useAmbientAnimation.test.ts" is not at the top level of the module. Although it appears nested, it will be hoisted and executed before any tests run. Move it to the top level to reflect its actual execution order. This will become an error in a future version.
+See: https://vitest.dev/guide/mocking/modules#how-it-works
+Warning: A vi.mock("@vueuse/core") call in "/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/composables/__tests__/useAmbientAnimation.test.ts" is not at the top level of the module. Although it appears nested, it will be hoisted and executed before any tests run. Move it to the top level to reflect its actual execution order. This will become an error in a future version.
+See: https://vitest.dev/guide/mocking/modules#how-it-works
+stdout | tests/unit/style-unification.spec.js > hardcoded hex literals collapsed across src (#242 AC2) > ZERO '#ff00ff' literals in any .vue/.js/.ts file
+
+[style-unification] '#ff00ff' offenders: [ { file: 'src/components/ServicesAmbient.vue', count: 1 } ]
+
+
+> ktech-ai-cyber-web@1.0.0 build
+> node scripts/348-build-ssg.mjs
+
+stdout | tests/unit/style-unification.spec.js > border-radius literals consolidated onto --radius-* tokens (#242) > border-radius: Npx literal count <= 12
+
+[style-unification] border-radius Npx literals: 19 (budget 12)
+[style-unification] radius per-file: [
+  { file: 'src/components/selfdriving/MetricsPanel.vue', count: 6 },
+  { file: 'src/components/selfdriving/AdversarialFlow.vue', count: 4 },
+  { file: 'src/components/selfdriving/ArtifactFlow.vue', count: 4 },
+  { file: 'src/components/selfdriving/AgentCard.vue', count: 3 },
+  {
+    file: 'src/components/selfdriving/AgentPipelineTrack.vue',
+    count: 1
+  },
+  {
+    file: 'src/components/selfdriving/AgentStateMachine.vue',
+    count: 1
+  }
+]
+
+ ❯ tests/unit/style-unification.spec.js (44 tests | 2 failed) 218ms
+     × ZERO '#ff00ff' literals in any .vue/.js/.ts file 22ms
+     × border-radius: Npx literal count <= 12 13ms
+ ❯ tests/unit/style-tokenize-285.spec.js (34 tests | 5 failed) 394ms
+     × no rgba(0, 255, 204, 0.1) literal remains (cyan alpha-10) 24ms
+     × no rgba(0, 255, 204, 0.15) literal remains (cyan alpha-15) 9ms
+     × no rgba(0, 255, 204, 0.2) literal remains (cyan alpha-20) 8ms
+     × no rgba(0, 255, 204, 0.3) literal remains (cyan alpha-30) 9ms
+     × no rgba(0, 255, 204, 0.5) literal remains (cyan alpha-50) 16ms
+stderr | src/__tests__/App.selfdriving-wiring.test.ts > Home route -> SelfDrivingDemo wiring (#203 shipped-app gate) > renders [data-selfdriving-root] on the home route (not only in isolation)
+[Vue Router warn]: No match found for location with path "/news"
+[Vue Router warn]: No match found for location with path "/contact"
+[Vue Router warn]: No match found for location with path "/privacy"
+[Vue Router warn]: No match found for location with path "/terms"
+
+stderr | src/__tests__/App.selfdriving-wiring.test.ts > Home route -> SelfDrivingDemo wiring (#203 shipped-app gate) > binds a real pipeline phase to data-current-phase (proves the FSM mounted)
+[Vue Router warn]: No match found for location with path "/news"
+[Vue Router warn]: No match found for location with path "/contact"
+[Vue Router warn]: No match found for location with path "/privacy"
+[Vue Router warn]: No match found for location with path "/terms"
+
+stderr | src/__tests__/App.selfdriving-wiring.test.ts > Home route -> SelfDrivingDemo wiring (#203 shipped-app gate) > the demo region is NOT aria-hidden — it is visible page content now
+[Vue Router warn]: No match found for location with path "/news"
+[Vue Router warn]: No match found for location with path "/contact"
+[Vue Router warn]: No match found for location with path "/privacy"
+[Vue Router warn]: No match found for location with path "/terms"
+
+ ❯ src/__tests__/App.selfdriving-wiring.test.ts (3 tests | 3 failed) 194ms
+     × renders [data-selfdriving-root] on the home route (not only in isolation) 113ms
+     × binds a real pipeline phase to data-current-phase (proves the FSM mounted) 48ms
+     × the demo region is NOT aria-hidden — it is visible page content now 31ms
+ ❯ src/components/__tests__/SelfDrivingDemo.test.ts (15 tests | 8 failed) 657ms
+     × renders the root with data-selfdriving-root + a visible heading + phase attrs (NOT aria-hidden) 148ms
+     × renders real localized EN copy for the current phase title 34ms
+     × renders real localized ZH copy for the current phase title 45ms
+     × drives phase transitions on rAF: data-current-phase changes over frames 25ms
+     × AC2 glitch: fires the one-shot glitch overlay when the phase changes 39ms
+     × MEDIUM-3: the streaming feed promotes the live-phase line to the front 25ms
+     × MEDIUM-3: streaming lines change between two phases (not a static set) 22ms
+     × MEDIUM-3: under reduced motion the streaming feed keeps its natural order (no promotion) 12ms
+
+[90m[vite-ssg][39m [33mBuild for client...[39m
+vite v5.4.21 building for test...
+transforming...
+✓ 54 modules transformed.
+x Build failed in 1.13s
+[vite]: Rollup failed to resolve import "@/composables/useLanguage" from "/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/components/AboutAmbient.vue".
+This is most likely unintended because it can break your application at runtime.
+If you do want to externalize this module explicitly add it to
+`build.rollupOptions.external`
+    at viteWarn (file:///Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:65855:17)
+    at onRollupWarning (file:///Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:65887:5)
+    at onwarn (file:///Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:65550:7)
+    at file:///Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/rollup/dist/es/shared/node-entry.js:21452:13
+    at Object.logger [as onLog] (file:///Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/rollup/dist/es/shared/node-entry.js:23424:9)
+    at ModuleLoader.handleInvalidResolvedId (file:///Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/rollup/dist/es/shared/node-entry.js:22169:26)
+    at file:///Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/rollup/dist/es/shared/node-entry.js:22127:26 {
+  watchFiles: [
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/index.html',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/main.js',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/package.json',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/pinia/dist/pinia.mjs',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/@vueuse/head/dist/index.mjs',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/assets/styles/main.css',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/styles/accessibility.css',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/assets/styles/fonts.css',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/assets/styles/variables.css',
