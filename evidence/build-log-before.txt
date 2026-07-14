@@ -1,0 +1,87 @@
+
+> ktech-ai-cyber-web@1.0.0 build
+> node scripts/348-build-ssg.mjs
+
+
+[90m[vite-ssg][39m [33mBuild for client...[39m
+vite v5.4.21 building for production...
+transforming...
+✓ 97 modules transformed.
+x Build failed in 887ms
+[vite]: Rollup failed to resolve import "@/composables/useLanguage" from "/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/components/AboutAmbient.vue".
+This is most likely unintended because it can break your application at runtime.
+If you do want to externalize this module explicitly add it to
+`build.rollupOptions.external`
+    at viteWarn (file:///Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:65855:17)
+    at onRollupWarning (file:///Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:65887:5)
+    at onwarn (file:///Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:65550:7)
+    at file:///Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/rollup/dist/es/shared/node-entry.js:21452:13
+    at Object.logger [as onLog] (file:///Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/rollup/dist/es/shared/node-entry.js:23424:9)
+    at ModuleLoader.handleInvalidResolvedId (file:///Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/rollup/dist/es/shared/node-entry.js:22169:26)
+    at file:///Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/rollup/dist/es/shared/node-entry.js:22127:26 {
+  watchFiles: [
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/index.html',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/main.js',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/package.json',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/pinia/dist/pinia.mjs',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/@vueuse/head/dist/index.mjs',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/vite-ssg/dist/index.mjs',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/assets/styles/variables.css',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/assets/styles/fonts.css',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/styles/accessibility.css',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/assets/styles/main.css',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/App.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/views/Home.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/assets/styles/cyber.css',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/views/News.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/views/About.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/views/SupplyChainFinance.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/views/ServiceProjectManagement.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/views/Blockchain.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/views/NewsDetail.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/views/ServiceRetailLending.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/views/ServiceDigitalAssetCustody.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/views/ServiceBigData.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/views/ServiceCrossBorderPayment.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/views/Contact.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/views/JoinUs.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/views/ServiceStablecoin.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/views/PositionList.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/views/PrivacyPolicy.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/views/Terms.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/components/NeonPulse.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/views/NotFound.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/@unhead/vue/dist/polyfill.mjs',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/@unhead/vue/dist/index.mjs',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/@unhead/ssr/dist/index.mjs',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/@unhead/vue/dist/components.mjs',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/vue/dist/vue.runtime.esm-bundler.js',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/vue-router/dist/vue-router.mjs',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/utils/seo.js',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/i18n/index.js',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/components/SkipLink.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/components/LanguageSwitcher.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/components/Header.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/composables/useParallax.js',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/composables/useLanguage.js',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/components/LazySection.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/components/NeuralCore.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/components/SolutionForge.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/components/AsyncLoadError.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/components/CyberOpsHud.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/components/SettlementStream.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/components/NeuralTerminal.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/components/SelfDrivingDemo.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/data/news.json',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/components/NewsFilter.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/components/NewsList.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/components/CyberImage.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/components/AboutAmbient.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/components/icons/AboutIcon.vue',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/config/contact.js',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/data/positions.json',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/.worktrees/ticket-366/KTechAICyberWeb/src/composables/useAudioPulse.js',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/vite-ssg/dist/shared/vite-ssg.ETIvV-80.mjs',
+    '/Users/jinbo/Documents/AIProject/AutoDevAgent/DevAgent/projects/kttech-cyber/KTechAICyberWeb/node_modules/vite-ssg/node_modules/@unhead/vue/dist/client.mjs'
+  ]
+}
