@@ -33,8 +33,8 @@
       <div class="overview-grid">
         <div class="overview-card" v-for="(item, index) in overviewCards" :key="index">
           <div class="card-icon" :aria-hidden="true">{{ item.icon }}</div>
-          <h3>{{ item.title }}</h3>
-          <p>{{ item.description }}</p>
+          <h3>{{ t(item.titleKey) }}</h3>
+          <p>{{ t(item.descKey) }}</p>
         </div>
       </div>
     </section>
@@ -46,8 +46,8 @@
         <div class="feature-item" v-for="(feature, index) in features" :key="index">
           <div class="feature-number" :aria-hidden="true">{{ String(index + 1).padStart(2, '0') }}</div>
           <div class="feature-content">
-            <h3>{{ feature.title }}</h3>
-            <p>{{ feature.description }}</p>
+            <h3>{{ t(feature.titleKey) }}</h3>
+            <p>{{ t(feature.descKey) }}</p>
           </div>
         </div>
       </div>
@@ -58,9 +58,9 @@
       <h2 class="section-title">{{ t('mobileApp.benefits.title') }}</h2>
       <p class="section-description">{{ t('mobileApp.benefits.description') }}</p>
       <div class="benefits-list">
-        <div class="benefit-item" v-for="(benefit, index) in benefits" :key="index">
+        <div class="benefit-item" v-for="(benefitKey, index) in benefits" :key="index">
           <div class="benefit-check" aria-hidden="true">✓</div>
-          <span>{{ benefit }}</span>
+          <span>{{ t(benefitKey) }}</span>
         </div>
       </div>
     </section>
@@ -105,55 +105,55 @@ const { t } = useLanguage()
 const overviewCards = [
   {
     icon: '📱',
-    title: t('mobileApp.overview.card1Title'),
-    description: t('mobileApp.overview.card1Desc')
+    titleKey: 'mobileApp.overview.card1Title',
+    descKey: 'mobileApp.overview.card1Desc'
   },
   {
     icon: '🔒',
-    title: t('mobileApp.overview.card2Title'),
-    description: t('mobileApp.overview.card2Desc')
+    titleKey: 'mobileApp.overview.card2Title',
+    descKey: 'mobileApp.overview.card2Desc'
   },
   {
     icon: '⚡',
-    title: t('mobileApp.overview.card3Title'),
-    description: t('mobileApp.overview.card3Desc')
+    titleKey: 'mobileApp.overview.card3Title',
+    descKey: 'mobileApp.overview.card3Desc'
   }
 ]
 
 const features = [
   {
-    title: t('mobileApp.features.feature1Title'),
-    description: t('mobileApp.features.feature1Desc')
+    titleKey: 'mobileApp.features.feature1Title',
+    descKey: 'mobileApp.features.feature1Desc'
   },
   {
-    title: t('mobileApp.features.feature2Title'),
-    description: t('mobileApp.features.feature2Desc')
+    titleKey: 'mobileApp.features.feature2Title',
+    descKey: 'mobileApp.features.feature2Desc'
   },
   {
-    title: t('mobileApp.features.feature3Title'),
-    description: t('mobileApp.features.feature3Desc')
+    titleKey: 'mobileApp.features.feature3Title',
+    descKey: 'mobileApp.features.feature3Desc'
   },
   {
-    title: t('mobileApp.features.feature4Title'),
-    description: t('mobileApp.features.feature4Desc')
+    titleKey: 'mobileApp.features.feature4Title',
+    descKey: 'mobileApp.features.feature4Desc'
   },
   {
-    title: t('mobileApp.features.feature5Title'),
-    description: t('mobileApp.features.feature5Desc')
+    titleKey: 'mobileApp.features.feature5Title',
+    descKey: 'mobileApp.features.feature5Desc'
   },
   {
-    title: t('mobileApp.features.feature6Title'),
-    description: t('mobileApp.features.feature6Desc')
+    titleKey: 'mobileApp.features.feature6Title',
+    descKey: 'mobileApp.features.feature6Desc'
   }
 ]
 
 const benefits = [
-  t('mobileApp.benefits.benefit1'),
-  t('mobileApp.benefits.benefit2'),
-  t('mobileApp.benefits.benefit3'),
-  t('mobileApp.benefits.benefit4'),
-  t('mobileApp.benefits.benefit5'),
-  t('mobileApp.benefits.benefit6')
+  'mobileApp.benefits.benefit1',
+  'mobileApp.benefits.benefit2',
+  'mobileApp.benefits.benefit3',
+  'mobileApp.benefits.benefit4',
+  'mobileApp.benefits.benefit5',
+  'mobileApp.benefits.benefit6'
 ]
 
 const handleCTA = () => {
