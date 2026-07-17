@@ -45,6 +45,12 @@
         <router-link to="/news" @click="closeMobile">{{ t('nav.news') }}</router-link>
       </li>
       <li>
+        <router-link to="/mobile" @click="closeMobile">{{ t('nav.mobileApp') }}</router-link>
+      </li>
+      <li>
+        <router-link to="/blockchain" @click="closeMobile">{{ t('nav.blockchain') }}</router-link>
+      </li>
+      <li>
         <NavigationDropdown
           :label="t('nav.ourSolutions')"
           :groups="solutionsGroups"
