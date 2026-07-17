@@ -70,7 +70,10 @@ test.describe('Blockchain page (AC #368)', () => {
 
       const pageSubtitle = page.locator('.page-subtitle')
       await expect(pageSubtitle).toBeVisible()
-      expect(await pageSubtitle.textContent()?.length).toBeGreaterThan(0)
+      await page.waitForTimeout(100)
+      const subtitleText = await pageSubtitle.textContent()
+      expect(subtitleText).toBeTruthy()
+      expect(subtitleText?.length).toBeGreaterThan(0)
     })
 
     test('overview section renders with card', async ({ page }) => {
@@ -159,8 +162,10 @@ test.describe('Blockchain page (AC #368)', () => {
 
       const ctaButton = page.locator('.cyber-button')
       await expect(ctaButton).toBeVisible()
-      expect(await ctaButton.textContent()).toBeTruthy()
-      expect(await ctaButton.textContent()?.length).toBeGreaterThan(0)
+      await page.waitForTimeout(100)
+      const buttonText = await ctaButton.textContent()
+      expect(buttonText).toBeTruthy()
+      expect(buttonText?.length).toBeGreaterThan(0)
     })
 
     test('CTA button has proper ARIA label', async ({ page }) => {
@@ -271,7 +276,10 @@ test.describe('Blockchain page i18n (AC #368)', () => {
 
     const pageSubtitle = page.locator('.page-subtitle')
     await expect(pageSubtitle).toBeVisible()
-    expect(await pageSubtitle.textContent()?.length).toBeGreaterThan(0)
+    await page.waitForTimeout(100)
+    const subtitleText = await pageSubtitle.textContent()
+    expect(subtitleText).toBeTruthy()
+    expect(subtitleText?.length).toBeGreaterThan(0)
   })
 
   test('Chinese language renders correctly', async ({ page }) => {
@@ -298,7 +306,10 @@ test.describe('Blockchain page i18n (AC #368)', () => {
 
     const pageSubtitle = page.locator('.page-subtitle')
     await expect(pageSubtitle).toBeVisible()
-    expect(await pageSubtitle.textContent()?.length).toBeGreaterThan(0)
+    await page.waitForTimeout(100)
+    const subtitleText = await pageSubtitle.textContent()
+    expect(subtitleText).toBeTruthy()
+    expect(subtitleText?.length).toBeGreaterThan(0)
   })
 
   test('i18n toggle works on the page itself', async ({ page }) => {

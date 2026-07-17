@@ -54,7 +54,11 @@ test.describe('Mobile App page (AC #368)', () => {
 
       const heroSubtitle = page.locator('.hero-subtitle')
       await expect(heroSubtitle).toBeVisible()
-      expect(await heroSubtitle.textContent()?.length).toBeGreaterThan(0)
+      // Wait for text content to be rendered (client-side hydration)
+      await page.waitForTimeout(100)
+      const subtitleText = await heroSubtitle.textContent()
+      expect(subtitleText).toBeTruthy()
+      expect(subtitleText?.length).toBeGreaterThan(0)
 
       const tags = page.locator('.hero-tags .tag')
       await expect(tags.first()).toBeVisible()
@@ -110,8 +114,10 @@ test.describe('Mobile App page (AC #368)', () => {
 
       const ctaButton = page.locator('.cta-button')
       await expect(ctaButton).toBeVisible()
-      expect(await ctaButton.textContent()).toBeTruthy()
-      expect(await ctaButton.textContent()?.length).toBeGreaterThan(0)
+      await page.waitForTimeout(100)
+      const buttonText = await ctaButton.textContent()
+      expect(buttonText).toBeTruthy()
+      expect(buttonText?.length).toBeGreaterThan(0)
     })
 
     test('related services section renders with 3 cards', async ({ page }) => {
@@ -248,7 +254,10 @@ test.describe('Mobile App page i18n (AC #368)', () => {
 
     const heroSubtitle = page.locator('.hero-subtitle')
     await expect(heroSubtitle).toBeVisible()
-    expect(await heroSubtitle.textContent()?.length).toBeGreaterThan(0)
+    await page.waitForTimeout(100)
+    const subtitleText = await heroSubtitle.textContent()
+    expect(subtitleText).toBeTruthy()
+    expect(subtitleText?.length).toBeGreaterThan(0)
   })
 
   test('Chinese language renders correctly', async ({ page }) => {
@@ -275,7 +284,10 @@ test.describe('Mobile App page i18n (AC #368)', () => {
 
     const heroSubtitle = page.locator('.hero-subtitle')
     await expect(heroSubtitle).toBeVisible()
-    expect(await heroSubtitle.textContent()?.length).toBeGreaterThan(0)
+    await page.waitForTimeout(100)
+    const subtitleText = await heroSubtitle.textContent()
+    expect(subtitleText).toBeTruthy()
+    expect(subtitleText?.length).toBeGreaterThan(0)
   })
 
   test('i18n toggle works on the page itself', async ({ page }) => {
