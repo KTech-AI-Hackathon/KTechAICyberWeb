@@ -64,6 +64,11 @@
         </p>
       </section>
 
+      <!-- Ambient Animation Section -->
+      <section class="rl__animation" aria-label="Retail Lending Process Animation">
+        <AmbientServiceFlow service-type="retail-lending" />
+      </section>
+
       <!-- Core Features Section -->
       <section
         class="rl__core-features"
@@ -332,6 +337,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useLanguage } from '../composables/useLanguage'
+import AmbientServiceFlow from '../components/AmbientServiceFlow.vue'
 
 const { t } = useLanguage()
 

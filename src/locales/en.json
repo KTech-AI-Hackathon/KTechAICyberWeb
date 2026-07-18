@@ -1844,5 +1844,15 @@
   "ambient": {
     "aboutAriaLabel": "Company pulse ambient animation showing data flow from vision to mission to culture",
     "servicesAriaLabel": "Service flow ambient animation cycling through five KTech services"
+  },
+  "services": {
+    "animation": {
+      "ariaLabel": "Service animation showing {service} data flow and process visualization",
+      "status": {
+        "playing": "Animation playing",
+        "paused": "Animation paused",
+        "static": "Static mode"
+      }
+    }
   }
 }

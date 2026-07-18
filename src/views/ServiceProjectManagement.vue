@@ -25,6 +25,13 @@
       </div>
     </section>
 
+    <!-- Ambient Animation Section -->
+    <section class="section animation" aria-label="Project Management Animation">
+      <div class="container">
+        <AmbientServiceFlow service-type="project-management" />
+      </div>
+    </section>
+
     <!-- Capabilities Section -->
     <section class="section capabilities">
       <div class="container">
@@ -98,6 +105,7 @@
 
 <script setup>
 import { useLanguage } from '../composables/useLanguage'
+import AmbientServiceFlow from '../components/AmbientServiceFlow.vue'
 
 const { t } = useLanguage()
 

@@ -58,6 +58,11 @@
         </p>
       </section>
 
+      <!-- Ambient Animation Section -->
+      <section class="dac__animation" aria-label="Digital Asset Custody Animation">
+        <AmbientServiceFlow service-type="digital-asset-custody" />
+      </section>
+
       <section class="dac__capabilities" aria-labelledby="dac-capabilities-heading">
         <h2 id="dac-capabilities-heading" class="dac__section-title">
           {{ t('services.digitalAssetCustody.capabilities.heading') }}
@@ -220,6 +225,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useLanguage } from '../composables/useLanguage'
+import AmbientServiceFlow from '../components/AmbientServiceFlow.vue'
 
 const { t } = useLanguage()
 
