@@ -191,6 +191,7 @@ const nearStyle = computed(() => depthStyle(34))
     :class="{ static: isStatic }"
     data-selfdriving-root="true"
     :data-current-agent="activeAgentId"
+    :data-current-phase="activeAgentId"
     :data-loop-iteration="loopIteration"
     :data-static="isStatic ? 'true' : 'false'"
     :aria-label="t('selfDriving.aria.regionLabel6Agent')"
