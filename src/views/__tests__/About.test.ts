@@ -719,15 +719,13 @@ describe('About.vue', () => {
     })
 
     it('renders a culture image with localized alt', () => {
+      // Issue #383: The culture-icon.png image has been removed from the page.
+      // This test now verifies the image is NOT present.
       const cultureImg = wrapper.find('figure.cyber-image img[alt*="culture" i], .vision-mission figure.cyber-image img')
-      // The culture figure lives in the vision-mission section.
       const cultureFig = wrapper.find('.vision-mission figure.cyber-image')
-      expect(cultureFig.exists()).toBe(true)
-      const alt = cultureFig.find('img').attributes('alt') || ''
-      expect(alt.length).toBeGreaterThan(0)
-      expect(alt).not.toMatch(/^about\./)
-      // touch cultureImg var to satisfy no-unused-var without breaking logic
-      expect(cultureImg.exists()).toBe(true)
+      // The culture figure should NOT exist after removal
+      expect(cultureFig.exists()).toBe(false)
+      expect(cultureImg.exists()).toBe(false)
     })
 
     it('never leaks a raw about.* placeholder key into any img alt (regression guard)', () => {

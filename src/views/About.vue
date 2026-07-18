@@ -257,14 +257,6 @@
             <h4>{{ t('about.culture.professional') }}</h4>
           </div>
         </div>
-
-        <!-- Culture image (AC #165) -->
-        <figure class="culture-feature">
-          <CyberImage
-            src="/images/about/culture-icon.png"
-            :alt="t('about.culture.imageAlt')"
-          />
-        </figure>
       </div>
     </section>
 
@@ -853,16 +845,6 @@ const { enabled } = useParallax({
   aspect-ratio: 500 / 440;
 }
 
-.culture-feature {
-  margin: 3rem auto 0;
-  max-width: 360px;
-  width: 100%;
-}
-
-.culture-feature :deep(.cyber-image) {
-  width: 100%;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .awards-strip {
@@ -873,10 +855,6 @@ const { enabled } = useParallax({
   .about-hero__figure,
   .who-we-are__feature {
     max-width: 100%;
-  }
-
-  .culture-feature {
-    max-width: 240px;
   }
 }
 
