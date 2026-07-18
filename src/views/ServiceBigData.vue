@@ -64,6 +64,11 @@
         </p>
       </section>
 
+      <!-- Ambient Animation Section -->
+      <section class="bd__animation" aria-label="Big Data AI Process Animation">
+        <AmbientServiceFlow service-type="big-data-ai" />
+      </section>
+
       <!-- AI Capabilities Section -->
       <section
         class="bd__ai-capabilities"
@@ -342,6 +347,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useLanguage } from '../composables/useLanguage'
+import AmbientServiceFlow from '../components/AmbientServiceFlow.vue'
 
 const { t } = useLanguage()
 

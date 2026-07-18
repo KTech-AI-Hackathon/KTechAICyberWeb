@@ -58,6 +58,11 @@
         </p>
       </section>
 
+      <!-- Ambient Animation Section -->
+      <section class="sc__animation" aria-label="Stablecoin Animation">
+        <AmbientServiceFlow service-type="stablecoin" />
+      </section>
+
       <section class="sc__capabilities" aria-labelledby="sc-capabilities-heading">
         <h2 id="sc-capabilities-heading" class="sc__section-title">
           {{ t('services.stablecoin.capabilities.heading') }}
@@ -220,6 +225,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useLanguage } from '../composables/useLanguage'
+import AmbientServiceFlow from '../components/AmbientServiceFlow.vue'
 
 const { t } = useLanguage()
 

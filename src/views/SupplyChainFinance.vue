@@ -41,6 +41,11 @@
       </p>
     </section>
 
+    <!-- Ambient Animation Section -->
+    <section class="scf__animation" aria-label="Supply Chain Finance Process Animation">
+      <AmbientServiceFlow service-type="supply-chain-finance" />
+    </section>
+
     <!-- Features Section -->
     <section class="scf__features" aria-labelledby="features-heading">
       <h2 id="features-heading" class="scf__section-title">
@@ -221,6 +226,7 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useLanguage } from '../composables/useLanguage'
+import AmbientServiceFlow from '../components/AmbientServiceFlow.vue'
 
 const { t } = useLanguage()
 

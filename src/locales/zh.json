@@ -1844,5 +1844,15 @@
   "ambient": {
     "aboutAriaLabel": "公司脉搏环境动画，展示从愿景到使命到文化的数据流",
     "servicesAriaLabel": "服务流程环境动画，循环展示五项 KTech 服务"
+  },
+  "services": {
+    "animation": {
+      "ariaLabel": "服务动画展示{service}数据流和流程可视化",
+      "status": {
+        "playing": "动画播放中",
+        "paused": "动画已暂停",
+        "static": "静态模式"
+      }
+    }
   }
 }

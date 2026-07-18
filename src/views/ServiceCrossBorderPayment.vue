@@ -64,6 +64,11 @@
         </p>
       </section>
 
+      <!-- Ambient Animation Section -->
+      <section class="cbp__animation" aria-label="Cross-Border Payment Animation">
+        <AmbientServiceFlow service-type="cross-border-payment" />
+      </section>
+
       <!-- Capabilities Section -->
       <section class="cbp__capabilities" aria-labelledby="cbp-capabilities-heading">
         <h2 id="cbp-capabilities-heading" class="cbp__section-title">
@@ -229,6 +234,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useLanguage } from '../composables/useLanguage'
+import AmbientServiceFlow from '../components/AmbientServiceFlow.vue'
 
 const { t } = useLanguage()
 
