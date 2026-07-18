@@ -107,7 +107,7 @@ describe('ContactNetwork.vue', () => {
   })
 
   describe('Node Generation', () => {
-    it('should generate 15 nodes for desktop viewport (>=768px)', () => {
+    it('should generate 15 nodes for desktop viewport (>=768px)', async () => {
       // Mock desktop viewport
       global.innerWidth = 1920
 
@@ -119,7 +119,7 @@ describe('ContactNetwork.vue', () => {
       expect(canvas.exists()).toBe(true)
     })
 
-    it('should generate 8 nodes for mobile viewport (<768px)', () => {
+    it('should generate 8 nodes for mobile viewport (<768px)', async () => {
       // Mock mobile viewport
       global.innerWidth = 375
 
