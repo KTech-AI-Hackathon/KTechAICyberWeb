@@ -1,5 +1,7 @@
 <template>
   <div class="contact">
+    <!-- Ambient Network Background -->
+    <ContactNetwork />
     <!-- Hero Section -->
     <section class="contact-hero">
       <h1 class="page-title">{{ t('contact.title') }} <span class="accent">{{ t('contact.titleAccent') }}</span></h1>
@@ -297,6 +299,7 @@
  */
 
 import { ref, reactive } from 'vue'
+import ContactNetwork from '../components/ContactNetwork.vue'
 import { useLanguage } from '../composables/useLanguage'
 import { contactConfig } from '../config/contact'
 
