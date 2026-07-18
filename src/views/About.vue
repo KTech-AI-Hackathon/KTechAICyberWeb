@@ -417,6 +417,20 @@ const { enabled } = useParallax({
   scroll-margin-top: 6rem;
 }
 
+/* Ambient Section (#361 company pulse animation) */
+.ambient-section {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  margin: 2rem auto;
+  max-width: 1200px;
+  /* Ensure ambient animation has proper spacing from self-driving section */
+  clear: both;
+  /* Reserve the section's min-height to prevent collapse and overlap with sections below.
+     Matches AboutAmbient.vue's .about-ambient height (600px) with extra margin space. */
+  min-height: 620px;
+}
+
 /* Hero Section */
 .about-hero {
   min-height: 50vh;
