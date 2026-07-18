@@ -481,6 +481,8 @@ h1 {
   contain: layout;
   /* #376: Position relative for pseudo-element background layers */
   overflow: hidden;
+  /* #376: Enable 3D transforms on child cards */
+  perspective: 1000px;
 }
 
 /* #376: Network/circuit background animation layers (AC1, AC4) */
@@ -565,7 +567,7 @@ h1 {
 
 /* #376: Enhanced 3D card hover effects (AC2) */
 .solution-card.cyber-card:hover {
-  transform: translateY(-12px) rotateX(5deg) scale(1.02);
+  transform: translateY(-12px) rotateX(5deg) scale(1.02) !important;
   box-shadow:
     0 0 20px var(--accent-cyan-alpha-30),
     0 0 40px var(--accent-cyan-alpha-20),
