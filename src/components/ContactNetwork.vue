@@ -17,8 +17,8 @@
         :key="index"
         class="static-node"
         :style="{
-          left: \`${node.x}%\`,
-          top: \`${node.y}%\`
+          left: `${node.x}%`,
+          top: `${node.y}%`
         }"
       />
     </div>
@@ -215,7 +215,7 @@ function drawNodes() {
     ctx.value.save()
     ctx.value.shadowColor = '#00ffcc'
     ctx.value.shadowBlur = 15
-    ctx.value.fillStyle = \`rgba(0, 255, 204, \${opacity})\`
+    ctx.value.fillStyle = `rgba(0, 255, 204, \${opacity})`
     ctx.value.beginPath()
     ctx.value.arc(node.x, node.y, node.radius, 0, Math.PI * 2)
     ctx.value.fill()
@@ -243,7 +243,7 @@ function drawDataFlow() {
     ctx.value.save()
     ctx.value.shadowColor = '#ff00aa'
     ctx.value.shadowBlur = 8
-    ctx.value.fillStyle = \`rgba(255, 0, 170, \${particle.opacity})\`
+    ctx.value.fillStyle = `rgba(255, 0, 170, \${particle.opacity})`
     ctx.value.beginPath()
     ctx.value.arc(x, y, 1.5, 0, Math.PI * 2)
     ctx.value.fill()
