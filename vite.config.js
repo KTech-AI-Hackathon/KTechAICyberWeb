@@ -77,6 +77,9 @@ export default defineConfig({
   server: {
     port: 3000
   },
+  resolve: {
+    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) }
+  },
   // #348 SSG build-time options. vite-ssg's CLI (`vite-ssg build`) reads this
   // block to control which routes get pre-rendered and how the per-route HTML
   // lands on disk. The client entry (src/main.js) is unaffected — it just
