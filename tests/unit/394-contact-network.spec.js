@@ -29,9 +29,9 @@ vi.mock('@/composables/useAmbientAnimation', () => ({
   }))
 }))
 
-// Mock vue-i18n
-vi.mock('vue-i18n', () => ({
-  useI18n: () => ({
+// Mock useLanguage
+vi.mock('@/composables/useLanguage', () => ({
+  useLanguage: () => ({
     t: (key) => key
   })
 }))
