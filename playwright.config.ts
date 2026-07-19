@@ -11,8 +11,6 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   // Test directory
   testDir: './tests/e2e',
-  // #374: temporarily ignore 253-perf-fps.spec.ts (flaky FPS gate tracking #381)
-  testIgnore: ['**/253-perf-fps.spec.ts'],
 
   // Run tests in parallel
   fullyParallel: true,
