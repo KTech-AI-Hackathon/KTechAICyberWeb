@@ -923,4 +923,142 @@ describe('About.vue', () => {
       })
     })
   })
+
+  // ============================================
+  // Layout Verification (AC #386) — verification tests for duplicate ticket #386
+  // confirming the #385 layout adjustments are working correctly.
+  // ============================================
+  describe('Layout Verification (AC #386)', () => {
+    const aboutSource = fs.readFileSync(
+      path.resolve(process.cwd(), 'src', 'views', 'About.vue'),
+      'utf-8',
+    )
+
+    it('who-we-are section has reduced padding-top (2rem = 32px, not 4rem = 64px)', () => {
+      // Source-level verification: the CSS rule exists with correct value
+      expect(aboutSource).toMatch(/\.who-we-are\s*\{[^}]*padding-top:\s*32px/)
+    })
+
+    it('who-we-are section has desktop-specific padding (line 431-432)', () => {
+      // Desktop rule at line 431-432
+      expect(aboutSource).toMatch(/\.who-we-are\s*\{[^}]*padding-top:\s*32px;[^}]*\}/s)
+    })
+
+    it('who-we-are section has tablet-specific padding (line 889)', () => {
+      // Tablet media query rule at line 889
+      expect(aboutSource).toMatch(/\.who-we-are\.section\s*\{[^}]*padding-top:\s*32px/)
+    })
+
+    it('who-we-are section has mobile-specific padding (line 907)', () => {
+      // Mobile media query rule at line 907
+      expect(aboutSource).toMatch(/\.section\.who-we-are\s*\{[^}]*padding-top:\s*24px/)
+    })
+
+    it('ambient-section maintains its min-height to prevent layout shift', () => {
+      // Verify the ambient section has min-height to prevent CLS (#335)
+      expect(aboutSource).toMatch(/\.ambient-section\s*\{[^}]*min-height:\s*620px/)
+    })
+
+    it('self-driving section maintains its min-height to prevent layout shift', () => {
+      // Verify the self-driving demo has min-height to prevent CLS (#335)
+      expect(aboutSource).toMatch(/\.self-driving-section\s*\{[^}]*min-height:\s*clamp\(280px,\s*38vh,\s*360px\)/)
+    })
+
+    it('other sections maintain default 4rem (64px) padding', () => {
+      // Verify the base .section rule still has default padding
+      expect(aboutSource).toMatch(/\.section\s*\{[^}]*padding:\s*4rem\s+5%/)
+    })
+
+    it('achievements section is not affected by the who-we-are padding change', () => {
+      // Verify .achievements section doesn't have custom padding-top override
+      // The achievements section uses the class .achievements within a .section parent
+      const achievementsSection = aboutSource.match(/class="[^"]*section[^"]*"[^>]*[\s\S]*?class="[^"]*achievements[^"]*"/)
+      expect(achievementsSection).not.toBeNull()
+
+      // Verify achievements doesn't have the specific padding-top adjustment
+      // by checking the CSS doesn't have a .achievements selector with padding-top: 32px or 24px
+      expect(aboutSource).not.toMatch(/\.achievements\s*\{[^}]*padding-top:\s*[23]2px/)
+    })
+
+    it('vision-mission section is not affected by the who-we-are padding change', () => {
+      // Verify .vision-mission doesn't have custom padding-top override
+      const visionBlock = aboutSource.match(/\.vision-mission\s*\{([^}]*)\}/)
+      expect(visionBlock).not.toBeNull()
+      expect(visionBlock![1]).not.toMatch(/padding-top:\s*[23]2px/)
+    })
+
+    it('service-provider section is not affected by the who-we-are padding change', () => {
+      // Verify .service-provider doesn't have custom padding-top override
+      const serviceProviderBlock = aboutSource.match(/\.service-provider\s*\{([^}]*)\}/)
+      expect(serviceProviderBlock).not.toBeNull()
+      expect(serviceProviderBlock![1]).not.toMatch(/padding-top:\s*[23]2px/)
+    })
+
+    it('stats-section is not affected by the who-we-are padding change', () => {
+      // Verify .stats-section doesn't have custom padding-top override
+      const statsBlock = aboutSource.match(/\.stats-section\s*\{([^}]*)\}/)
+      expect(statsBlock).not.toBeNull()
+      expect(statsBlock![1]).not.toMatch(/padding-top:\s*[23]2px/)
+    })
+
+    it('who-we-are section maintains correct structure and classes', () => {
+      // DOM structure verification
+      expect(wrapper.find('.who-we-are').exists()).toBe(true)
+      expect(wrapper.find('.who-we-are.section').exists()).toBe(true)
+      expect(wrapper.find('.who-we-are .section-title').exists()).toBe(true)
+    })
+
+    it('who-we-are section content cards are properly rendered', () => {
+      // Verify all content cards are present and structured correctly
+      const contentCards = wrapper.findAll('.who-we-are .content-card')
+      expect(contentCards).toHaveLength(5)
+
+      // Verify each card has the correct structure
+      contentCards.forEach((card) => {
+        expect(card.find('.card-icon').exists()).toBe(true)
+        expect(card.find('h3').exists()).toBe(true)
+        expect(card.find('p').exists()).toBe(true)
+      })
+    })
+
+    it('ambient-section and who-we-are sections are both present in DOM', () => {
+      // Verify both sections exist for layout continuity
+      expect(wrapper.find('.ambient-section').exists()).toBe(true)
+      expect(wrapper.find('.who-we-are').exists()).toBe(true)
+    })
+
+    it('comment explains the #385 layout adjustment context', () => {
+      // Verify source has proper documentation of the change
+      expect(aboutSource).toContain('#385')
+      expect(aboutSource).toContain('Reduce who-we-are top padding')
+      expect(aboutSource).toContain('fill the post-#383 white space')
+    })
+
+    it('layout adjustment maintains responsive behavior across breakpoints', () => {
+      // Verify responsive CSS rules are present for all breakpoints
+      // Mobile (480px)
+      expect(aboutSource).toMatch(/@media\s*\(max-width:\s*480px\)/)
+      // Tablet (768px)
+      expect(aboutSource).toMatch(/@media\s*\(max-width:\s*768px\)/)
+
+      // Verify mobile-specific rule for who-we-are
+      expect(aboutSource).toMatch(/@media\s*\(max-width:\s*480px\)[\s\S]*\.section\.who-we-are/)
+    })
+
+    it('hero image aspect-ratio is preserved to prevent CLS', () => {
+      // Verify hero image has aspect-ratio reserve (#335)
+      expect(aboutSource).toMatch(/\.about-hero__figure[^{]*\{[^}]*aspect-ratio:\s*800\s*\/\s*480/)
+    })
+
+    it('who-we-are feature image aspect-ratio is preserved to prevent CLS', () => {
+      // Verify who-we-are feature image has aspect-ratio reserve (#335)
+      expect(aboutSource).toMatch(/\.who-we-are__feature[^{]*\{[^}]*aspect-ratio:\s*800\s*\/\s*480/)
+    })
+
+    it('awards strip images have aspect-ratio to prevent CLS', () => {
+      // Verify awards strip images have aspect-ratio reserve (#335)
+      // The actual CSS uses .awards-strip .award-item, :deep(.award-item) pattern
+      expect(aboutSource).toMatch(/\.awards-strip[^}]*\.award-item[^}]*aspect-ratio:\s*500\s*\/\s*440/s)
+    })
+  })
 })
