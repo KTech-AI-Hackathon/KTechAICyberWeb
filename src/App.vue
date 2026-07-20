@@ -57,6 +57,7 @@ import { useRoute } from 'vue-router'
 import { useHead } from '@vueuse/head'
 import { getRouteMeta, getStructuredData } from './utils/seo'
 import { useLanguage, initLanguage } from './i18n'
+import { initSmoothScroll } from './utils/scroll'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
 import SkipLink from './components/SkipLink.vue'
 import Header from './components/Header.vue'
@@ -96,6 +97,8 @@ export default {
       // import so no cards rendered. Removing the dead call lets the page
       // finish loading.)
       initLanguage()
+      // #434: Initialize smooth scroll for anchor links
+      initSmoothScroll()
     })
 
     const { t, currentLanguage } = useLanguage()
