@@ -167,9 +167,12 @@ export function useAutoDemoLoop() {
   const isOffscreen = ref(false)
 
   function applyThrottleFromConditions() {
-    // Offscreen OR heavy load -> 'half'. Tab-hidden is handled separately
-    // (it cancels rAF entirely). If neither, 'full'.
-    if (isOffscreen.value || heavyFrames >= HEAVY_LOAD_CONSECUTIVE) {
+    // Offscreen -> 'paused' (cancel rAF completely, Issue #382 fix).
+    // Heavy load -> 'half'. Tab-hidden is handled separately (it cancels rAF
+    // entirely via pause()). If neither, 'full'.
+    if (isOffscreen.value) {
+      throttleLevel.value = 'paused'
+    } else if (heavyFrames >= HEAVY_LOAD_CONSECUTIVE) {
       throttleLevel.value = 'half'
     } else {
       throttleLevel.value = 'full'
@@ -186,8 +189,8 @@ export function useAutoDemoLoop() {
 
   function onFrame(timestamp) {
     // Re-entrancy: if the loop was paused/cancelled between scheduling and
-    // firing (e.g. tab hidden), bail without rescheduling.
-    if (!isActive.value || isStatic.value) {
+    // firing (e.g. tab hidden OR offscreen), bail without rescheduling.
+    if (!isActive.value || isStatic.value || throttleLevel.value === 'paused') {
       rafHandle = null
       return
     }
@@ -296,9 +299,16 @@ export function useAutoDemoLoop() {
       // Any entry not intersecting => consider the demo offscreen.
       const anyOff = entries.some((e) => !e.isIntersecting)
       const anyOn = entries.some((e) => e.isIntersecting)
+      const wasOffscreen = isOffscreen.value
       if (anyOff && !anyOn) isOffscreen.value = true
       else if (anyOn) isOffscreen.value = false
+
       applyThrottleFromConditions()
+
+      // Issue #382: resume rAF when coming back onscreen (if not static)
+      if (wasOffscreen && !isOffscreen.value && !isStatic.value && isActive.value) {
+        scheduleFrame()
+      }
     })
   }
 
