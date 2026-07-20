@@ -18,6 +18,9 @@
       <!-- Contact Form Section -->
       <section class="contact-form-section">
         <h2 class="section-title">{{ t('contact.form.title') }}</h2>
+        <div class="demo-badge" role="note" :aria-label="t('contact.form.demoBadge')">
+          {{ t('contact.form.demoBadge') }}
+        </div>
 
         <form @submit.prevent="handleSubmit" class="contact-form" novalidate>
           <!-- Name Field -->
@@ -195,6 +198,11 @@
             <span v-if="errors.privacy" id="privacy-error" class="error-message" role="alert">
               {{ t('contact.form.validation.privacyRequired') }}
             </span>
+          </div>
+
+          <!-- Demo Disclaimer -->
+          <div class="demo-disclaimer" role="note">
+            {{ t('contact.form.demoDisclaimer') }}
           </div>
 
           <!-- Submit Button -->
@@ -730,6 +738,36 @@ select.form-input option {
   color: var(--status-warning);
   background: rgba(255, 204, 0, 0.1);
   border: 1px solid rgba(255, 204, 0, 0.3);
+}
+
+/* Demo Badge - AC1+AC7: Clear visual indicator with cyberpunk styling */
+.demo-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--status-warning);
+  background: rgba(255, 204, 0, 0.15);
+  border: 1px solid rgba(255, 204, 0, 0.4);
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-left: 1rem;
+  text-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
+}
+
+/* Demo Disclaimer - AC2: Clear message before submit button */
+.demo-disclaimer {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--status-warning);
+  background: rgba(255, 204, 0, 0.08);
+  border: 1px solid rgba(255, 204, 0, 0.25);
+  border-radius: var(--radius-md);
+  line-height: 1.5;
 }
 
 /* Company Info Section */
