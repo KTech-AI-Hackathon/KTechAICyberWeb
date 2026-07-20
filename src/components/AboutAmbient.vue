@@ -26,7 +26,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useLanguage } from '@/composables/useLanguage'
 import { useAmbientAnimation } from '@/composables/useAmbientAnimation'
 
@@ -150,7 +150,10 @@ function drawCanvas() {
 let lastFrameTime = null
 
 function animationLoop(now) {
-  if (!isPlaying.value) return
+  // Issue #382: Check isPaused at start and return early without canvas operations
+  if (isPaused.value || !isPlaying.value) {
+    return // Do NOT reschedule rAF when paused
+  }
 
   // Issue #404: Performance monitoring for RAF loop
   if (typeof performance !== 'undefined' && performance.mark) {
@@ -169,13 +172,23 @@ function animationLoop(now) {
     performance.measure('about-ambient-raf-duration', 'about-ambient-raf-start', 'about-ambient-raf-end')
   }
 
-  requestAnimationFrame(animationLoop)
+  // Only reschedule if still playing (Issue #382 fix)
+  if (!isPaused.value && isPlaying.value) {
+    requestAnimationFrame(animationLoop)
+  }
 }
 
 onMounted(() => {
   initParticles()
   startLoop()
   requestAnimationFrame(animationLoop)
+})
+
+// Issue #382: Restart animation loop when coming back onscreen
+watch(isPlaying, (playing) => {
+  if (playing) {
+    requestAnimationFrame(animationLoop)
+  }
 })
 
 onUnmounted(() => {
