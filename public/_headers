@@ -6,8 +6,7 @@
 # Restricts resources the browser can load, preventing XSS attacks
 # Includes SHA-256 hashes for 4 inline JSON-LD structured data scripts
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.github.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; report-uri /csp-report-endpoint/; report-to csp-report
-  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' 'sha256-g9v+MgaRF40zra76ggvvUuURa9K4sqXOzDWQP6cIHTs=' 'sha256-OzdMRKYQB69Gxupj5Dy77CxQS7dym21alwXiQMnxJP4=' 'sha256-y3ZUUnV07cpeGdMLa4RzXX/jPnQBSzlkmg/ZDyVsn40=' 'sha256-Gh+lmYwmvVugv7G0qUT8BFwlNquNb5kFHQdOjuVei2o='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.github.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; report-uri /csp-report-endpoint/
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-g9v+MgaRF40zra76ggvvUuURa9K4sqXOzDWQP6cIHTs=' 'sha256-OzdMRKYQB69Gxupj5Dy77CxQS7dym21alwXiQMnxJP4=' 'sha256-y3ZUUnV07cpeGdMLa4RzXX/jPnQBSzlkmg/ZDyVsn40=' 'sha256-Gh+lmYwmvVugv7G0qUT8BFwlNquNb5kFHQdOjuVei2o='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.github.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; block-all-mixed-content
 
 # 2. X-Frame-Options
 # Prevents clickjacking attacks by blocking site from being embedded in frames
