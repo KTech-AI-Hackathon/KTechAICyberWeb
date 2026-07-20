@@ -89,7 +89,7 @@ test.describe('#433 Hero Tagline - Mobile Fit Tests', () => {
         }
       }
     }
-  }
+  });
 });
 
 test.describe('#433 Hero Tagline - Breakpoint Tests', () => {
