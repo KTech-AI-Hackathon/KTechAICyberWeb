@@ -103,6 +103,9 @@ function calculateOpacity(index) {
 
 // Service particles - fewer on mobile
 function getServiceParticles(serviceIndex) {
+  // Issue #382: Don't calculate particles when offscreen
+  if (isPaused.value) return []
+
   // Only show particles for current/nearby services
   if (Math.abs(serviceIndex - currentServiceIndex.value) > 1) return []
 
@@ -110,10 +113,14 @@ function getServiceParticles(serviceIndex) {
   // Use adaptive particle count based on device
   const baseParticles = isMobile.value ? 2 : 5
 
+  // Issue #382: Replace Date.now() with reactive progress signal
+  // progress (0..1) advances over time, so we use it for animation timing
+  const timeOffset = progress.value * 1000 // Scale to reasonable range
+
   return Array.from({ length: baseParticles }, (_, i) => ({
     id: `${serviceIndex}-${i}`,
-    x: service.x + Math.sin(Date.now() * 0.001 + i) * 5,
-    y: service.y + Math.cos(Date.now() * 0.001 + i) * 5,
+    x: service.x + Math.sin(timeOffset + i) * 5,
+    y: service.y + Math.cos(timeOffset + i) * 5,
     opacity: 0.6
   }))
 }
