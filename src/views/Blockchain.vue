@@ -20,6 +20,9 @@
       </div>
     </section>
 
+    <!-- Ambient Blockchain Visualization -->
+    <BlockchainAmbient />
+
     <!-- Overview Section -->
     <section class="overview">
       <div class="content-wrapper">
@@ -97,6 +100,7 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useLanguage } from '../composables/useLanguage'
+import BlockchainAmbient from '../components/BlockchainAmbient.vue'
 
 const { t } = useLanguage()
 
